@@ -1,0 +1,11 @@
+# Dependency directories (The heavy stuff)
+node_modules/
+
+# Environment variables (The secret stuff)
+.env
+.env.local
+.env.*.local
+
+# Build folders
+dist/
+build/
