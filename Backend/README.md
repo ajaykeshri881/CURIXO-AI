@@ -54,6 +54,8 @@ Curixo Backend is a RESTful API that powers the Curixo AI Career Platform. It pr
 | **🎤 Mock Interview** | AI-generated interview reports with personalized feedback |
 | **⏱️ Rate Limiting** | Per-feature, per-user daily usage limits (DB-backed) |
 | **🔄 Session Management** | Logout from current device or all devices at once |
+| **🔑 AI Key Failover** | Supports multiple Gemini API keys with automatic round-robin rotation |
+| **🛡️ Global Error Handler** | Uniform JSON error responses for all error types (Mongoose, JWT, Zod, etc.) |
 
 ---
 
@@ -144,6 +146,7 @@ Backend/
     │   ├── csrf.middleware.js          # Double-submit CSRF cookie pattern
     │   ├── xss.middleware.js           # Sanitize request body/query/params
     │   ├── validate.middleware.js      # Zod schema validation
+    │   ├── error.middleware.js         # Global error handler (Mongoose, JWT, Zod, Multer)
     │   └── file.middleware.js          # Multer config (PDF only, 3MB limit)
     ├── models/
     │   ├── user.model.js              # User schema (name, email, password, tokenVersion)
@@ -159,7 +162,7 @@ Backend/
     │   └── resume.routes.js           # Resume endpoints
     ├── services/
     │   └── ai/
-    │       ├── google.js              # Gemini AI client setup (model config)
+    │       ├── google.js              # Gemini AI client + multi-key failover
     │       ├── interview.service.js   # Interview analysis logic
     │       ├── resume.service.js      # ATS analysis & improvement logic
     │       └── resume/
@@ -219,8 +222,8 @@ MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/curixo
 # ──── CORS ────
 CORS_ORIGIN=http://localhost:5173
 
-# ──── AI ────
-GOOGLE_GENAI_API_KEY=your_gemini_api_key
+# ──── AI (supports multiple comma-separated keys for failover) ────
+GOOGLE_GENAI_API_KEY=your_key_1,your_key_2,your_key_3,your_key_4
 
 # ──── JWT Tokens ────
 JWT_SECRET=your_fallback_secret
@@ -231,6 +234,8 @@ REFRESH_TOKEN_TTL=7d                               # refresh token lifetime
 ```
 
 > **Note:** If `JWT_ACCESS_SECRET` or `JWT_REFRESH_SECRET` are not set, the system falls back to `JWT_SECRET` for both.
+
+> **AI Keys:** You can provide 1 or more Gemini API keys separated by commas. The system uses round-robin rotation and automatically fails over to the next key if one hits a rate limit or error. There is no limit on how many keys you can add.
 
 ---
 
@@ -408,6 +413,7 @@ The API implements multiple layers of security:
 | **Token Strategy** | Access + Refresh | Short-lived access (15m), long-lived refresh (7d) |
 | **Token Revocation** | Blacklist + Version | Blacklisted tokens auto-expire (15min TTL via MongoDB) |
 | **Session Revocation** | Token versioning | `logout-all` bumps version, invalidating all sessions |
+| **Global Error Handler** | Custom middleware | Catches all unhandled errors, returns clean JSON |
 
 ### CSRF Flow
 
@@ -469,7 +475,7 @@ Usage is tracked per-feature, per-day in the database:
 
 - Guest users are identified by IP address.
 - Logged-in users are tracked by their MongoDB user ID.
-- Limits reset daily at UTC midnight.
+- Limits reset daily at midnight (IST / Asia/Kolkata).
 
 ---
 
@@ -488,16 +494,32 @@ Usage is tracked per-feature, per-day in the database:
 
 ## ❌ Error Reference
 
+All errors are handled by the **Global Error Handler** and returned in a uniform JSON format:
+
+```json
+{
+  "message": "Human-readable error message",
+  "details": ["Optional array of specific issues"],
+  "stack": "Stack trace (development mode only)"
+}
+```
+
 | Status | Error Message | Cause |
 |--------|--------------|-------|
 | `400` | `Account already exists with this email address` | Duplicate registration |
 | `400` | `Invalid email or password` | Wrong credentials |
 | `400` | `Resume file is required` | Missing PDF in upload |
+| `400` | `Validation failed` | Mongoose or Zod validation error |
+| `400` | `Malformed JSON in request body` | Invalid JSON syntax in body |
 | `401` | `Token not provided` | Missing or expired access token cookie |
 | `401` | `Session expired. Please login again.` | Token version mismatch (logged out from all devices) |
 | `401` | `Invalid or expired refresh token` | Refresh token missing/expired/revoked |
 | `401` | `Login required` | Feature requires authentication |
+| `401` | `Invalid token` / `Token has expired` | JWT verification failed |
 | `403` | `Invalid CSRF token` | Missing or mismatched `x-csrf-token` header |
+| `404` | `Route not found: GET /api/xyz` | Unknown API endpoint |
+| `409` | `Duplicate value for 'email'` | MongoDB duplicate key error |
+| `413` | `File too large. Maximum size is 3 MB.` | Multer file size limit exceeded |
 | `429` | `{feature} limit reached...` | Daily usage limit exceeded |
 | `500` | `Internal server error` | Unexpected server error |
 
@@ -547,13 +569,28 @@ api.interceptors.response.use(
 
 ## 🤖 AI Model Configuration
 
-The Gemini model is configured centrally in:
+The Gemini model and API key management is centralized in:
 
 ```
 src/services/ai/google.js
 ```
 
-Change the model in this single file to affect all AI features (ATS analysis, resume generation, interview reports).
+- **Model name**: Change `modelName` in this file to switch AI models across all features.
+- **Key rotation**: All services use `generateWithFailover(prompt)` which automatically rotates through your configured API keys.
+
+### How Key Failover Works
+
+```
+Request 1 → Key #1 ✅ Success
+Request 2 → Key #2 ✅ Success (round-robin)
+Request 3 → Key #3 ❌ Rate limited → Key #4 ✅ Fallback success
+Request 4 → Key #1 ✅ (cycles back)
+```
+
+- Keys are load-balanced via **round-robin** (not just used as fallback)
+- If a key fails, the **next key is tried automatically**
+- Error is thrown **only if ALL keys fail**
+- Console logs show which key succeeded/failed for debugging
 
 ---
 

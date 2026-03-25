@@ -1,7 +1,8 @@
 const UsageModel = require("../models/usage.model")
 
 function getDateKey() {
-    return new Date().toISOString().slice(0, 10)
+    // Returns date in YYYY-MM-DD format for IST timezone
+    return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 }
 
 function getGuestKey(req) {
