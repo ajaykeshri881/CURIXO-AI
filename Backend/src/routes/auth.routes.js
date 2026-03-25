@@ -1,6 +1,8 @@
 const { Router } = require('express')
 const authController = require("../controllers/auth.controller")
 const authMiddleware = require("../middlewares/auth.middleware")
+const { validateBody } = require("../middlewares/validate.middleware")
+const { registerSchema, loginSchema } = require("../validators/auth.validator")
 
 const authRouter = Router()
 
@@ -9,7 +11,7 @@ const authRouter = Router()
  * @description Register a new user
  * @access Public
  */
-authRouter.post("/register", authController.registerUserController)
+authRouter.post("/register", validateBody(registerSchema), authController.registerUserController)
 
 
 /**
@@ -17,15 +19,36 @@ authRouter.post("/register", authController.registerUserController)
  * @description login user with email and password
  * @access Public
  */
-authRouter.post("/login", authController.loginUserController)
+authRouter.post("/login", validateBody(loginSchema), authController.loginUserController)
+
+/**
+ * @route POST /api/auth/refresh
+ * @description issue new access token via refresh token
+ * @access Public
+ */
+authRouter.post("/refresh", authController.refreshTokenController)
+
+/**
+ * @route GET /api/auth/csrf-token
+ * @description get csrf token for subsequent mutating requests
+ * @access Public
+ */
+authRouter.get("/csrf-token", authController.getCsrfTokenController)
 
 
 /**
- * @route GET /api/auth/logout
+ * @route POST /api/auth/logout
  * @description clear token from user cookie and add the token in blacklist
  * @access public
  */
-authRouter.get("/logout", authController.logoutUserController)
+authRouter.post("/logout", authController.logoutUserController)
+
+/**
+ * @route POST /api/auth/logout-all
+ * @description logout user from all devices/sessions
+ * @access private
+ */
+authRouter.post("/logout-all", authMiddleware.authUser, authController.logoutAllDevicesController)
 
 
 /**

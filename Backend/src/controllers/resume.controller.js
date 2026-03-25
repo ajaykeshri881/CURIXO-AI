@@ -1,0 +1,58 @@
+const { generateResumeHtmlFromScratch, generateResumePdfFromHtml } = require('../services/ai/resume.service');
+
+exports.createFromScratch = async (req, res) => {
+    try {
+        const { jobTitle, userInfo } = req.body;
+
+        if (!jobTitle || !userInfo) {
+            return res.status(400).json({ message: 'Job title and user information are required.' });
+        }
+
+        const resumePackage = await generateResumeHtmlFromScratch(jobTitle, userInfo);
+
+        if (resumePackage?.error) {
+            return res.status(500).json({ message: resumePackage.error });
+        }
+
+        res.status(200).json({
+            generatedResume: resumePackage.generatedResume,
+            resumeHtml: resumePackage.resumeHtml,
+            structuredData: resumePackage.structuredData
+        });
+    } catch (error) {
+        console.error('Error creating resume from scratch:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+exports.downloadPdfFromScratch = async (req, res) => {
+    try {
+        const { jobTitle, userInfo, resumeHtml } = req.body;
+
+        if (!resumeHtml && (!jobTitle || !userInfo)) {
+            return res.status(400).json({ message: 'Provide resumeHtml or provide jobTitle and userInfo.' });
+        }
+
+        let htmlToRender = resumeHtml
+
+        if (!htmlToRender) {
+            const resumePackage = await generateResumeHtmlFromScratch(jobTitle, userInfo)
+            if (resumePackage?.error) {
+                return res.status(500).json({ message: resumePackage.error })
+            }
+            htmlToRender = resumePackage.resumeHtml
+        }
+
+        const pdfBuffer = await generateResumePdfFromHtml(htmlToRender)
+
+        res.set({
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': 'attachment; filename=resume-from-scratch.pdf'
+        })
+
+        return res.send(pdfBuffer)
+    } catch (error) {
+        console.error('Error downloading resume pdf:', error)
+        return res.status(500).json({ message: 'Internal server error' })
+    }
+}
