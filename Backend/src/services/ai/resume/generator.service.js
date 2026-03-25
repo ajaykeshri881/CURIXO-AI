@@ -1,9 +1,8 @@
-const { genAI, modelName } = require("../google")
+const { generateWithFailover } = require("../google")
 const { buildResumeHtml } = require("./template")
 const { cleanJsonText, normalizeResumeData, structuredResumeToText } = require("./helpers")
 
 async function generateStructuredResumeData(jobTitle, userInfo) {
-    const model = genAI.getGenerativeModel({ model: modelName })
     const prompt = `
 You are an elite ATS resume writer.
 Create a professional resume from user profile for job title "${jobTitle}".
@@ -49,9 +48,7 @@ Return this exact structure:
 }
 `
 
-    const result = await model.generateContent(prompt)
-    const response = await result.response
-    const text = await response.text()
+    const text = await generateWithFailover(prompt)
     return JSON.parse(cleanJsonText(text))
 }
 

@@ -31,6 +31,14 @@ app.use("/api/interview", interviewRouter)
 app.use("/api/ats", atsRouter)
 app.use("/api/resume", resumeRouter)
 
+/* 404 catch-all for unknown routes */
+app.use((req, res) => {
+    res.status(404).json({ message: `Route not found: ${req.method} ${req.originalUrl}` })
+})
+
+/* Global error handler — must be AFTER all routes */
+const globalErrorHandler = require("./middlewares/error.middleware")
+app.use(globalErrorHandler)
 
 
 module.exports = app

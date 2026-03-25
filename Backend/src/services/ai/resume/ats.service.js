@@ -1,9 +1,8 @@
-const { genAI, modelName } = require("../google")
+const { generateWithFailover } = require("../google")
 const { cleanJsonText } = require("./helpers")
 
 async function analyzeResumeWithATS(resumeText, jobTitle, jobDescription) {
     try {
-        const model = genAI.getGenerativeModel({ model: modelName })
         const prompt = `
         You are the most advanced and strict Applicant Tracking System (ATS) used by top-tier tech companies.
         Your task is to perform a forensic analysis of the provided resume against the job description. Your standards are exceptionally high.
@@ -38,9 +37,7 @@ async function analyzeResumeWithATS(resumeText, jobTitle, jobDescription) {
         }
       `
 
-        const result = await model.generateContent(prompt)
-        const response = await result.response
-        const text = await response.text()
+        const text = await generateWithFailover(prompt)
         return JSON.parse(cleanJsonText(text))
     } catch (error) {
         console.error("Error in analyzeResumeWithATS:", error)
@@ -50,7 +47,6 @@ async function analyzeResumeWithATS(resumeText, jobTitle, jobDescription) {
 
 async function improveResumeWithAI(resumeText, jobTitle, jobDescription, atsFeedback) {
     try {
-        const model = genAI.getGenerativeModel({ model: modelName })
         const prompt = `
               You are an expert resume writer and career coach with a specialization in passing ATS scans with a 100% score.
               Your task is to rewrite and perfect the given resume based on the provided ATS feedback to make it an undeniable match for the job description.
@@ -78,9 +74,7 @@ async function improveResumeWithAI(resumeText, jobTitle, jobDescription, atsFeed
               Return only the full, improved, and 100% ATS-compliant resume text. Do not include any commentary or explanation.
           `
 
-        const result = await model.generateContent(prompt)
-        const response = await result.response
-        return await response.text()
+        return await generateWithFailover(prompt)
     } catch (error) {
         console.error("Error in improveResumeWithAI:", error)
         return { error: "Failed to improve resume." }

@@ -1,9 +1,8 @@
-const { genAI, modelName } = require('./google');
+const { generateWithFailover } = require('./google');
 const puppeteer = require("puppeteer")
 
 async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
   try {
-    const model = genAI.getGenerativeModel({ model: modelName });
     const prompt = `
 You are an expert interview coach.
 Analyze the candidate profile and return strict JSON only.
@@ -28,9 +27,7 @@ Return JSON in this exact shape:
 }
 `
 
-    const result = await model.generateContent(prompt)
-    const response = await result.response
-    const text = await response.text()
+    const text = await generateWithFailover(prompt)
     const cleanedText = text.replace(/```json/g, "").replace(/```/g, "").trim()
     return JSON.parse(cleanedText)
   } catch (error) {
