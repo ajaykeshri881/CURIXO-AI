@@ -1,0 +1,412 @@
+import React, { useState, useRef } from 'react';
+import { atsService } from '../services/ats.service';
+import { resumeService } from '../services/resume.service';
+import toast from 'react-hot-toast';
+import { UploadCloud, FileText, Target, Loader2, ArrowRight, FileSearch, CheckCircle2, ChevronRight, Wand2, Download, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Navbar } from '../components/layout/Navbar';
+import { Footer } from '../components/layout/Footer';
+
+export default function AtsCheck() {
+  const [file, setFile] = useState(null);
+  const [fileName, setFileName] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [jobTitle, setJobTitle] = useState('');
+  const [jobDesc, setJobDesc] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [improving, setImproving] = useState(false);
+  const [result, setResult] = useState(null);
+  const [improvedResume, setImprovedResume] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    if (e.target.files?.[0]) {
+      setFile(e.target.files[0]);
+      setFileName(e.target.files[0].name);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setFile(e.dataTransfer.files[0]);
+      setFileName(e.dataTransfer.files[0].name);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!file || !jobTitle || !jobDesc) {
+      toast.error('Please provide a resume, job title, and description.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('resume', file);
+    formData.append('jobTitle', jobTitle);
+    formData.append('jobDescription', jobDesc);
+
+    setLoading(true);
+    setResult(null);
+    setImprovedResume(null);
+    try {
+      const data = await atsService.checkAts(formData);
+      setResult(data);
+      toast.success('Analysis complete!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Error analyzing resume');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleImproveResume = async () => {
+    if (!result?.resumeText) {
+      toast.error("Original resume text missing.");
+      return;
+    }
+    setImproving(true);
+    try {
+      // Clean up atsFeedback payload so it only contains the feedback
+      const { resumeText, isGuest, ...atsFeedback } = result;
+      const data = await atsService.improveResume({
+        resumeText: result.resumeText,
+        jobTitle,
+        jobDescription: jobDesc,
+        atsFeedback
+      });
+      setImprovedResume(data.improvedResume);
+      toast.success('Resume improved successfully!');
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to improve resume');
+    } finally {
+      setImproving(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#FAFAFC] text-zinc-900 font-sans selection:bg-violet-200 selection:text-violet-900 flex flex-col overflow-x-hidden">
+      <Navbar />
+
+      {/* Background Grid & Gradients */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-0 opacity-[0.04]"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, #000 1px, transparent 1px),
+            linear-gradient(to bottom, #000 1px, transparent 1px)
+          `,
+          backgroundSize: '40px 40px'
+        }}
+      />
+      
+      {/* Soft Glowing Orbs */}
+      <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-violet-400/20 rounded-full blur-[100px] pointer-events-none z-0" />
+      <div className="fixed bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-blue-400/10 rounded-full blur-[120px] pointer-events-none z-0" />
+
+      <main className="relative z-10 max-w-6xl w-full mx-auto px-4 pt-24 lg:pt-28 pb-12 flex-grow ">
+        <div className="mb-6 text-center md:text-left">
+          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 flex flex-col md:flex-row items-center md:items-baseline gap-2 md:gap-3">
+            <Target className="hidden md:block text-violet-600 w-10 h-10 translate-y-1" strokeWidth={3} />
+            <span>ATS</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600">Resume Scanner</span>
+          </h1>
+          <p className="mt-4 text-slate-500 text-lg max-w-2xl mx-auto md:mx-0 font-medium leading-relaxed">
+            Upload your resume to reveal your match score and analyze keywords. Adding a job description is optional but recommended for better accuracy.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-7 bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              {/* Step 1: Upload */}
+              <div>
+                <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
+                  <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-violet-100 text-violet-700 text-sm shadow-sm">1</span>
+                  Upload Resume (PDF)
+                </label>
+                <div 
+                  className={`
+                    relative w-full rounded-2xl border-2 border-dashed transition-all duration-300 ease-out
+                    flex flex-col items-center justify-center p-6 cursor-pointer overflow-hidden group
+                    ${isDragging ? 'border-violet-500 bg-violet-50 scale-[1.02] shadow-inner' : 'border-slate-200 bg-slate-50/50 hover:bg-slate-50 hover:border-violet-300'}
+                    ${fileName ? 'bg-emerald-50/50 border-emerald-200 hover:border-emerald-300' : ''}
+                  `}
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                >
+                  <input type="file" className="hidden" ref={fileInputRef} accept=".pdf" onChange={handleFileChange} />
+                  {fileName ? (
+                    <div className="flex flex-col items-center text-emerald-600 z-0 text-center">
+                      <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-2 shadow-sm group-hover:scale-110 transition-transform">
+                        <CheckCircle2 size={24} strokeWidth={2.5} />
+                      </div>
+                      <span className="font-extrabold text-base text-emerald-700">{fileName}</span>
+                      <span className="text-emerald-500 text-xs font-semibold mt-1">Ready to scan • Click to replace</span>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center text-slate-500 z-0 text-center">
+                      <div className="w-12 h-12 bg-white shadow-sm rounded-full flex items-center justify-center mb-2 border border-slate-100 group-hover:scale-110 transition-all">
+                        <UploadCloud size={24} className="text-violet-500" strokeWidth={2.5} />
+                      </div>
+                      <span className="font-extrabold text-slate-700 text-base">Click to browse or drag & drop</span>
+                      <span className="text-slate-400 text-xs font-semibold mt-1">PDF max 5MB required</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Step 2: Job Title */}
+              <div>
+                <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
+                  <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-100 text-blue-700 text-sm shadow-sm">2</span>
+                  Target Job Title
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-blue-500">
+                    <FileText size={20} className="text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  </div>
+                  <input 
+                    type="text" 
+                    placeholder="e.g. Senior Frontend Developer" 
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                    className="w-full bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all placeholder:text-slate-400 shadow-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Step 3: Job Description */}
+              <div>
+                <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 text-sm shadow-sm">3</span>
+                    Paste Job Description <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">Optional</span>
+                  </div>
+                </label>
+                <textarea 
+                  placeholder="Paste the target job description here for a tailored match analysis..." 
+                  value={jobDesc}
+                  onChange={(e) => setJobDesc(e.target.value)}
+                  className="w-full h-32 bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all resize-none placeholder:text-slate-400 shadow-sm"
+                ></textarea>
+              </div>
+
+              <button 
+                type="submit"
+                disabled={loading || !fileName}
+                className={`
+                  group w-full font-bold text-base rounded-2xl py-3.5 mt-1 flex items-center justify-center gap-3 transition-all duration-300 shadow-xl 
+                  ${!fileName 
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200 shadow-none' 
+                    : loading
+                      ? 'bg-violet-600 text-white shadow-violet-600/30 cursor-wait'
+                      : 'bg-slate-900 hover:bg-violet-600 text-white shadow-slate-900/20 hover:shadow-violet-600/30 active:scale-[0.98]'
+                  }
+                `}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 size={22} className="animate-spin text-white/90" />
+                    ANALYZING MATCH...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={22} className={fileName ? "text-violet-300" : "text-white"} />
+                    SCAN RESUME
+                    <ChevronRight size={22} className={`transition-transform ${fileName ? 'opacity-70 group-hover:translate-x-1' : 'opacity-40'}`} />
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
+
+          <div className="lg:col-span-5 flex flex-col">
+            <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white h-full flex flex-col min-h-[350px] lg:min-h-0 relative overflow-hidden">
+               <h2 className="text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-3">
+                 Results
+                 <span className="px-3 py-1 rounded-full bg-violet-50 text-violet-600 text-xs font-bold uppercase tracking-wider ml-auto border border-violet-100 shadow-sm">Live Preview</span>
+               </h2>
+               {!result && !loading && !improvedResume && (
+                  <div className="flex-1 border-2 border-dashed border-slate-200/80 rounded-3xl flex flex-col items-center justify-center p-6 text-center bg-slate-50/50 relative overflow-hidden group hover:border-violet-200 transition-colors">
+                    <div className="flex flex-col items-center justify-center mt-2">
+                      <div className="relative w-20 h-20 flex items-center justify-center mb-4">
+                        <div className="absolute inset-0 bg-violet-50 rounded-full group-hover:scale-110 transition-transform duration-500"></div>
+                        <div className="absolute inset-6 bg-violet-600 rounded-full shadow-xl shadow-violet-600/30 flex items-center justify-center text-white transform group-hover:scale-110 transition-transform duration-500 delay-150">
+                          <Target size={24} strokeWidth={2.5} />
+                        </div>
+                      </div>
+                      <h3 className="text-slate-900 font-extrabold text-lg mb-2">Awaiting Your Input</h3>
+                      <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-[260px]">
+                        Upload a resume and hit scan to reveal your ATS match score and keyword analysis.
+                      </p>
+                    </div>
+                  </div>
+               )}
+               
+               {loading && (
+                 <div className="flex-1 border-2 border-dashed border-slate-200/80 rounded-3xl flex flex-col items-center justify-center p-6 text-center bg-slate-50/50 relative overflow-hidden">
+                    <div className="flex flex-col items-center justify-center mt-2">
+                      <div className="relative w-20 h-20 mb-4">
+                        <div className="absolute inset-0 bg-violet-100 rounded-xl rotate-3 animate-pulse"></div>
+                        <div className="absolute inset-0 bg-white rounded-xl -rotate-3 border border-slate-100 shadow-lg flex items-center justify-center overflow-hidden">
+                           <div className="absolute top-0 left-0 w-full h-1 bg-violet-500 shadow-[0_0_15px_rgba(139,92,246,0.8)] animate-[scan_2s_ease-in-out_infinite]" />
+                           <FileSearch size={32} className="text-violet-400" />
+                        </div>
+                      </div>
+                      <h3 className="text-slate-900 font-extrabold text-lg mb-2 animate-pulse">Scanning your resume...</h3>
+                      <p className="text-slate-500 text-xs font-medium leading-relaxed max-w-[220px]">
+                        Extracting core skills and calculating compatibility against algorithms.
+                      </p>
+                    </div>
+                  </div>
+               )}
+               
+               {improvedResume && (
+                  <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center justify-between bg-green-50 border border-green-200 p-4 rounded-2xl">
+                      <h3 className="text-green-900 font-bold flex items-center gap-2">
+                         <Wand2 className="w-5 h-5 text-green-600" />
+                       Hooray! AI Improved Resume
+                      </h3>
+                    </div>
+                    <div 
+                      className="bg-white border border-zinc-200 shadow-sm rounded-3xl p-5 text-sm text-zinc-800 leading-relaxed overflow-y-auto max-h-[350px]"
+                      dangerouslySetInnerHTML={{ __html: improvedResume }}
+                    />
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={async () => {
+                         const toastId = toast.loading('Generating PDF format...');
+                         try {
+                           const pdfBlob = await resumeService.downloadPdfFromScratch({ resumeHtml: improvedResume });
+                           const url = window.URL.createObjectURL(new Blob([pdfBlob], { type: 'application/pdf' }));
+                           const link = document.createElement('a');
+                           link.href = url;
+                           link.setAttribute('download', `ATS_Optimized_Resume.pdf`);
+                           document.body.appendChild(link);
+                           link.click();
+                           link.parentNode.removeChild(link);
+                           toast.success('PDF downloaded!', { id: toastId });
+                         } catch (e) {
+                           console.error(e);
+                           if (e.response?.data instanceof Blob) {
+                              try {
+                                const text = await e.response.data.text();
+                                const errJson = JSON.parse(text);
+                                toast.error(errJson.message || 'Failed to generate PDF', { id: toastId });
+                              } catch (parseErr) {
+                                toast.error('Failed to generate PDF', { id: toastId });
+                              }
+                           } else {
+                              toast.error(e.response?.data?.message || 'Failed to generate PDF', { id: toastId });
+                           }
+                         }
+                      }}
+                      className="w-full flex justify-center items-center gap-2 py-4 px-4 rounded-2xl text-white bg-green-600 font-bold hover:bg-green-700 shadow-lg shadow-green-600/20 transition-all font-bold text-sm uppercase tracking-wider"
+                    >
+                      <Download className="w-5 h-5" /> Download Beautiful PDF
+                    </motion.button>
+                  </div>
+               )}
+
+               {result && !improvedResume && (
+                 <div className="space-y-4 animate-in zoom-in-95 duration-500">
+                   <div className="flex items-center gap-5">
+                     <div className="relative w-20 h-20 flex items-center justify-center">
+                       <svg className="w-full h-full transform -rotate-90 drop-shadow-sm" viewBox="0 0 100 100">
+                         <circle cx="50" cy="50" r="45" fill="none" stroke="#f4f4f5" strokeWidth="8" />
+                         <circle cx="50" cy="50" r="45" fill="none" stroke={result.score >= 80 ? '#22c55e' : result.score >= 50 ? '#eab308' : '#ef4444'} strokeWidth="8"
+                           strokeLinecap="round" strokeDasharray="283" strokeDashoffset={283 - (283 * ((result.score || 0)/100))}
+                           className="transition-all duration-1000 ease-out"
+                         />
+                       </svg>
+                       <div className="absolute flex flex-col items-center">
+                         <span className="text-2xl font-black text-zinc-950">{result.score || 0}</span>
+                       </div>
+                     </div>
+                     <div>
+                       <h3 className="text-lg font-black text-zinc-900">ATS Match Score</h3>
+                       <p className="text-zinc-500 text-xs font-medium mt-0.5">Based on keyword matching and relevance.</p>
+                     </div>
+                   </div>
+                   
+                   <div className="space-y-3">
+                     {/* Strengths */}
+                     <div className="bg-green-50/80 border border-green-100 rounded-2xl p-5 shadow-sm">
+                       <h4 className="font-bold text-green-900 mb-2">Strengths</h4>
+                       <p className="text-sm text-green-800 leading-relaxed whitespace-pre-wrap font-medium">{result.strengths}</p>
+                     </div>
+                     
+                     {/* Missing Keywords */}
+                     {result.missingKeywords?.length > 0 && (
+                       <div className="bg-red-50/80 border border-red-100 rounded-2xl p-5 shadow-sm">
+                         <h4 className="font-bold text-red-900 mb-2">Missing Keywords</h4>
+                         <div className="flex flex-wrap gap-2">
+                           {result.missingKeywords.map((kw, i) => (
+                             <span key={i} className="px-3 py-1 bg-white text-red-700 text-xs font-bold rounded-full border border-red-200 shadow-sm">
+                               {kw}
+                             </span>
+                           ))}
+                         </div>
+                       </div>
+                     )}
+
+                     {/* Weaknesses */}
+                     <div className="bg-amber-50/80 border border-amber-100 rounded-xl p-4 shadow-sm">
+                       <h4 className="font-bold text-sm text-amber-900 mb-1">Weaknesses & Gaps</h4>
+                       <p className="text-xs text-amber-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-2">{result.weaknesses}</p>
+                     </div>
+
+                      {/* Suggestions */}
+                      <div className="bg-blue-50/80 border border-blue-100 rounded-xl p-4 shadow-sm">
+                       <h4 className="font-bold text-sm text-blue-900 mb-1">Actionable Suggestions</h4>
+                       <p className="text-xs text-blue-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-2">{result.suggestions}</p>
+                     </div>
+                   </div>
+
+                   {/* Improve CTA */}
+                   <div className="pt-2">
+                     <motion.button
+                       whileHover={{ scale: 1.02 }}
+                       whileTap={{ scale: 0.98 }}
+                       onClick={handleImproveResume}
+                       disabled={improving}
+                       className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm uppercase tracking-wider rounded-xl shadow-xl shadow-violet-600/20 transition-all disabled:opacity-70"
+                     >
+                       {improving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Wand2 className="w-5 h-5" />}
+                       {improving ? 'Improving Resume...' : 'Improve Resume with AI'}
+                     </motion.button>
+                   </div>
+                 </div>
+               )}
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes scan {
+          0% { top: 0%; opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { top: 100%; opacity: 0; }
+        }
+      `}} />
+      <Footer />
+    </div>
+  );
+}
