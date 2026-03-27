@@ -36,7 +36,7 @@ export const Navbar = () => {
   const authLinks = [
     { name: 'Dashboard', href: '/dashboard' },
     { name: 'ATS Scan', href: '/ats-check' },
-    { name: 'Interview Prep', href: '/interview-prep' },
+    { name: 'Interview Preparation', href: '/interview-prep' },
     { name: 'Resume AI', href: '/resume-builder' },
   ];
 

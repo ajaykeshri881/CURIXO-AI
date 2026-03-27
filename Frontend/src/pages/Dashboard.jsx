@@ -74,7 +74,7 @@ export default function Dashboard() {
       bg: 'bg-violet-50'
     },
     {
-      title: 'Interview Prep',
+      title: 'Interview Preparation',
       desc: 'Generate tailored interview questions based on your resume',
       icon: <BrainCircuit className="w-8 h-8 text-blue-600" />,
       link: '/interview-prep',
@@ -173,7 +173,7 @@ export default function Dashboard() {
                   <div className="w-[52px] h-[68px] rounded-[26px] border border-blue-100/60 flex items-center justify-center mb-6 bg-gradient-to-b from-white to-blue-50/50 shadow-[0_2px_12px_rgba(59,130,246,0.06)] group-hover:scale-110 transition-transform">
                     <BrainCircuit className="w-7 h-7 text-[#2563EB]" strokeWidth={2.5} />
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight group-hover:text-blue-600 transition-colors">Interview Prep</h3>
+                  <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight group-hover:text-blue-600 transition-colors">Interview Preparation</h3>
                   <p className="text-[15px] text-slate-500 leading-relaxed font-medium">Generate tailored interview questions based on your resume</p>
                 </div>
               </Link>
@@ -219,7 +219,7 @@ export default function Dashboard() {
                             </div>
                             <div>
                               <h4 className="font-extrabold text-slate-900 text-base">
-                                {activity.type === 'interview' ? 'Interview Prep' : 'ATS Scan'}
+                                {activity.type === 'interview' ? 'Interview Preparation' : 'ATS Scan'}
                               </h4>
                               <p className="text-sm text-slate-600 mt-0.5 font-medium line-clamp-1 capitalize">
                                 {activity.type === 'interview' 
@@ -287,7 +287,7 @@ export default function Dashboard() {
 
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm font-bold">
-                    <span className="text-slate-700">Interview Preps</span>
+                    <span className="text-slate-700">Interview Preparations</span>
                     <span className="text-blue-600">{(limits.interview_prep || 3) - (usages.interview_prep || 0)}/{limits.interview_prep || 3}</span>
                   </div>
                   <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
@@ -336,7 +336,7 @@ export default function Dashboard() {
                         </div>
                         <div>
                           <h4 className="font-extrabold text-slate-900 text-base">
-                            {activity.type === 'interview' ? 'Interview Prep' : 'ATS Scan'}
+                            {activity.type === 'interview' ? 'Interview Preparation' : 'ATS Scan'}
                           </h4>
                           <p className="text-sm text-slate-600 mt-0.5 font-medium line-clamp-1 capitalize">
                             {activity.type === 'interview' 

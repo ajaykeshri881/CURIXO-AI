@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 export const Hero = () => {
   const { user } = useAuth();
   return (
-    <section className="relative min-h-[90vh] md:min-h-screen flex flex-col items-center justify-center pt-32 md:pt-24 pb-20 overflow-hidden bg-white">
+    <section className="relative min-h-[100dvh] md:min-h-screen flex flex-col items-center justify-center pt-24 md:pt-24 pb-20 md:pb-20 overflow-hidden bg-white">
       {/* Ultra-Premium Ambient Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center">
         <motion.div
@@ -19,11 +19,11 @@ export const Hero = () => {
         <motion.div
           animate={{ rotate: -360 }}
           transition={{ duration: 50, repeat: Infinity, ease: "linear" }}
-          className="absolute bottom-[10%] right-[-10%] md:right-[10%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-blue-400/20 md:bg-blue-400/15 rounded-full blur-[80px] md:blur-[120px] transform-gpu will-change-transform"
+          className="absolute bottom-[-5%] md:bottom-[10%] right-[-10%] md:right-[10%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-blue-400/20 md:bg-blue-400/15 rounded-full blur-[80px] md:blur-[120px] transform-gpu will-change-transform"
         />
         
         {/* Premium Grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] md:bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_60%,transparent_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] md:bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_50%,#000_60%,transparent_100%)] md:[mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_60%,transparent_100%)]" />
       </div>
 
       <div className="max-w-5xl mx-auto px-6 text-center relative z-20 flex flex-col items-center">

@@ -58,7 +58,7 @@ export default function InterviewPrep() {
     try {
       const data = await interviewService.generateInterviewReport(formData);
       setReport(data.interviewReport); // Match backend: { message, interviewReport }
-      toast.success('Interview Prep generated successfully!');
+      toast.success('Interview Preparation generated successfully!');
     } catch (error) {
       toast.error('Failed to generate interview questions');
     } finally {
@@ -91,7 +91,7 @@ export default function InterviewPrep() {
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 flex flex-col md:flex-row items-center md:items-baseline gap-2 md:gap-3">
             <BrainCircuit className="hidden md:block text-blue-600 w-10 h-10 translate-y-1" strokeWidth={3} />
             <span>AI</span>
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-600">Interview Prep</span>
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-600">Interview Preparation</span>
           </h1>
           <p className="mt-4 text-slate-500 text-lg max-w-2xl mx-auto md:mx-0 font-medium leading-relaxed">
             Generate tailored interview questions, strategies, and personalized talking points modeled after your exact background and target role.
