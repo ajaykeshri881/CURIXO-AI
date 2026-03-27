@@ -18,6 +18,7 @@ import ResumeBuilder from './pages/ResumeBuilder';
 import InterviewPrep from './pages/InterviewPrep';
 import InterviewReportView from './pages/InterviewReportView';
 import AtsReportView from './pages/AtsReportView';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -36,6 +37,9 @@ function App() {
           <Route path="/interview-prep" element={<ProtectedRoute><InterviewPrep /></ProtectedRoute>} />
           <Route path="/interview-report/:id" element={<ProtectedRoute><InterviewReportView /></ProtectedRoute>} />
           <Route path="/ats-report/:id" element={<ProtectedRoute><AtsReportView /></ProtectedRoute>} />
+          
+          {/* Catch-all 404 Route */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </AuthProvider>
