@@ -25,7 +25,7 @@ async function authUser(req, res, next) {
     try {
         const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET)
 
-        const user = await userModel.findById(decoded.id).select("tokenVersion")
+        const user = await userModel.findById(decoded.id).select("tokenVersion limits role")
         if (!user) {
             return res.status(401).json({ message: "User not found." })
         }
@@ -35,7 +35,11 @@ async function authUser(req, res, next) {
             return res.status(401).json({ message: "Session expired. Please login again." })
         }
 
-        req.user = decoded
+        req.user = { 
+            ...decoded, 
+            limits: user.limits, 
+            role: user.role 
+        }
 
         next()
 

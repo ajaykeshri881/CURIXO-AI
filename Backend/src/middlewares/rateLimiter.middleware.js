@@ -10,7 +10,7 @@ function getGuestKey(req) {
     return String(ip).split(",")[0].trim()
 }
 
-async function bumpUsage({ feature, dateKey, userId = null, guestKey = null }) {
+async function bumpUsage({ feature, dateKey, userId = null, guestKey = null, maxLimit = 3 }) {
     const query = {
         feature,
         dateKey,
@@ -20,15 +20,29 @@ async function bumpUsage({ feature, dateKey, userId = null, guestKey = null }) {
 
     const existing = await UsageModel.findOne(query)
     if (!existing) {
-        await UsageModel.create({ ...query, count: 1 })
-        return 1
+        const newCount = 1
+        await UsageModel.create({
+            ...query,
+            count: newCount,
+            limit: maxLimit,
+            usageDisplay: `${newCount}/${maxLimit}`
+        })
+        return newCount
     }
 
     existing.count += 1
+    existing.limit = maxLimit
+    existing.usageDisplay = `${existing.count}/${maxLimit}`
     await existing.save()
     return existing.count
 }
 
+/**
+ * Rate limit middleware.
+ * 
+ * `userLimit` is the fallback — if the user has a custom limit
+ * stored in `req.user.limits[feature]`, that value takes priority.
+ */
 function rateLimitPerDay({ feature, userLimit = 3, guestLimit = 0, requireLogin = true }) {
     return async function usageRateLimit(req, res, next) {
         try {
@@ -36,16 +50,22 @@ function rateLimitPerDay({ feature, userLimit = 3, guestLimit = 0, requireLogin 
             const userId = req.user?.id || req.user?._id || null
 
             if (userId) {
+                // ─── Read per-user custom limit, fall back to route-defined limit ───
+                const effectiveLimit = req.user?.limits?.[feature] || userLimit
+
                 const query = { feature, dateKey, user: userId, guestKey: null }
                 const existing = await UsageModel.findOne(query)
 
-                if (existing && existing.count >= userLimit) {
+                if (existing && existing.count >= effectiveLimit) {
                     return res.status(429).json({
-                        message: `${feature} limit reached. You can use this feature ${userLimit} times per day.`
+                        message: `${feature} limit reached. You can use this feature ${effectiveLimit} times per day.`,
+                        limit: effectiveLimit,
+                        used: existing.count,
+                        usageDisplay: `${existing.count}/${effectiveLimit}`
                     })
                 }
 
-                await bumpUsage({ feature, dateKey, userId })
+                await bumpUsage({ feature, dateKey, userId, maxLimit: effectiveLimit })
                 return next()
             }
 
@@ -63,11 +83,12 @@ function rateLimitPerDay({ feature, userLimit = 3, guestLimit = 0, requireLogin 
 
             if (existing && existing.count >= guestLimit) {
                 return res.status(429).json({
-                    message: `Free ${feature} usage exhausted for today. Please login to continue (up to ${userLimit}/day).`
+                    message: `Free ${feature} usage exhausted for today. Please login to continue (up to ${userLimit}/day).`,
+                    usageDisplay: `${existing.count}/${guestLimit}`
                 })
             }
 
-            await bumpUsage({ feature, dateKey, guestKey })
+            await bumpUsage({ feature, dateKey, guestKey, maxLimit: guestLimit })
             return next()
         } catch (error) {
             console.error("Usage limiter error:", error)

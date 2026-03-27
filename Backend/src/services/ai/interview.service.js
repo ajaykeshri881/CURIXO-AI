@@ -16,14 +16,22 @@ ${selfDescription}
 Job Description:
 ${jobDescription}
 
-Return JSON in this exact shape:
+Return JSON in this exact shape, adhering strictly to these data types:
 {
-  "overallScore": <number 0-100>,
-  "summary": "<short summary>",
-  "technicalQuestions": ["q1", "q2", "q3", "q4", "q5"],
-  "behavioralQuestions": ["q1", "q2", "q3", "q4", "q5"],
-  "skillGaps": ["gap1", "gap2", "gap3"],
-  "preparationPlan": ["step1", "step2", "step3", "step4", "step5"]
+  "title": "<Role title inferred from job description>",
+  "matchScore": <number 0-100>,
+  "technicalQuestions": [
+    { "question": "<question string>", "intention": "<why ask this>", "answer": "<ideal answer>" }
+  ],
+  "behavioralQuestions": [
+    { "question": "<question string>", "intention": "<why ask this>", "answer": "<ideal answer>" }
+  ],
+  "skillGaps": [
+    { "skill": "<missing skill>", "severity": "<low, medium, or high>" }
+  ],
+  "preparationPlan": [
+    { "day": 1, "focus": "<focus area>", "tasks": ["<task1>", "<task2>"] }
+  ]
 }
 `
 
@@ -33,8 +41,8 @@ Return JSON in this exact shape:
   } catch (error) {
     console.error("Error generating interview report:", error)
     return {
-      overallScore: 0,
-      summary: "Unable to generate report at this time.",
+      title: "Generated Interview Plan",
+      matchScore: 0,
       technicalQuestions: [],
       behavioralQuestions: [],
       skillGaps: [],

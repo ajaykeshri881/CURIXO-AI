@@ -45,12 +45,17 @@ exports.downloadPdfFromScratch = async (req, res) => {
 
         const pdfBuffer = await generateResumePdfFromHtml(htmlToRender)
 
+        // Ensure it's a real Buffer for binary response
+        const buf = Buffer.isBuffer(pdfBuffer) ? pdfBuffer : Buffer.from(pdfBuffer)
+
         res.set({
             'Content-Type': 'application/pdf',
-            'Content-Disposition': 'attachment; filename=resume-from-scratch.pdf'
+            'Content-Disposition': 'attachment; filename=ATS_Optimized_Resume.pdf',
+            'Content-Length': buf.length
         })
 
-        return res.send(pdfBuffer)
+        // Use res.end() not res.send() to avoid Express 5 string coercion
+        return res.end(buf)
     } catch (error) {
         console.error('Error downloading resume pdf:', error)
         return res.status(500).json({ message: 'Internal server error' })

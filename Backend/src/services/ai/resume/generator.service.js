@@ -42,7 +42,9 @@ Return this exact structure:
     {
       "name": "",
       "description": "",
-      "techStack": ""
+      "techStack": "",
+      "githubUrl": "",
+      "demoUrl": ""
     }
   ]
 }

@@ -16,7 +16,7 @@ const interviewRouter = express.Router()
 interviewRouter.post(
 	"/",
 	authMiddleware.authUser,
-	rateLimitPerDay({ feature: "interview_report", userLimit: 3, guestLimit: 0, requireLogin: true }),
+	rateLimitPerDay({ feature: "interview_prep", userLimit: 3, guestLimit: 0, requireLogin: true }),
 	upload.single("resume"),
 	interviewController.generateInterViewReportController
 )
@@ -45,7 +45,7 @@ interviewRouter.get("/", authMiddleware.authUser, interviewController.getAllInte
 interviewRouter.post(
 	"/resume/pdf/:interviewReportId",
 	authMiddleware.authUser,
-	rateLimitPerDay({ feature: "interview_resume_pdf", userLimit: 3, guestLimit: 0, requireLogin: true }),
+	rateLimitPerDay({ feature: "interview_prep", userLimit: 3, guestLimit: 0, requireLogin: true }),
 	interviewController.generateResumePdfController
 )
 

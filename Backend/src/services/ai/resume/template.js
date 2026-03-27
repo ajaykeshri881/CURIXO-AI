@@ -151,9 +151,15 @@ function buildResumeHtml(data) {
 
       ${data.projects.length ? `<section><h2>Projects</h2>${data.projects.map((item) => `
             <div class="item">
-              <div class="item-head"><span class="item-title">${safeText(item.name || "Project")}</span></div>
+              <div class="item-head">
+                <span class="item-title">${safeText(item.name || "Project")}</span>
+                <span class="item-meta">
+                  ${item.demoUrl ? `<a href="${safeText(item.demoUrl)}" style="color:var(--accent);text-decoration:none;margin-right:8px;">Live Demo</a>` : ""}
+                  ${item.githubUrl ? `<a href="${safeText(item.githubUrl)}" style="color:var(--accent);text-decoration:none;">GitHub</a>` : ""}
+                </span>
+              </div>
               <p>${safeText(item.description || "")}</p>
-              ${item.techStack ? `<p class="item-meta">Tech: ${safeText(item.techStack)}</p>` : ""}
+              ${item.techStack ? `<p class="item-meta" style="margin-top:4px;">Tech: ${safeText(item.techStack)}</p>` : ""}
             </div>
           `).join("")}</section>` : ""}
     </main>

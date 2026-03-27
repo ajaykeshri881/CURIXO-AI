@@ -68,13 +68,17 @@ async function improveResumeWithAI(resumeText, jobTitle, jobDescription, atsFeed
               2.  **Action-Oriented Language:** Rewrite all experience bullet points using the STAR (Situation, Task, Action, Result) method. Start every bullet point with a powerful action verb.
               3.  **Quantify Everything:** Where possible, add quantifiable achievements (e.g., "Increased user engagement by 25%", "Reduced API response time by 150ms"). If no numbers are present, frame the achievement in a way that implies significant impact.
               4.  **Tailor Summary:** Rewrite the professional summary to be a powerful, concise pitch that mirrors the language and priorities of the job description.
-              5.  **ATS-Friendly Formatting:** Ensure the final output is plain text, perfectly formatted for easy parsing. Use standard section headers (e.g., "Professional Summary", "Skills", "Work Experience", "Education", "Projects").
+              5.  **ATS-Friendly Formatting:** Structure the final output as clean, semantic HTML. Use vanilla inline CSS to make it look like a highly professional, modern resume suitable for a PDF export. 
+                  - Use standard layout components like <header>, <section>, <h1>, <h2>, <ul>, <li>.
+                  - Use a clean sans-serif font like Inter, Arial, or Helvetica.
+                  - Do NOT use complex multi-column layouts, tables, or Javascript. Keep the HTML simple and linearly parsable so ATS systems can easily read it.
 
               **Output:**
-              Return only the full, improved, and 100% ATS-compliant resume text. Do not include any commentary or explanation.
+              Return ONLY the raw HTML string for the entire resume document. Do not include any markdown wrappers (like \`\`\`html) or explanatory text.
           `
 
-        return await generateWithFailover(prompt)
+        const text = await generateWithFailover(prompt)
+        return text.replace(/```html/g, "").replace(/```/g, "").trim()
     } catch (error) {
         console.error("Error in improveResumeWithAI:", error)
         return { error: "Failed to improve resume." }

@@ -1,4 +1,4 @@
-const pdf = require('pdf-parse');
+const { extractTextFromPdf } = require('../utils/pdfExtract');
 const AtsReport = require('../models/atsReport.model');
 const { analyzeResumeWithATS, improveResumeWithAI } = require('../services/ai/resume.service');
 
@@ -15,8 +15,7 @@ exports.checkAts = async (req, res) => {
             return res.status(400).json({ message: 'Job title and description are required.' });
         }
 
-        const data = await pdf(resumeFile.buffer);
-        const resumeText = data.text;
+        const resumeText = await extractTextFromPdf(resumeFile.buffer);
 
         const analysis = await analyzeResumeWithATS(resumeText, jobTitle, jobDescription);
 
@@ -32,6 +31,7 @@ exports.checkAts = async (req, res) => {
 
         res.status(200).json({
             ...analysis,
+            resumeText,
             isGuest: !req.user?.id
         });
     } catch (error) {
@@ -53,6 +53,21 @@ exports.improveResume = async (req, res) => {
         res.status(200).json({ improvedResume });
     } catch (error) {
         console.error('Error improving resume:', error);
+    }
+};
+
+exports.getAtsReportById = async (req, res) => {
+    try {
+        const reportId = req.params.id;
+        const report = await AtsReport.findOne({ _id: reportId, user: req.user.id });
+
+        if (!report) {
+            return res.status(404).json({ message: 'ATS scan report not found' });
+        }
+
+        res.status(200).json({ report });
+    } catch (error) {
+        console.error('Error fetching ATS report:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };

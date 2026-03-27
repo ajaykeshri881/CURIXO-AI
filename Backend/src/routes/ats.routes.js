@@ -17,8 +17,14 @@ router.post(
 router.post(
 	'/improve',
 	authUser,
-	rateLimitPerDay({ feature: 'ats_improve', userLimit: 3, guestLimit: 0, requireLogin: true }),
+	rateLimitPerDay({ feature: 'resume_build', userLimit: 3, guestLimit: 0, requireLogin: true }),
 	atsController.improveResume
+);
+
+router.get(
+	'/report/:id',
+	authUser,
+	atsController.getAtsReportById
 );
 
 module.exports = router;

@@ -17,7 +17,7 @@ async function optionalAuth(req, _res, next) {
 
         const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET || process.env.JWT_SECRET)
 
-        const user = await userModel.findById(decoded.id).select("tokenVersion")
+        const user = await userModel.findById(decoded.id).select("tokenVersion limits role")
         if (!user) {
             return next()
         }
@@ -27,7 +27,11 @@ async function optionalAuth(req, _res, next) {
             return next()
         }
 
-        req.user = decoded
+        req.user = {
+            ...decoded,
+            limits: user.limits,
+            role: user.role
+        }
         return next()
     } catch (_error) {
         return next()
