@@ -187,7 +187,7 @@ export default function AtsCheck() {
                         <UploadCloud size={24} className="text-violet-500" strokeWidth={2.5} />
                       </div>
                       <span className="font-extrabold text-slate-700 text-base">Click to browse or drag & drop</span>
-                      <span className="text-slate-400 text-xs font-semibold mt-1">PDF max 5MB required</span>
+                      <span className="text-slate-400 text-xs font-semibold mt-1">PDF max 3MB required</span>
                     </div>
                   )}
                 </div>
