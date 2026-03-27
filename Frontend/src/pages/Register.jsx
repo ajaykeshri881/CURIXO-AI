@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ArrowRight, Mail, Lock, User as UserIcon } from 'lucide-react';
+import { ArrowRight, Mail, Lock, User as UserIcon, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
@@ -10,6 +10,7 @@ export default function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -25,40 +26,33 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-violet-200 selection:text-violet-900 flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bg-[#FAFAFC] text-zinc-900 font-sans selection:bg-violet-200 selection:text-violet-900 flex flex-col overflow-x-hidden">
       <Navbar />
-      <main className="flex-grow flex flex-col justify-center relative py-24 sm:px-6 lg:px-8">
+      <main className="flex-grow flex flex-col justify-center items-center relative pt-32 pb-16 px-4 sm:px-6 lg:px-8">
         
         {/* Soft, modern background gradients matching the landing page theme */}
         <div className="absolute top-[-10%] sm:top-[0%] right-[-10%] sm:right-[-5%] w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] rounded-full bg-violet-100/50 blur-3xl opacity-70 mix-blend-multiply pointer-events-none" />
         <div className="absolute bottom-[-10%] sm:bottom-[0%] left-[-10%] sm:left-[-5%] w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] rounded-full bg-blue-100/50 blur-3xl opacity-70 mix-blend-multiply pointer-events-none" />
 
-        <div className="relative z-10 sm:mx-auto sm:w-full sm:max-w-md">
-          <motion.div 
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center"
-          >
-            <h2 className="text-4xl font-black tracking-tight text-zinc-950">
-              Create an account
-            </h2>
-            <p className="mt-3 text-lg font-medium text-zinc-600">
-              Already have an account?{' '}
-              <Link to="/login" className="font-bold text-violet-600 hover:text-violet-500 transition-colors underline decoration-violet-200 underline-offset-4">
-                Sign in instead
-              </Link>
-            </p>
-          </motion.div>
-        </div>
-
-        <div className="relative z-10 mt-10 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="relative z-10 w-full sm:max-w-md">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white/80 backdrop-blur-xl py-10 px-6 sm:px-10 shadow-[0_8px_40px_rgba(0,0,0,0.06)] rounded-3xl border border-white"
+            className="bg-white/90 backdrop-blur-2xl py-10 px-6 sm:px-10 shadow-[0_8px_40px_rgba(0,0,0,0.06)] rounded-[2.5rem] border border-white"
           >
-            <form className="space-y-6" onSubmit={handleSubmit}>
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-black tracking-tight text-zinc-950">
+                Create an account
+              </h2>
+              <p className="mt-2 text-sm font-medium text-zinc-500">
+                Already have an account?{' '}
+                <Link to="/login" className="font-bold text-violet-600 hover:text-violet-700 transition-colors underline decoration-violet-200 underline-offset-4">
+                  Sign in instead
+                </Link>
+              </p>
+            </div>
+
+            <form className="space-y-5" onSubmit={handleSubmit}>
               <div>
                 <label className="block text-sm font-bold text-zinc-700">Full Name</label>
                 <div className="mt-2 relative">
@@ -100,13 +94,20 @@ export default function Register() {
                     <Lock className="h-5 w-5 text-zinc-400" />
                   </div>
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="block w-full pl-12 pr-4 py-3.5 border border-zinc-200/80 rounded-2xl focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 text-sm bg-zinc-50/50 hover:bg-zinc-50 focus:bg-white transition-all outline-none font-medium text-zinc-900 placeholder:text-zinc-400"
+                    className="block w-full pl-12 pr-12 py-3.5 border border-zinc-200/80 rounded-2xl focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 text-sm bg-zinc-50/50 hover:bg-zinc-50 focus:bg-white transition-all outline-none font-medium text-zinc-900 placeholder:text-zinc-400"
                     placeholder="••••••••"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-zinc-400 hover:text-violet-600 transition-colors focus:outline-none"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
               </div>
 

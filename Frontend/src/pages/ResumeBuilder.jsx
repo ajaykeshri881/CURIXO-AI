@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { resumeService } from '../services/resume.service';
 import toast from 'react-hot-toast';
 import { FileText, Loader2, Download, CheckCircle2, FileSignature, Layers, ArrowRight, Zap, Code, FileSearch } from 'lucide-react';
@@ -7,6 +8,7 @@ import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 
 export default function ResumeBuilder() {
+  const location = useLocation();
   const [formData, setFormData] = useState({
     jobTitle: '',
     personalDetails: { name: '', email: '', phone: '', location: '', linkedin: '', github: '' },
@@ -19,6 +21,16 @@ export default function ResumeBuilder() {
   const [downloading, setDownloading] = useState(false);
   const [previewHtml, setPreviewHtml] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+
+  // If arriving from ATS page with improved resume HTML, pre-load it
+  useEffect(() => {
+    if (location.state?.improvedHtml) {
+      setPreviewHtml(location.state.improvedHtml);
+      if (location.state.jobTitle) {
+        setFormData(prev => ({ ...prev, jobTitle: location.state.jobTitle }));
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

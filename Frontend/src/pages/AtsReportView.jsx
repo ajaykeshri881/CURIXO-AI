@@ -4,13 +4,14 @@ import { atsService } from '../services/ats.service';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 import { Loader2, Target, Wand2, Download, ArrowLeft } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 export default function AtsReportView() {
   const { id } = useParams();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [viewMoreContent, setViewMoreContent] = useState(null);
 
   useEffect(() => {
     fetchReport();
@@ -101,11 +102,17 @@ export default function AtsReportView() {
             
             <div className="space-y-6">
                 {/* Strengths */}
-                <div className="bg-green-50/80 border border-green-100 rounded-[24px] p-6 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="font-extrabold text-green-900 mb-3 text-lg flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div> Strengths
-                </h4>
-                <p className="text-sm text-green-800 leading-relaxed whitespace-pre-wrap font-medium">{result.strengths}</p>
+                <div 
+                   className="bg-green-50/80 border border-green-100 rounded-[24px] p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+                   onClick={() => setViewMoreContent({ title: 'Strengths', content: result.strengths, color: 'green' })}
+                >
+                  <div className="flex justify-between items-center mb-3">
+                     <h4 className="font-extrabold text-green-900 text-lg flex items-center gap-2">
+                         <div className="w-2 h-2 rounded-full bg-green-500"></div> Strengths
+                     </h4>
+                     <span className="text-xs font-bold text-green-700 uppercase opacity-0 group-hover:opacity-100 transition-opacity bg-green-100 px-3 py-1 rounded-full">View Full</span>
+                  </div>
+                  <p className="text-sm text-green-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-3">{result.strengths}</p>
                 </div>
                 
                 {/* Missing Keywords */}
@@ -125,23 +132,84 @@ export default function AtsReportView() {
                 )}
 
                 {/* Weaknesses */}
-                <div className="bg-amber-50/80 border border-amber-100 rounded-[24px] p-6 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="font-extrabold text-amber-900 mb-3 text-lg flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-amber-500"></div> Weaknesses & Gaps
-                </h4>
-                <p className="text-sm text-amber-800 leading-relaxed whitespace-pre-wrap font-medium">{result.weaknesses}</p>
+                <div 
+                   className="bg-amber-50/80 border border-amber-100 rounded-[24px] p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+                   onClick={() => setViewMoreContent({ title: 'Weaknesses & Gaps', content: result.weaknesses, color: 'amber' })}
+                >
+                  <div className="flex justify-between items-center mb-3">
+                     <h4 className="font-extrabold text-amber-900 text-lg flex items-center gap-2">
+                         <div className="w-2 h-2 rounded-full bg-amber-500"></div> Weaknesses & Gaps
+                     </h4>
+                     <span className="text-xs font-bold text-amber-600 uppercase opacity-0 group-hover:opacity-100 transition-opacity bg-amber-100 px-3 py-1 rounded-full">View Full</span>
+                  </div>
+                  <p className="text-sm text-amber-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-3">{result.weaknesses}</p>
                 </div>
 
                 {/* Suggestions */}
-                <div className="bg-blue-50/80 border border-blue-100 rounded-[24px] p-6 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="font-extrabold text-blue-900 mb-3 text-lg flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-blue-500"></div> Actionable Suggestions
-                </h4>
-                <p className="text-sm text-blue-800 leading-relaxed whitespace-pre-wrap font-medium">{result.suggestions}</p>
+                <div 
+                   className="bg-blue-50/80 border border-blue-100 rounded-[24px] p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+                   onClick={() => setViewMoreContent({ title: 'Actionable Suggestions', content: result.suggestions, color: 'blue' })}
+                >
+                  <div className="flex justify-between items-center mb-3">
+                     <h4 className="font-extrabold text-blue-900 text-lg flex items-center gap-2">
+                         <div className="w-2 h-2 rounded-full bg-blue-500"></div> Actionable Suggestions
+                     </h4>
+                     <span className="text-xs font-bold text-blue-600 uppercase opacity-0 group-hover:opacity-100 transition-opacity bg-blue-100 px-3 py-1 rounded-full">View Full</span>
+                  </div>
+                  <p className="text-sm text-blue-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-3">{result.suggestions}</p>
                 </div>
             </div>
         </motion.div>
       </main>
+
+      {/* View More Modal */}
+      <AnimatePresence>
+        {viewMoreContent && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
+              onClick={() => setViewMoreContent(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className={`relative z-10 bg-white rounded-[32px] w-full max-w-2xl p-8 shadow-2xl border-2 ${
+                 viewMoreContent.color === 'amber' ? 'border-amber-100' : 
+                 viewMoreContent.color === 'blue' ? 'border-blue-100' : 
+                 'border-green-100'
+               }`}
+            >
+              <h3 className={`text-2xl font-black mb-6 ${
+                 viewMoreContent.color === 'amber' ? 'text-amber-900' : 
+                 viewMoreContent.color === 'blue' ? 'text-blue-900' : 
+                 'text-green-900'
+               }`}>
+                {viewMoreContent.title}
+              </h3>
+              <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                <p className={`text-base leading-relaxed whitespace-pre-wrap font-medium ${
+                   viewMoreContent.color === 'amber' ? 'text-amber-900' : 
+                   viewMoreContent.color === 'blue' ? 'text-blue-900' : 
+                   'text-green-900'
+                 }`}>
+                  {viewMoreContent.content}
+                </p>
+              </div>
+              <button
+                onClick={() => setViewMoreContent(null)}
+                className="w-full mt-8 py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition-colors"
+              >
+                Close
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       <Footer />
     </div>
   );

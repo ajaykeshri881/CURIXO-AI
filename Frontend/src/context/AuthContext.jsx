@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
   const checkAuthStatus = async () => {
     try {
       const { data } = await api.get('/auth/get-me');
-      setUser(data.user); // Fixed from data.data to data.user
+      setUser(data.user);
     } catch (error) {
       setUser(null);
     } finally {
@@ -33,13 +33,30 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    initCsrf().then(checkAuthStatus);
+    // Safety timeout: force loading to false if init takes too long
+    const safetyTimer = setTimeout(() => {
+      setLoading((prev) => {
+        if (prev) {
+          console.warn("Auth init timed out — forcing loading to false");
+        }
+        return false;
+      });
+    }, 8000);
+
+    const init = async () => {
+      await initCsrf();
+      await checkAuthStatus();
+    };
+    init();
+
+    return () => clearTimeout(safetyTimer);
   }, []);
 
   const login = async (email, password) => {
     try {
       const { data } = await api.post('/auth/login', { email, password });
-      setUser(data.user); // Fixed from data.data.user
+      await initCsrf(); // Refresh CSRF token after auth cookies change
+      setUser(data.user);
       toast.success('Logged in successfully!');
       return true;
     } catch (error) {
@@ -51,7 +68,8 @@ export const AuthProvider = ({ children }) => {
   const register = async (name, email, password) => {
     try {
       const { data } = await api.post('/auth/register', { name, email, password });
-      setUser(data.user); // Fixed from data.data.user
+      await initCsrf(); // Refresh CSRF token after auth cookies change
+      setUser(data.user);
       toast.success('Registered successfully!');
       return true;
     } catch (error) {

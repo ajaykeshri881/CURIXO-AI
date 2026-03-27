@@ -1,10 +1,24 @@
-import axios from 'react';
-import axiosInstance from 'axios';
+import axios from 'axios';
 
-const api = axiosInstance.create({
+const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
   withCredentials: true, // Send cookies with requests automatically
 });
+
+// Track whether a refresh is already in progress to avoid infinite loops
+let isRefreshing = false;
+let failedQueue = [];
+
+const processQueue = (error) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve();
+    }
+  });
+  failedQueue = [];
+};
 
 // Response interceptor for handling global errors like 401 Unauthorized
 api.interceptors.response.use(
@@ -12,16 +26,35 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If 401 and we haven't retried yet, attempts to refresh token
+    // Don't intercept the refresh call itself to prevent infinite loops
+    if (originalRequest.url === '/auth/refresh') {
+      return Promise.reject(error);
+    }
+
+    // If 401 and we haven't retried yet, attempt to refresh the token
     if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        // If a refresh is already in progress, queue this request
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => api(originalRequest))
+          .catch((err) => Promise.reject(err));
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
+
       try {
         await api.post('/auth/refresh');
+        processQueue(null);
         return api(originalRequest); // Retry original request with new token
       } catch (refreshError) {
+        processQueue(refreshError);
         // Refresh token expired or failed, need to login again
-        // Let the AuthContext handle this by checking get-me
         return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
     return Promise.reject(error);

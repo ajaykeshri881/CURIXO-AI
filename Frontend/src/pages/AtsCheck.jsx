@@ -1,13 +1,17 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { atsService } from '../services/ats.service';
 import { resumeService } from '../services/resume.service';
 import toast from 'react-hot-toast';
-import { UploadCloud, FileText, Target, Loader2, ArrowRight, FileSearch, CheckCircle2, ChevronRight, Wand2, Download, Sparkles } from 'lucide-react';
+import { UploadCloud, FileText, Target, Loader2, ArrowRight, FileSearch, CheckCircle2, ChevronRight, Wand2, Download, Sparkles, Lock, LogIn, UserPlus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
 
 export default function AtsCheck() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('');
   const [isDragging, setIsDragging] = useState(false);
@@ -17,6 +21,8 @@ export default function AtsCheck() {
   const [improving, setImproving] = useState(false);
   const [result, setResult] = useState(null);
   const [improvedResume, setImprovedResume] = useState(null);
+  const [showAuthPrompt, setShowAuthPrompt] = useState(false);
+  const [viewMoreContent, setViewMoreContent] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
@@ -64,13 +70,25 @@ export default function AtsCheck() {
       setResult(data);
       toast.success('Analysis complete!');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Error analyzing resume');
+      const status = error.response?.status;
+      if (status === 429 && !user) {
+        // Guest hit their free limit — show signup/login prompt
+        setShowAuthPrompt(true);
+      } else if (status === 429) {
+        toast.error('Daily ATS scan limit reached. Come back tomorrow!');
+      } else {
+        toast.error(error.response?.data?.message || 'Error analyzing resume');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleImproveResume = async () => {
+    if (!user) {
+      setShowAuthPrompt(true);
+      return;
+    }
     if (!result?.resumeText) {
       toast.error("Original resume text missing.");
       return;
@@ -88,7 +106,14 @@ export default function AtsCheck() {
       setImprovedResume(data.improvedResume);
       toast.success('Resume improved successfully!');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to improve resume');
+      const status = error.response?.status;
+      if (status === 401) {
+        setShowAuthPrompt(true);
+      } else if (status === 429) {
+        toast.error('Daily resume build limit reached. Come back tomorrow!');
+      } else {
+        toast.error(error.response?.data?.message || 'Failed to improve resume');
+      }
     } finally {
       setImproving(false);
     }
@@ -286,7 +311,18 @@ export default function AtsCheck() {
                       className="bg-white border border-zinc-200 shadow-sm rounded-3xl p-5 text-sm text-zinc-800 leading-relaxed overflow-y-auto max-h-[350px]"
                       dangerouslySetInnerHTML={{ __html: improvedResume }}
                     />
-                    <motion.button
+                     {/* Send to Resume Builder */}
+                     <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => navigate('/resume-builder', { state: { improvedHtml: improvedResume, jobTitle } })}
+                      className="w-full flex justify-center items-center gap-2 py-4 px-4 rounded-2xl text-white bg-violet-600 font-bold hover:bg-violet-700 shadow-lg shadow-violet-600/20 transition-all text-sm uppercase tracking-wider"
+                     >
+                       <Wand2 className="w-5 h-5" /> Build Full Resume in AI Maker
+                       <ArrowRight className="w-4 h-4" />
+                     </motion.button>
+
+                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={async () => {
@@ -346,9 +382,15 @@ export default function AtsCheck() {
                    
                    <div className="space-y-3">
                      {/* Strengths */}
-                     <div className="bg-green-50/80 border border-green-100 rounded-2xl p-5 shadow-sm">
-                       <h4 className="font-bold text-green-900 mb-2">Strengths</h4>
-                       <p className="text-sm text-green-800 leading-relaxed whitespace-pre-wrap font-medium">{result.strengths}</p>
+                     <div 
+                        className="bg-green-50/80 border border-green-100 rounded-2xl p-5 shadow-sm cursor-pointer group hover:bg-green-50 hover:shadow-md transition-all"
+                        onClick={() => setViewMoreContent({ title: 'Strengths', content: result.strengths, type: 'green' })}
+                     >
+                       <div className="flex justify-between items-center mb-2">
+                           <h4 className="font-bold text-green-900">Strengths</h4>
+                           <span className="text-[10px] font-bold text-green-700 uppercase opacity-0 group-hover:opacity-100 transition-opacity bg-green-100 px-2 py-0.5 rounded-full">View Full</span>
+                       </div>
+                       <p className="text-sm text-green-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-2">{result.strengths}</p>
                      </div>
                      
                      {/* Missing Keywords */}
@@ -366,14 +408,26 @@ export default function AtsCheck() {
                      )}
 
                      {/* Weaknesses */}
-                     <div className="bg-amber-50/80 border border-amber-100 rounded-xl p-4 shadow-sm">
-                       <h4 className="font-bold text-sm text-amber-900 mb-1">Weaknesses & Gaps</h4>
+                     <div 
+                       className="bg-amber-50/80 border border-amber-100 rounded-xl p-4 shadow-sm cursor-pointer group hover:bg-amber-50 hover:shadow-md transition-all relative overflow-hidden"
+                       onClick={() => setViewMoreContent({ title: 'Weaknesses & Gaps', content: result.weaknesses, type: 'amber' })}
+                     >
+                       <div className="flex justify-between items-center mb-1">
+                          <h4 className="font-bold text-sm text-amber-900">Weaknesses & Gaps</h4>
+                          <span className="text-[10px] font-bold text-amber-600 uppercase opacity-0 group-hover:opacity-100 transition-opacity bg-amber-100 px-2 py-0.5 rounded-full">View Full</span>
+                       </div>
                        <p className="text-xs text-amber-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-2">{result.weaknesses}</p>
                      </div>
 
                       {/* Suggestions */}
-                      <div className="bg-blue-50/80 border border-blue-100 rounded-xl p-4 shadow-sm">
-                       <h4 className="font-bold text-sm text-blue-900 mb-1">Actionable Suggestions</h4>
+                      <div 
+                        className="bg-blue-50/80 border border-blue-100 rounded-xl p-4 shadow-sm cursor-pointer group hover:bg-blue-50 hover:shadow-md transition-all relative overflow-hidden"
+                        onClick={() => setViewMoreContent({ title: 'Actionable Suggestions', content: result.suggestions, type: 'blue' })}
+                      >
+                       <div className="flex justify-between items-center mb-1">
+                          <h4 className="font-bold text-sm text-blue-900">Actionable Suggestions</h4>
+                          <span className="text-[10px] font-bold text-blue-600 uppercase opacity-0 group-hover:opacity-100 transition-opacity bg-blue-100 px-2 py-0.5 rounded-full">View Full</span>
+                       </div>
                        <p className="text-xs text-blue-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-2">{result.suggestions}</p>
                      </div>
                    </div>
@@ -397,6 +451,144 @@ export default function AtsCheck() {
           </div>
         </div>
       </main>
+
+      {/* Auth Prompt Modal for Guests */}
+      <AnimatePresence>
+        {showAuthPrompt && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
+              onClick={() => setShowAuthPrompt(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative z-10 bg-white rounded-[2rem] w-full max-w-md p-8 shadow-2xl border border-white"
+            >
+              {/* Lock Icon */}
+              <div className="flex justify-center mb-6">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-violet-100 to-blue-100 flex items-center justify-center shadow-inner">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center shadow-xl shadow-violet-600/30">
+                    <Lock className="w-7 h-7 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Title & Description */}
+              <div className="text-center mb-8">
+                <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">
+                  You've Used Your Free Scan
+                </h3>
+                <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-sm mx-auto">
+                  Create a free account to unlock <span className="font-bold text-violet-600">3 ATS scans</span>, <span className="font-bold text-violet-600">AI resume improvement</span>, interview prep, and more — every day.
+                </p>
+              </div>
+
+              {/* Benefits */}
+              <div className="bg-slate-50 rounded-2xl p-4 mb-6 border border-slate-100">
+                <div className="space-y-3">
+                  {[
+                    { text: '3 ATS scans per day', color: 'text-violet-600' },
+                    { text: '3 AI resume improvements per day', color: 'text-emerald-600' },
+                    { text: '3 AI interview preps per day', color: 'text-blue-600' },
+                    { text: 'Full resume builder access', color: 'text-amber-600' },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-3">
+                      <CheckCircle2 className={`w-4 h-4 ${item.color} shrink-0`} />
+                      <span className="text-sm font-semibold text-slate-700">{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* CTA Buttons */}
+              <div className="space-y-3">
+                <Link to="/register" className="block">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full flex items-center justify-center gap-2 py-4 bg-slate-950 hover:bg-violet-600 text-white font-bold text-sm rounded-2xl shadow-xl shadow-slate-900/20 hover:shadow-violet-600/30 transition-all uppercase tracking-wider"
+                  >
+                    <UserPlus className="w-5 h-5" />
+                    Create Free Account
+                  </motion.button>
+                </Link>
+                <Link to="/login" className="block">
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="w-full flex items-center justify-center gap-2 py-4 bg-white border-2 border-slate-200 text-slate-700 font-bold text-sm rounded-2xl hover:border-violet-300 hover:text-violet-700 transition-all uppercase tracking-wider"
+                  >
+                    <LogIn className="w-5 h-5" />
+                    I Already Have an Account
+                  </motion.button>
+                </Link>
+              </div>
+
+              {/* Dismiss */}
+              <button
+                onClick={() => setShowAuthPrompt(false)}
+                className="w-full text-center mt-4 text-xs font-semibold text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                Maybe later
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* View More Modal */}
+      <AnimatePresence>
+        {viewMoreContent && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
+              onClick={() => setViewMoreContent(null)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className={`relative z-10 bg-white rounded-3xl w-full max-w-2xl p-6 md:p-8 shadow-2xl border-2 ${
+                 viewMoreContent.type === 'amber' ? 'border-amber-100' : 
+                 viewMoreContent.type === 'blue' ? 'border-blue-100' : 
+                 'border-green-100'
+               }`}
+            >
+              <h3 className={`text-2xl font-black mb-4 ${
+                 viewMoreContent.type === 'amber' ? 'text-amber-900' : 
+                 viewMoreContent.type === 'blue' ? 'text-blue-900' : 
+                 'text-green-900'
+               }`}>
+                {viewMoreContent.title}
+              </h3>
+              <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                <p className={`text-sm md:text-base leading-relaxed whitespace-pre-wrap font-medium ${
+                   viewMoreContent.type === 'amber' ? 'text-amber-900' : 
+                   viewMoreContent.type === 'blue' ? 'text-blue-900' : 
+                   'text-green-900'
+                 }`}>
+                  {viewMoreContent.content}
+                </p>
+              </div>
+              <button
+                onClick={() => setViewMoreContent(null)}
+                className="w-full mt-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors"
+              >
+                Close
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes scan {

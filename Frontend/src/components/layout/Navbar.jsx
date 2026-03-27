@@ -66,9 +66,9 @@ export const Navbar = () => {
           {displayLinks.map((link) => {
             const isActive = location.pathname === link.href;
             return (
-              <a key={link.name} href={link.href} className={`text-sm font-bold transition-colors ${isActive ? 'text-violet-600' : 'text-zinc-500 hover:text-zinc-950'}`}>
+              <Link key={link.name} to={link.href} className={`text-sm font-bold transition-colors ${isActive ? 'text-violet-600' : 'text-zinc-500 hover:text-zinc-950'}`}>
                 {link.name}
-              </a>
+              </Link>
             );
           })}
         </div>
@@ -124,10 +124,10 @@ export const Navbar = () => {
               {displayLinks.map((link) => {
                 const isActive = location.pathname === link.href;
                 return (
-                  <a key={link.name} href={link.href} onClick={() => setIsOpen(false)} className={`font-bold py-4 border-b border-zinc-100 flex justify-between items-center text-lg ${isActive ? 'text-violet-600' : 'text-zinc-500 hover:text-zinc-950'}`}>
+                  <Link key={link.name} to={link.href} onClick={() => setIsOpen(false)} className={`font-bold py-4 border-b border-zinc-100 flex justify-between items-center text-lg ${isActive ? 'text-violet-600' : 'text-zinc-500 hover:text-zinc-950'}`}>
                     {link.name}
                     <ChevronRight className={`w-5 h-5 ${isActive ? 'text-violet-400' : 'text-zinc-300'}`} />
-                  </a>
+                  </Link>
                 );
               })}
               <div className="flex flex-col gap-3 pt-6">
