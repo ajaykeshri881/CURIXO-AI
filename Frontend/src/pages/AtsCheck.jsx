@@ -104,7 +104,11 @@ export default function AtsCheck() {
         atsFeedback
       });
       setImprovedResume(data.improvedResume);
-      toast.success('Resume improved successfully!');
+      toast.success('Resume improved! Redirecting to AI Resume Maker...');
+      // Small timeout to let the toast appear smoothly before routing
+      setTimeout(() => {
+        navigate('/resume-builder', { state: { improvedHtml: data.improvedResume, jobTitle } });
+      }, 300);
     } catch (error) {
       const status = error.response?.status;
       if (status === 401) {
@@ -307,9 +311,18 @@ export default function AtsCheck() {
                        Hooray! AI Improved Resume
                       </h3>
                     </div>
-                    <div 
-                      className="bg-white border border-zinc-200 shadow-sm rounded-3xl p-5 text-sm text-zinc-800 leading-relaxed overflow-y-auto max-h-[350px]"
-                      dangerouslySetInnerHTML={{ __html: improvedResume }}
+                    <iframe 
+                      className="bg-white border border-zinc-200 shadow-sm rounded-3xl w-full h-[350px]"
+                      srcDoc={improvedResume}
+                      onLoad={(e) => {
+                          if (e.target.contentDocument) {
+                              const style = e.target.contentDocument.createElement('style');
+                              style.textContent = 'body { margin: 16px; font-family: "Inter", sans-serif; } style, meta, title, head { display: none !important; }';
+                              if (e.target.contentDocument.head) {
+                                  e.target.contentDocument.head.appendChild(style);
+                              }
+                          }
+                      }}
                     />
                      {/* Send to Resume Builder */}
                      <motion.button

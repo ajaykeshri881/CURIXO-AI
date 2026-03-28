@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { resumeService } from '../services/resume.service';
 import toast from 'react-hot-toast';
@@ -21,6 +21,13 @@ export default function ResumeBuilder() {
   const [downloading, setDownloading] = useState(false);
   const [previewHtml, setPreviewHtml] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const previewRef = useRef(null);
+
+  useEffect(() => {
+    if (previewRef.current && previewRef.current.contentDocument && previewRef.current.contentDocument.body) {
+      previewRef.current.contentDocument.body.contentEditable = isEditing ? 'true' : 'false';
+    }
+  }, [isEditing]);
 
   // If arriving from ATS page with improved resume HTML, pre-load it
   useEffect(() => {
@@ -63,7 +70,7 @@ export default function ResumeBuilder() {
     setDownloading(true);
     try {
       const contentEl = document.getElementById('resume-preview-content');
-      const finalHtml = contentEl ? contentEl.innerHTML : previewHtml;
+      const finalHtml = (contentEl && contentEl.contentDocument) ? contentEl.contentDocument.documentElement.outerHTML : previewHtml;
       
       const pdfBlob = await resumeService.downloadPdfFromScratch({ resumeHtml: finalHtml });
       
@@ -356,14 +363,42 @@ export default function ResumeBuilder() {
                 </div>
                 
                 <div className="flex-1 rounded-2xl border border-slate-200 overflow-hidden relative mb-4 flex transform-gpu bg-slate-100 shadow-inner">
-                  <div className="w-full h-full overflow-y-auto bg-white flex justify-center py-4" style={{ WebkitOverflowScrolling: 'touch' }}>
-                    <div 
+                  <div className="w-full h-full overflow-y-auto bg-slate-200/50 flex justify-center py-4" style={{ WebkitOverflowScrolling: 'touch' }}>
+                    <iframe 
                       id="resume-preview-content"
-                      contentEditable={isEditing}
-                      suppressContentEditableWarning={true}
-                      className={`transform origin-top transition-all h-max pb-8 ${isEditing ? 'outline-none ring-4 ring-emerald-500/20 shadow-xl p-4 bg-slate-50' : ''}`} 
-                      style={{ transform: 'scale(0.8)', width: '100%', maxWidth: '210mm', minHeight: '297mm' }}
-                      dangerouslySetInnerHTML={{ __html: previewHtml }} 
+                      ref={previewRef}
+                      srcDoc={previewHtml}
+                      className={`transform origin-top transition-all bg-white ${isEditing ? 'outline-none ring-4 ring-emerald-500/40 shadow-2xl' : 'shadow-xl'}`} 
+                      style={{ transform: 'scale(0.8)', width: '210mm', minHeight: '297mm', border: 'none' }}
+                      onLoad={(e) => {
+                          const iframe = e.target;
+                          if (iframe.contentDocument && iframe.contentDocument.body) {
+                              iframe.contentDocument.body.style.margin = '0';
+                              iframe.contentDocument.body.contentEditable = isEditing ? 'true' : 'false';
+                              
+                              const adjustHeight = () => {
+                                  if (iframe.contentDocument && iframe.contentDocument.documentElement) {
+                                      iframe.style.height = `${iframe.contentDocument.documentElement.scrollHeight}px`;
+                                  }
+                              };
+
+                              if (iframe.contentWindow && iframe.contentWindow.ResizeObserver) {
+                                  const ro = new iframe.contentWindow.ResizeObserver(adjustHeight);
+                                  ro.observe(iframe.contentDocument.body);
+                              } else {
+                                  iframe.contentDocument.body.addEventListener('input', adjustHeight);
+                                  setTimeout(adjustHeight, 100);
+                              }
+
+                              const style = iframe.contentDocument.createElement('style');
+                              style.textContent = '::-webkit-scrollbar { display: none; } html { scrollbar-width: none; overflow: hidden !important; } style, meta, title, head { display: none !important; }';
+                              if (iframe.contentDocument.head) {
+                                  iframe.contentDocument.head.appendChild(style);
+                              }
+                              // Set initial height
+                              setTimeout(adjustHeight, 50);
+                          }
+                      }}
                     />
                   </div>
                 </div>

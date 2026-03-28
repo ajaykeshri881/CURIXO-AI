@@ -73,8 +73,8 @@ async function improveResumeWithAI(resumeText, jobTitle, jobDescription, atsFeed
                   - Use a clean sans-serif font like Inter, Arial, or Helvetica.
                   - Do NOT use complex multi-column layouts, tables, or Javascript. Keep the HTML simple and linearly parsable so ATS systems can easily read it.
 
-              **Output:**
-              Return ONLY the raw HTML string for the entire resume document. Do not include any markdown wrappers (like \`\`\`html) or explanatory text.
+              **Output format rules:**
+              Return ONLY the raw HTML string containing the <style> block and the resume body content. Do NOT include \`<!DOCTYPE html>\`, \`<html>\`, \`<head>\`, \`<meta>\`, or \`<title>\` tags, as this output will be directly injected into a <div> element. Do not include any markdown wrappers (like \`\`\`html) or explanatory text.
           `
 
         const text = await generateWithFailover(prompt)

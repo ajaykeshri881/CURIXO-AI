@@ -12,7 +12,12 @@ function sanitize(value) {
     if (value && typeof value === "object") {
         const next = {}
         Object.keys(value).forEach((key) => {
-            next[key] = sanitize(value[key])
+            // Bypass sanitization for specific fields that strictly require raw HTML (like PDF generation payloads)
+            if (key === 'resumeHtml') {
+                next[key] = value[key];
+            } else {
+                next[key] = sanitize(value[key]);
+            }
         })
         return next
     }

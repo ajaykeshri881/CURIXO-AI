@@ -1,1 +1,13 @@
 @import "tailwindcss";
+
+/* Ensure tags that should be invisible remain invisible even when injected via dangerouslySetInnerHTML or when contentEditable is true */
+style, meta, title, head {
+    display: none !important;
+}
+
+[contenteditable="true"] style,
+[contenteditable="true"] meta,
+[contenteditable="true"] title,
+[contenteditable="true"] head {
+    display: none !important;
+}
