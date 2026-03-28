@@ -571,13 +571,26 @@ export default function AtsCheck() {
                 {viewMoreContent.title}
               </h3>
               <div className="max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                <p className={`text-sm md:text-base leading-relaxed whitespace-pre-wrap font-medium ${
+                <div className={`text-sm md:text-base leading-relaxed font-medium space-y-4 ${
                    viewMoreContent.type === 'amber' ? 'text-amber-900' : 
                    viewMoreContent.type === 'blue' ? 'text-blue-900' : 
                    'text-green-900'
                  }`}>
-                  {viewMoreContent.content}
-                </p>
+                  {viewMoreContent.content?.split(/\n+/).filter(line => line.trim()).map((line, i) => (
+                    <div key={i} className="space-y-2">
+                       {line.split(/(?=\b\d+\.\s|\-\s|\*\s)/).filter(seg => seg.trim()).map((segment, j) => {
+                          const match = segment.match(/^(\d+\.\s|\-\s|\*\s)(.*)/s);
+                          if (match) {
+                             return <div key={j} className="flex gap-2">
+                               <span className="font-bold opacity-80 shrink-0">{match[1].trim()}</span>
+                               <span>{match[2].trim()}</span>
+                             </div>;
+                          }
+                          return <div key={j} className="block">{segment.trim()}</div>;
+                       })}
+                    </div>
+                  ))}
+                </div>
               </div>
               <button
                 onClick={() => setViewMoreContent(null)}
