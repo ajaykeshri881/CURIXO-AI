@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { resumeService } from '../services/resume.service';
 import toast from 'react-hot-toast';
 import { FileText, Loader2, Download, CheckCircle2, FileSignature, Layers, ArrowRight, Zap, Code, FileSearch, Clock } from 'lucide-react';
@@ -270,6 +270,22 @@ export default function ResumeBuilder() {
           <p className="mt-4 text-slate-500 text-lg max-w-2xl mx-auto md:mx-0 font-medium leading-relaxed">
             Fill in the details below to instantly generate a professional, highly-optimized, and ATS-friendly PDF resume crafted exactly to your specifications.
           </p>
+
+          <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 shadow-sm">
+            <div>
+              <p className="text-sm sm:text-base font-extrabold text-emerald-900">Already have a resume?</p>
+              <p className="text-xs sm:text-sm font-medium text-emerald-800/90 mt-0.5">
+                Check ATS score, identify missing keywords, and improve your resume instantly.
+              </p>
+            </div>
+            <Link
+              to="/ats-check"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 text-sm font-bold transition-colors shadow-lg shadow-emerald-600/20"
+            >
+              Check & Improve Resume
+              <ArrowRight size={16} />
+            </Link>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">

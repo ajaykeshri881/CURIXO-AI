@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { interviewService } from '../services/interview.service';
 import toast from 'react-hot-toast';
-import { ArrowLeft, Download, Loader2, BrainCircuit } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ArrowLeft, Loader2, BrainCircuit } from 'lucide-react';
 import InterviewReportDisplay from '../components/ui/InterviewReportDisplay';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
@@ -12,7 +11,6 @@ export default function InterviewReportView() {
   const { id } = useParams();
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
     const fetchReport = async () => {
@@ -27,26 +25,6 @@ export default function InterviewReportView() {
     };
     fetchReport();
   }, [id]);
-
-  const handleDownloadPdf = async () => {
-    setDownloading(true);
-    try {
-      // Pass empty obj or any required data, the backend infers from report ID
-      const pdfBlob = await interviewService.generateResumePdf(id, {});
-      const url = window.URL.createObjectURL(new Blob([pdfBlob]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `interview_resume_${id}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode.removeChild(link);
-      toast.success('Resume downloaded successfully!');
-    } catch (error) {
-      toast.error('Failed to download resume PDF');
-    } finally {
-      setDownloading(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -80,20 +58,10 @@ export default function InterviewReportView() {
         <div className="absolute bottom-[-10%] sm:bottom-[0%] left-[-10%] sm:left-[-5%] w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] rounded-full bg-violet-100/40 blur-3xl opacity-70 mix-blend-multiply pointer-events-none" />
 
         <div className="max-w-4xl mx-auto space-y-8 relative z-10">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center">
             <Link to="/dashboard" className="flex items-center gap-2 text-zinc-500 hover:text-zinc-900 font-bold transition-colors">
               <ArrowLeft className="w-5 h-5" /> Back to Dashboard
             </Link>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleDownloadPdf}
-              disabled={downloading}
-              className="flex items-center gap-2 px-5 py-3 bg-zinc-950 text-white font-bold rounded-xl hover:bg-zinc-800 transition-all shadow-xl shadow-zinc-900/20 disabled:opacity-70 text-sm tracking-wide"
-            >
-              {downloading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
-              Download Tailored Resume
-            </motion.button>
           </div>
 
           <div>
