@@ -12,19 +12,24 @@ export default function ResumeBuilder() {
   const [formData, setFormData] = useState({
     jobTitle: '',
     personalDetails: { name: '', email: '', phone: '', location: '', linkedin: '', github: '' },
+    summary: '',
     skills: '',
     experience: '',
+    education: '',
     projects: '',
-    extraDetails: ''
+    certifications: '',
+    achievements: ''
   });
   const [loading, setLoading] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [previewHtml, setPreviewHtml] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
   const previewRef = useRef(null);
   const previewViewportRef = useRef(null);
   const [previewScale, setPreviewScale] = useState(1);
   const [showLimitPrompt, setShowLimitPrompt] = useState(false);
+  const [countdown, setCountdown] = useState('');
 
   const [loadingMessage, setLoadingMessage] = useState('');
 
@@ -102,7 +107,50 @@ export default function ResumeBuilder() {
     };
   }, [previewHtml]);
 
-  // If arriving from ATS page with improved resume HTML, pre-load it
+  // Countdown timer — ticks every second while the limit modal is open
+  useEffect(() => {
+    if (!showLimitPrompt) return;
+
+    const getSecondsUntilMidnightIST = () => {
+      const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+      const now = new Date();
+      const nowIST = new Date(now.getTime() + IST_OFFSET_MS);
+      // Midnight of next IST day expressed as UTC timestamp
+      const nextMidnightIST = new Date(
+        Date.UTC(
+          nowIST.getUTCFullYear(),
+          nowIST.getUTCMonth(),
+          nowIST.getUTCDate() + 1,
+          0, 0, 0, 0
+        ) - IST_OFFSET_MS
+      );
+      return Math.max(0, Math.floor((nextMidnightIST - now) / 1000));
+    };
+
+    const format = (secs) => {
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      const s = secs % 60;
+      return [
+        String(h).padStart(2, '0'),
+        String(m).padStart(2, '0'),
+        String(s).padStart(2, '0')
+      ].join(':');
+    };
+
+    // Set immediately so there's no 1-second blank
+    setCountdown(format(getSecondsUntilMidnightIST()));
+
+    const timer = setInterval(() => {
+      const secs = getSecondsUntilMidnightIST();
+      setCountdown(format(secs));
+      if (secs <= 0) clearInterval(timer);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [showLimitPrompt]);
+
+
   useEffect(() => {
     if (location.state?.improvedHtml) {
       setPreviewHtml(location.state.improvedHtml);
@@ -112,25 +160,59 @@ export default function ResumeBuilder() {
     }
   }, []);
 
+  const validateStep = () => {
+    if (currentStep === 1) {
+      if (!formData.jobTitle.trim()) { toast.error("Job Title is required"); return false; }
+      if (!formData.personalDetails.name.trim()) { toast.error("Name is required"); return false; }
+      if (!formData.personalDetails.email.trim()) { toast.error("Email is required"); return false; }
+      return true;
+    }
+    if (currentStep === 2) {
+      if (!formData.education.trim()) { toast.error("Education is required"); return false; }
+      return true;
+    }
+    if (currentStep === 3) {
+      if (!formData.skills.trim()) { toast.error("Skills are required"); return false; }
+      return true;
+    }
+    if (currentStep === 4) {
+      return true;
+    }
+    return true;
+  };
+
+  const nextStep = () => {
+    if (validateStep()) {
+      setCurrentStep(prev => Math.min(prev + 1, 4));
+    }
+  };
+
+  const prevStep = () => {
+    setCurrentStep(prev => Math.max(prev - 1, 1));
+  };
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    if (!validateStep()) return;
     setLoading(true);
     try {
       const mappedData = {
         jobTitle: formData.jobTitle,
         userInfo: {
           personalDetails: formData.personalDetails,
+          summary: formData.summary,
           skills: formData.skills.split(',').map(s => s.trim()),
           experience: [{ title: 'Professional', company: 'Various', description: formData.experience }],
+          education: [{ title: 'Education', description: formData.education }],
           projects: formData.projects ? [{ title: 'Projects', description: formData.projects }] : [],
-          extraDetails: formData.extraDetails
+          extraDetails: `Certifications:\n${formData.certifications}\n\nAchievements:\n${formData.achievements}`
         }
       };
-      
+
       const response = await resumeService.createFromScratch(mappedData);
       setPreviewHtml(response.resumeHtml);
       setIsEditing(false);
-      
+
       toast.success('Preview generated successfully! You can now edit or download it.');
     } catch (error) {
       if (error.response?.status === 429) {
@@ -162,7 +244,7 @@ export default function ResumeBuilder() {
       if (!finalHtml || !String(finalHtml).trim()) {
         throw new Error('Resume preview is empty. Please generate preview first.');
       }
-      
+
       const pdfBlob = await resumeService.downloadPdfFromScratch({ resumeHtml: finalHtml });
 
       const downloadBlob = pdfBlob instanceof Blob
@@ -203,49 +285,49 @@ export default function ResumeBuilder() {
       {/* Full Screen Dynamic Loading Overlay */}
       <AnimatePresence>
         {(loading || downloading) && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-white/70 backdrop-blur-md"
           >
             <div className="bg-white px-8 py-10 rounded-[2rem] shadow-2xl border border-emerald-100 flex flex-col items-center max-w-sm w-full relative overflow-hidden">
-               <div className="absolute inset-0 bg-gradient-to-tr from-emerald-50 to-teal-50 opacity-50" />
-               <div className="relative z-10 flex flex-col items-center">
-                 <div className="w-20 h-20 mb-6 relative">
-                   <div className="absolute inset-0 border-4 border-emerald-100 rounded-full" />
-                   <div className="absolute inset-0 border-4 border-emerald-500 rounded-full border-t-transparent animate-spin" />
-                   <div className="absolute inset-0 flex items-center justify-center text-emerald-600">
-                     <Zap className="w-8 h-8 animate-pulse" />
-                   </div>
-                 </div>
-                 
-                 <h3 className="text-xl font-black text-slate-900 mb-2">
-                   {loading ? "AI is Working" : "Generating PDF"}
-                 </h3>
-                 
-                 <div className="h-6 flex items-center justify-center overflow-hidden w-full">
-                   <AnimatePresence mode="wait">
-                     <motion.p
-                       key={loadingMessage}
-                       initial={{ opacity: 0, y: 10 }}
-                       animate={{ opacity: 1, y: 0 }}
-                       exit={{ opacity: 0, y: -10 }}
-                       transition={{ duration: 0.3 }}
-                       className="text-sm font-semibold text-emerald-700 text-center"
-                     >
-                       {loadingMessage}
-                     </motion.p>
-                   </AnimatePresence>
-                 </div>
-               </div>
+              <div className="absolute inset-0 bg-gradient-to-tr from-emerald-50 to-teal-50 opacity-50" />
+              <div className="relative z-10 flex flex-col items-center">
+                <div className="w-20 h-20 mb-6 relative">
+                  <div className="absolute inset-0 border-4 border-emerald-100 rounded-full" />
+                  <div className="absolute inset-0 border-4 border-emerald-500 rounded-full border-t-transparent animate-spin" />
+                  <div className="absolute inset-0 flex items-center justify-center text-emerald-600">
+                    <Zap className="w-8 h-8 animate-pulse" />
+                  </div>
+                </div>
+
+                <h3 className="text-xl font-black text-slate-900 mb-2">
+                  {loading ? "AI is Working" : "Generating PDF"}
+                </h3>
+
+                <div className="h-6 flex items-center justify-center overflow-hidden w-full">
+                  <AnimatePresence mode="wait">
+                    <motion.p
+                      key={loadingMessage}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-sm font-semibold text-emerald-700 text-center"
+                    >
+                      {loadingMessage}
+                    </motion.p>
+                  </AnimatePresence>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* Background Grid & Gradients */}
-      <div 
+      <div
         className="fixed inset-0 pointer-events-none z-0 opacity-[0.04]"
         style={{
           backgroundImage: `
@@ -255,7 +337,7 @@ export default function ResumeBuilder() {
           backgroundSize: '40px 40px'
         }}
       />
-      
+
       {/* Soft Glowing Orbs */}
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-400/20 rounded-full blur-[100px] pointer-events-none z-0" />
       <div className="fixed bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-sky-400/10 rounded-full blur-[120px] pointer-events-none z-0" />
@@ -290,225 +372,394 @@ export default function ResumeBuilder() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-6 bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <form onSubmit={handleSubmit} className="flex flex-col">
               
-              {/* Step 1: Target Role */}
-              <div>
-                <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 text-sm shadow-sm">1</span>
-                  Target Job Title
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500">
-                    <FileSignature size={20} className="text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
-                  </div>
-                  <input
-                    type="text" required
-                    placeholder="e.g. Senior Frontend Developer"
-                    className="w-full bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all placeholder:text-slate-400 shadow-sm"
-                    value={formData.jobTitle}
-                    onChange={(e) => setFormData({...formData, jobTitle: e.target.value})}
-                  />
+              {/* Stepper Progress */}
+              <div className="mb-8 px-2 sm:px-4">
+                <div className="flex items-center justify-between relative">
+                  {/* Background Line */}
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-[3px] bg-slate-200 rounded-full -z-10"></div>
+                  {/* Active Line */}
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 h-[3px] bg-emerald-500 rounded-full -z-10 transition-all duration-500" style={{ width: `${((currentStep - 1) / 3) * 100}%` }}></div>
+
+                  {[
+                    { num: 1, label: 'Basics' },
+                    { num: 2, label: 'Edu & Proj' },
+                    { num: 3, label: 'Experience' },
+                    { num: 4, label: 'Extras' }
+                  ].map(step => (
+                    <div key={step.num} className="flex flex-col items-center">
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          if (step.num < currentStep) setCurrentStep(step.num);
+                          else if (step.num === currentStep + 1 && validateStep()) setCurrentStep(step.num);
+                        }}
+                        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 border-[3px] shadow-sm
+                          ${currentStep === step.num ? 'bg-white border-emerald-500 text-emerald-600 shadow-md ring-4 ring-emerald-500/10' : 
+                            currentStep > step.num ? 'bg-emerald-500 border-emerald-500 text-white hover:bg-emerald-600' : 'bg-slate-50 border-slate-200 text-slate-400'}`}
+                      >
+                        {currentStep > step.num ? <CheckCircle2 size={18} /> : step.num}
+                      </button>
+                      <span className={`absolute mt-12 text-[10px] whitespace-nowrap sm:text-xs font-bold uppercase tracking-wider ${currentStep === step.num ? 'text-emerald-700' : currentStep > step.num ? 'text-slate-700' : 'text-slate-400'}`}>
+                        {step.label}
+                      </span>
+                    </div>
+                  ))}
                 </div>
+                <div className="h-6"></div> {/* Spacer for the absolute labels */}
               </div>
 
-              {/* Step 2: Details */}
-              <div className="flex flex-col gap-5">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div>
-                    <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                      <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-teal-100 text-teal-700 text-sm shadow-sm">2</span>
-                      Full Name
-                    </label>
-                    <input
-                      type="text" required
-                      placeholder="Your actual name"
-                      className="w-full bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-400 transition-all placeholder:text-slate-400 shadow-sm"
-                      value={formData.personalDetails.name}
-                      onChange={(e) => setFormData({...formData, personalDetails: {...formData.personalDetails, name: e.target.value}})}
-                    />
-                  </div>
-                  <div>
-                    <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                      Email
-                    </label>
-                    <input
-                      type="email" required
-                      placeholder="you@email.com"
-                      className="w-full bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-400 transition-all placeholder:text-slate-400 shadow-sm"
-                      value={formData.personalDetails.email}
-                      onChange={(e) => setFormData({...formData, personalDetails: {...formData.personalDetails, email: e.target.value}})}
-                    />
-                  </div>
-                </div>
+              {/* Steps Container */}
+              <div className="min-h-[380px]">
+                <AnimatePresence mode="wait">
+                  {currentStep === 1 && (
+                    <motion.div
+                      key="step1"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex flex-col gap-6"
+                    >
+                      {/* Target Role */}
+                      <div>
+                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          Target Job Title <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative group">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500">
+                            <FileSignature size={18} className="text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="e.g. Senior Frontend Developer"
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all placeholder:text-slate-400 shadow-sm"
+                            value={formData.jobTitle}
+                            onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
+                          />
+                        </div>
+                      </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div>
-                    <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                      LinkedIn Profile (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://linkedin.com/in/..."
-                      className="w-full bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-400 transition-all placeholder:text-slate-400 shadow-sm"
-                      value={formData.personalDetails.linkedin}
-                      onChange={(e) => setFormData({...formData, personalDetails: {...formData.personalDetails, linkedin: e.target.value}})}
-                    />
-                  </div>
-                  <div>
-                    <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                      GitHub / Portfolio (Optional)
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://github.com/..."
-                      className="w-full bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-teal-500/10 focus:border-teal-400 transition-all placeholder:text-slate-400 shadow-sm"
-                      value={formData.personalDetails.github}
-                      onChange={(e) => setFormData({...formData, personalDetails: {...formData.personalDetails, github: e.target.value}})}
-                    />
-                  </div>
-                </div>
-              </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                            Full Name <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Your actual name"
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all placeholder:text-slate-400 shadow-sm"
+                            value={formData.personalDetails.name}
+                            onChange={(e) => setFormData({ ...formData, personalDetails: { ...formData.personalDetails, name: e.target.value } })}
+                          />
+                        </div>
+                        <div>
+                          <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                            Email <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="email"
+                            placeholder="you@email.com"
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all placeholder:text-slate-400 shadow-sm"
+                            value={formData.personalDetails.email}
+                            onChange={(e) => setFormData({ ...formData, personalDetails: { ...formData.personalDetails, email: e.target.value } })}
+                          />
+                        </div>
+                      </div>
 
-              {/* Step 3: Core Competencies */}
-              <div>
-                <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-cyan-100 text-cyan-700 text-sm shadow-sm">3</span>
-                  Skills (comma separated)
-                </label>
-                <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-cyan-500">
-                    <Layers size={20} className="text-slate-400 group-focus-within:text-cyan-500 transition-colors" />
-                  </div>
-                  <input
-                    type="text" required
-                    placeholder="React, Node.js, Python, Leadership..."
-                    className="w-full bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl pl-12 pr-4 py-3 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-400 transition-all placeholder:text-slate-400 shadow-sm"
-                    value={formData.skills}
-                    onChange={(e) => setFormData({...formData, skills: e.target.value})}
-                  />
-                </div>
-              </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                            Phone Number <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
+                          </label>
+                          <input
+                            type="tel"
+                            placeholder="+1 (555) 000-0000"
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all placeholder:text-slate-400 shadow-sm"
+                            value={formData.personalDetails.phone}
+                            onChange={(e) => setFormData({ ...formData, personalDetails: { ...formData.personalDetails, phone: e.target.value } })}
+                          />
+                        </div>
+                        <div>
+                          <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                            Location <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="City, State"
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all placeholder:text-slate-400 shadow-sm"
+                            value={formData.personalDetails.location}
+                            onChange={(e) => setFormData({ ...formData, personalDetails: { ...formData.personalDetails, location: e.target.value } })}
+                          />
+                        </div>
+                      </div>
 
-              {/* Step 4: Work Experience */}
-              <div>
-                <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 text-sm shadow-sm">4</span>
-                  Experience Summary
-                </label>
-                <textarea
-                  required
-                  className="w-full h-28 bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all resize-none placeholder:text-slate-400 shadow-sm"
-                  placeholder="Paste or write a summary of your professional experience, major achievements, and responsibilities here..."
-                  value={formData.experience}
-                  onChange={(e) => setFormData({...formData, experience: e.target.value})}
-                />
-              </div>
-
-              {/* Step 5: Projects */}
-              <div>
-                <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-violet-100 text-violet-700 text-sm shadow-sm">5</span>
-                  Projects & Links
-                </label>
-                <textarea
-                  className="w-full h-24 bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-violet-500/10 focus:border-violet-400 transition-all resize-none placeholder:text-slate-400 shadow-sm"
-                  placeholder="List your key projects here. Include GitHub URLs, live demo links, and the tech stack used..."
-                  value={formData.projects}
-                  onChange={(e) => setFormData({...formData, projects: e.target.value})}
-                />
-              </div>
-
-              {/* Step 6: Extra Details */}
-              <div>
-                <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-fuchsia-100 text-fuchsia-700 text-sm shadow-sm">6</span>
-                  Extra Details (Optional)
-                </label>
-                <textarea
-                  className="w-full h-20 bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-fuchsia-500/10 focus:border-fuchsia-400 transition-all resize-none placeholder:text-slate-400 shadow-sm"
-                  placeholder="Additional context, education history, awards, or anything else you'd like the AI to include..."
-                  value={formData.extraDetails}
-                  onChange={(e) => setFormData({...formData, extraDetails: e.target.value})}
-                />
-              </div>
-
-              <button 
-                  type="submit"
-                  disabled={loading}
-                  className={`
-                    group w-full font-bold text-base rounded-2xl py-3.5 mt-1 flex items-center justify-center gap-3 transition-all duration-300 shadow-xl 
-                    ${loading
-                        ? 'bg-emerald-600 text-white shadow-emerald-600/30 cursor-wait'
-                        : 'bg-slate-900 hover:bg-emerald-600 text-white shadow-slate-900/20 hover:shadow-emerald-600/30 active:scale-[0.98]'
-                    }
-                  `}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 size={22} className="animate-spin text-white/90" />
-                      GENERATING...
-                    </>
-                  ) : (
-                    <>
-                      <Zap size={22} className="text-emerald-400" />
-                      GENERATE PREVIEW
-                      <ArrowRight size={22} className="opacity-70 group-hover:translate-x-1 transition-transform" />
-                    </>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                          <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                            LinkedIn Profile <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
+                          </label>
+                          <input
+                            type="url"
+                            placeholder="https://linkedin.com/in/..."
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all placeholder:text-slate-400 shadow-sm"
+                            value={formData.personalDetails.linkedin}
+                            onChange={(e) => setFormData({ ...formData, personalDetails: { ...formData.personalDetails, linkedin: e.target.value } })}
+                          />
+                        </div>
+                        <div>
+                          <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                            GitHub / Portfolio <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
+                          </label>
+                          <input
+                            type="url"
+                            placeholder="https://github.com/..."
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all placeholder:text-slate-400 shadow-sm"
+                            value={formData.personalDetails.github}
+                            onChange={(e) => setFormData({ ...formData, personalDetails: { ...formData.personalDetails, github: e.target.value } })}
+                          />
+                        </div>
+                      </div>
+                    </motion.div>
                   )}
-                </button>
+                  
+                  {currentStep === 2 && (
+                    <motion.div
+                      key="step2"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex flex-col gap-6"
+                    >
+                      <div>
+                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          Education History <span className="text-red-500">*</span>
+                        </label>
+                        <textarea
+                          className="w-full h-24 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all resize-none placeholder:text-slate-400 shadow-sm leading-relaxed"
+                          placeholder="E.g. B.S. in Computer Science, Stanford University (2018-2022). GPA: 3.8."
+                          value={formData.education}
+                          onChange={(e) => setFormData({ ...formData, education: e.target.value })}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          Key Projects <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
+                        </label>
+                        <textarea
+                          className="w-full h-32 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all resize-none placeholder:text-slate-400 shadow-sm leading-relaxed"
+                          placeholder="List your key projects here. Include GitHub URLs, live demo links, and the tech stack used... e.g. 'E-Commerce App (React, Node): Built a full stack store...'"
+                          value={formData.projects}
+                          onChange={(e) => setFormData({ ...formData, projects: e.target.value })}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {currentStep === 3 && (
+                    <motion.div
+                      key="step3"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex flex-col gap-6"
+                    >
+                      <div>
+                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          Core Skills <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative group">
+                          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none transition-colors group-focus-within:text-emerald-500">
+                            <Layers size={18} className="text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="React, Node.js, Python, Leadership..."
+                            className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl pl-12 pr-4 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all placeholder:text-slate-400 shadow-sm"
+                            value={formData.skills}
+                            onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
+                          />
+                        </div>
+                        <p className="text-xs font-medium text-emerald-600 mt-2 flex items-center gap-1.5 bg-emerald-50 px-3 py-1.5 rounded-lg inline-flex">
+                          <Zap size={14} className="fill-emerald-600" /> Match these skills with the job description for a higher ATS score.
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          Work Experience <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
+                        </label>
+                        <textarea
+                          className="w-full h-44 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all resize-none placeholder:text-slate-400 shadow-sm leading-relaxed"
+                          placeholder="Paste your past jobs and achievements here. E.g. Software Engineer at Google (2020-2023) - Built scalable backends... Be as detailed as you like, the AI will format it perfectly."
+                          value={formData.experience}
+                          onChange={(e) => setFormData({ ...formData, experience: e.target.value })}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {currentStep === 4 && (
+                    <motion.div
+                      key="step4"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.2 }}
+                      className="flex flex-col gap-6"
+                    >
+                      <div>
+                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          Professional Summary <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
+                        </label>
+                        <textarea
+                          className="w-full h-24 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all resize-none placeholder:text-slate-400 shadow-sm leading-relaxed"
+                          placeholder="A brief overview of your career goals, expertise, and what you bring to the table. (e.g. Dedicated Frontend Developer with 4+ years of experience in React...)"
+                          value={formData.summary}
+                          onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          Certifications <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
+                        </label>
+                        <textarea
+                          className="w-full h-20 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all resize-none placeholder:text-slate-400 shadow-sm leading-relaxed"
+                          placeholder="E.g. AWS Certified Solutions Architect, Complete 2023 Web Dev Bootcamp... (Include verification links if possible)"
+                          value={formData.certifications}
+                          onChange={(e) => setFormData({ ...formData, certifications: e.target.value })}
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          Key Achievements <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
+                        </label>
+                        <textarea
+                          className="w-full h-20 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all resize-none placeholder:text-slate-400 shadow-sm leading-relaxed"
+                          placeholder="E.g. Employee of the Month, Won College Hackathon, Published a research paper..."
+                          value={formData.achievements}
+                          onChange={(e) => setFormData({ ...formData, achievements: e.target.value })}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Navigation Buttons */}
+              <div className="mt-8 pt-6 border-t border-slate-100 flex items-center justify-between gap-4">
+                {currentStep > 1 ? (
+                  <button
+                    type="button"
+                    onClick={prevStep}
+                    className="px-6 py-3 rounded-xl font-bold text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                  >
+                    Back
+                  </button>
+                ) : (
+                  <div></div>
+                )}
+                
+                {currentStep < 4 ? (
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="px-8 py-3.5 rounded-2xl font-bold text-sm bg-slate-900 hover:bg-slate-800 text-white shadow-xl shadow-slate-900/20 transition-all ml-auto flex items-center gap-2 active:scale-[0.98]"
+                  >
+                    Continue
+                    <ArrowRight size={18} />
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (validateStep()) {
+                        handleSubmit(e);
+                      }
+                    }}
+                    disabled={loading}
+                    className={`
+                      ml-auto px-8 py-3.5 font-bold text-sm rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-xl 
+                      ${loading
+                      ? 'bg-emerald-600 text-white shadow-emerald-600/30 cursor-wait'
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/30 hover:shadow-emerald-600/40 active:scale-[0.98]'
+                    }
+                    `}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 size={18} className="animate-spin text-white/90" />
+                        GENERATING...
+                      </>
+                    ) : (
+                      <>
+                        <Zap size={18} className="text-emerald-100 fill-emerald-100" />
+                        GENERATE PREVIEW
+                        <ArrowRight size={18} className="opacity-90 group-hover:translate-x-1 transition-transform" />
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
             </form>
           </div>
 
           <div className="lg:col-span-6 flex flex-col items-start lg:sticky lg:top-28 w-full pb-8">
             {!previewHtml ? (
               <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white w-full relative overflow-hidden">
-               <h2 className="text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-3">
-                 How it works
-                 <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold uppercase tracking-wider ml-auto border border-emerald-100 shadow-sm">Information</span>
-               </h2>
-               
-               <div className="flex flex-col justify-start space-y-5 animate-in fade-in duration-500 mt-2">
-                 
-                 <div className="flex gap-4">
-                   <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 shadow-sm border border-emerald-200">
-                     <span className="font-bold text-emerald-700">1</span>
-                   </div>
-                   <div className="pt-1">
-                     <h3 className="font-bold text-slate-900 text-sm">Provide Basic Details</h3>
-                     <p className="text-xs text-slate-500 mt-1 leading-relaxed">Fill in the core information about yourself, your target role, and past experience so the AI contextually understands your profile.</p>
-                   </div>
-                 </div>
+                <h2 className="text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-3">
+                  How it works
+                  <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold uppercase tracking-wider ml-auto border border-emerald-100 shadow-sm">Information</span>
+                </h2>
 
-                 <div className="flex gap-4">
-                   <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 shadow-sm border border-emerald-200">
-                     <span className="font-bold text-emerald-700">2</span>
-                   </div>
-                   <div className="pt-1">
-                     <h3 className="font-bold text-slate-900 text-sm">Review Edit & Preview</h3>
-                     <p className="text-xs text-slate-500 mt-1 leading-relaxed">Click 'Generate Preview' to receive your interactive HTML format that you can view and edit freely.</p>
-                   </div>
-                 </div>
+                <div className="flex flex-col justify-start space-y-5 animate-in fade-in duration-500 mt-2">
 
-                 <div className="flex gap-4">
-                   <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 shadow-sm border border-emerald-200">
-                     <span className="font-bold text-emerald-700">3</span>
-                   </div>
-                   <div className="pt-1">
-                     <h3 className="font-bold text-slate-900 text-sm">Download Instantly</h3>
-                     <p className="text-xs text-slate-500 mt-1 leading-relaxed">Instantly compile and download the flawlessly crafted, professional PDF to directly hand to your next employer.</p>
-                   </div>
-                 </div>
-                 
-                 <div className="mt-4 pt-6 border-t border-slate-100">
-                   <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-200/50 shadow-inner">
-                     <h4 className="font-bold text-emerald-900 mb-2 flex items-center gap-2">
-                       <Zap className="w-4 h-4 text-emerald-600" /> Wait, a Pro Tip!
-                     </h4>
-                     <p className="text-xs text-emerald-800 leading-relaxed font-medium">To get a 100% matched ATS score, explicitly match the <strong>Skills</strong> you insert here directly with the skills specified on the corporate job description!</p>
-                   </div>
-                 </div>
-               </div>
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 shadow-sm border border-emerald-200">
+                      <span className="font-bold text-emerald-700">1</span>
+                    </div>
+                    <div className="pt-1">
+                      <h3 className="font-bold text-slate-900 text-sm">Provide Basic Details</h3>
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">Fill in the core information about yourself, your target role, and past experience so the AI contextually understands your profile.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 shadow-sm border border-emerald-200">
+                      <span className="font-bold text-emerald-700">2</span>
+                    </div>
+                    <div className="pt-1">
+                      <h3 className="font-bold text-slate-900 text-sm">Review Edit & Preview</h3>
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">Click 'Generate Preview' to receive your interactive HTML format that you can view and edit freely.</p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center shrink-0 shadow-sm border border-emerald-200">
+                      <span className="font-bold text-emerald-700">3</span>
+                    </div>
+                    <div className="pt-1">
+                      <h3 className="font-bold text-slate-900 text-sm">Download Instantly</h3>
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">Instantly compile and download the flawlessly crafted, professional PDF to directly hand to your next employer.</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-6 border-t border-slate-100">
+                    <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-200/50 shadow-inner">
+                      <h4 className="font-bold text-emerald-900 mb-2 flex items-center gap-2">
+                        <Zap className="w-4 h-4 text-emerald-600" /> Wait, a Pro Tip!
+                      </h4>
+                      <p className="text-xs text-emerald-800 leading-relaxed font-medium">To get a 100% matched ATS score, explicitly match the <strong>Skills</strong> you insert here directly with the skills specified on the corporate job description!</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-4 sm:p-6 shadow-xl shadow-slate-200/40 border border-white w-full h-[78vh] lg:h-[88vh] max-h-[980px] flex flex-col relative animate-in zoom-in-95 duration-500">
@@ -520,30 +771,30 @@ export default function ResumeBuilder() {
                     <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold border border-slate-200">
                       <Layers size={13} /> {Math.round(previewScale * 100)}% Fit
                     </div>
-                    <button 
-                      onClick={() => setIsEditing(!isEditing)} 
+                    <button
+                      onClick={() => setIsEditing(!isEditing)}
                       className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl transition-all shadow-sm
-                        ${isEditing 
-                           ? 'bg-emerald-600 text-white shadow-emerald-600/20 hover:bg-emerald-700' 
-                           : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'}`}
+                        ${isEditing
+                          ? 'bg-emerald-600 text-white shadow-emerald-600/20 hover:bg-emerald-700'
+                          : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'}`}
                     >
                       {isEditing ? <FileSearch size={16} /> : <FileSignature size={16} />}
                       {isEditing ? 'View Final / Ready' : 'Edit Text Visually'}
                     </button>
                   </div>
                 </div>
-                
+
                 <div className="flex-1 rounded-2xl border border-slate-200 overflow-hidden relative mb-4 flex transform-gpu bg-slate-100 shadow-inner">
                   <div
                     ref={previewViewportRef}
                     className="w-full h-full overflow-auto bg-slate-200/50 flex justify-center items-start p-3 sm:p-5"
                     style={{ WebkitOverflowScrolling: 'touch' }}
                   >
-                    <iframe 
+                    <iframe
                       id="resume-preview-content"
                       ref={previewRef}
                       srcDoc={previewHtml}
-                      className={`transform origin-top transition-all bg-white max-w-none ${isEditing ? 'outline-none ring-4 ring-emerald-500/40 shadow-2xl' : 'shadow-xl'}`} 
+                      className={`transform origin-top transition-all bg-white max-w-none ${isEditing ? 'outline-none ring-4 ring-emerald-500/40 shadow-2xl' : 'shadow-xl'}`}
                       style={{
                         transform: `scale(${previewScale})`,
                         transformOrigin: 'top center',
@@ -552,46 +803,46 @@ export default function ResumeBuilder() {
                         border: 'none'
                       }}
                       onLoad={(e) => {
-                          const iframe = e.target;
-                          if (iframe.contentDocument && iframe.contentDocument.body) {
-                              iframe.contentDocument.body.style.margin = '0';
-                              iframe.contentDocument.body.contentEditable = isEditing ? 'true' : 'false';
-                              
-                              const adjustHeight = () => {
-                                  if (iframe.contentDocument && iframe.contentDocument.documentElement) {
-                                      iframe.style.height = `${iframe.contentDocument.documentElement.scrollHeight}px`;
-                                  }
-                              };
+                        const iframe = e.target;
+                        if (iframe.contentDocument && iframe.contentDocument.body) {
+                          iframe.contentDocument.body.style.margin = '0';
+                          iframe.contentDocument.body.contentEditable = isEditing ? 'true' : 'false';
 
-                              if (iframe.contentWindow && iframe.contentWindow.ResizeObserver) {
-                                  const ro = new iframe.contentWindow.ResizeObserver(adjustHeight);
-                                  ro.observe(iframe.contentDocument.body);
-                              } else {
-                                  iframe.contentDocument.body.addEventListener('input', adjustHeight);
-                                  setTimeout(adjustHeight, 100);
-                              }
+                          const adjustHeight = () => {
+                            if (iframe.contentDocument && iframe.contentDocument.documentElement) {
+                              iframe.style.height = `${iframe.contentDocument.documentElement.scrollHeight}px`;
+                            }
+                          };
 
-                              const style = iframe.contentDocument.createElement('style');
-                              style.textContent = '::-webkit-scrollbar { display: none; } html { scrollbar-width: none; overflow: hidden !important; } style, meta, title, head { display: none !important; }';
-                              if (iframe.contentDocument.head) {
-                                  iframe.contentDocument.head.appendChild(style);
-                              }
-                              // Set initial height
-                              setTimeout(adjustHeight, 50);
+                          if (iframe.contentWindow && iframe.contentWindow.ResizeObserver) {
+                            const ro = new iframe.contentWindow.ResizeObserver(adjustHeight);
+                            ro.observe(iframe.contentDocument.body);
+                          } else {
+                            iframe.contentDocument.body.addEventListener('input', adjustHeight);
+                            setTimeout(adjustHeight, 100);
                           }
+
+                          const style = iframe.contentDocument.createElement('style');
+                          style.textContent = '::-webkit-scrollbar { display: none; } html { scrollbar-width: none; overflow: hidden !important; } style, meta, title, head { display: none !important; }';
+                          if (iframe.contentDocument.head) {
+                            iframe.contentDocument.head.appendChild(style);
+                          }
+                          // Set initial height
+                          setTimeout(adjustHeight, 50);
+                        }
                       }}
                     />
                   </div>
                 </div>
 
-                <button 
+                <button
                   onClick={handleDownloadPdf}
                   disabled={downloading}
                   className={`
                     w-full font-black text-sm uppercase tracking-wider rounded-2xl py-4 flex items-center justify-center gap-3 transition-all duration-300 shadow-xl
-                    ${downloading 
-                        ? 'bg-slate-400 text-white cursor-wait' 
-                        : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20 hover:shadow-emerald-600/40 hover:-translate-y-0.5'}
+                    ${downloading
+                      ? 'bg-slate-400 text-white cursor-wait'
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20 hover:shadow-emerald-600/40 hover:-translate-y-0.5'}
                   `}
                 >
                   {downloading ? (
@@ -639,8 +890,23 @@ export default function ResumeBuilder() {
                 <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-sm mx-auto">
                   Curixo provides high-quality AI processing completely <span className="font-bold text-orange-600">for free</span>. To keep this sustainable for everyone without charging subscriptions, we use a fair-use daily limit.
                 </p>
+
+                {/* Live Countdown */}
                 <div className="mt-5 p-4 bg-orange-50 border border-orange-100 rounded-2xl shadow-inner">
-                  <p className="text-orange-800 text-sm font-bold">Please come back tomorrow when your AI usages reset!</p>
+                  <p className="text-orange-700 text-xs font-semibold uppercase tracking-widest mb-2">Your limit resets in</p>
+                  <div className="flex items-center justify-center gap-2">
+                    {countdown.split(':').map((unit, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <div className="bg-white border border-orange-200 rounded-xl px-3 py-2 min-w-[3rem] text-center shadow-sm">
+                          <span className="text-2xl font-black text-orange-600 tabular-nums">{unit}</span>
+                          <p className="text-[9px] font-bold text-orange-400 uppercase tracking-widest mt-0.5">
+                            {['Hours', 'Mins', 'Secs'][i]}
+                          </p>
+                        </div>
+                        {i < 2 && <span className="text-xl font-black text-orange-300 -mt-3">:</span>}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 

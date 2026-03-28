@@ -9,7 +9,7 @@ const blacklistTokenSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now,
-        expires: 900 // auto-delete after 15 minutes (matches access token TTL)
+        expires: 345600 // auto-delete after 4 days (4 × 24 × 60 × 60 = 345600 seconds)
     }
 })
 

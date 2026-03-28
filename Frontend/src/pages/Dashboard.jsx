@@ -14,7 +14,7 @@ export default function Dashboard() {
   const [limits, setLimits] = useState({ ats_check: 3, interview_prep: 3, resume_build: 3 });
   const [totalActivities, setTotalActivities] = useState(0);
   const [loading, setLoading] = useState(true);
-  
+
   // Modal states
   const [showLogoutOptions, setShowLogoutOptions] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
@@ -100,20 +100,20 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#FAFAFC] text-slate-900 font-sans relative overflow-hidden selection:bg-violet-200 selection:text-violet-900 pb-20 flex flex-col">
       <Navbar />
-      
+
       {/* Global Background Elements from Reference */}
       <div className="absolute inset-0 pointer-events-none z-0" style={bgStyle}></div>
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-violet-200/50 rounded-full blur-[120px] pointer-events-none z-0"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-200/50 rounded-full blur-[120px] pointer-events-none z-0"></div>
 
       <main className="relative z-10 flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 pt-32 md:pt-40 pb-20">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
           className="flex flex-col gap-8"
         >
-          
+
           {/* Top Section */}
           <div className="w-full pl-2 mb-2 flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div>
@@ -126,29 +126,29 @@ export default function Dashboard() {
             </div>
             {/* Session Controls Dropdown */}
             <div className="flex items-center gap-3 relative z-40">
-               <button 
-                 onClick={() => setShowLogoutOptions(!showLogoutOptions)} 
-                 className={`px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-bold shadow-sm transition-colors flex items-center gap-2 ${showLogoutOptions ? 'text-red-600 border-red-200 bg-red-50/50' : 'hover:text-red-600 hover:border-red-200'}`}
-               >
-                 <LogOut className="w-4 h-4" /> Logout Account
-               </button>
+              <button
+                onClick={() => setShowLogoutOptions(!showLogoutOptions)}
+                className={`px-5 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-sm font-bold shadow-sm transition-colors flex items-center gap-2 ${showLogoutOptions ? 'text-red-600 border-red-200 bg-red-50/50' : 'hover:text-red-600 hover:border-red-200'}`}
+              >
+                <LogOut className="w-4 h-4" /> Logout Account
+              </button>
 
-               {showLogoutOptions && (
-                 <>
-                   <div className="fixed inset-0 z-40" onClick={() => setShowLogoutOptions(false)}></div>
-                   <div className="absolute top-full right-0 mt-3 w-64 bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-slate-100 p-2 z-50 animate-in fade-in slide-in-from-top-2 origin-top-right">
-                      <div className="px-3 py-2 border-b border-slate-50 mb-1">
-                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Session Security</p>
-                      </div>
-                      <button onClick={logout} className="w-full text-left flex items-center gap-3 px-3 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-colors">
-                        <LogOut className="w-4 h-4 text-slate-400" /> Logout Current Device
-                      </button>
-                      <button onClick={logoutAll} className="w-full text-left flex items-center gap-3 px-3 py-3 text-sm font-bold text-red-600 hover:bg-red-50 hover:text-red-700 rounded-xl transition-colors mt-1">
-                        <ShieldAlert className="w-4 h-4" /> Revoke All Active Devices
-                      </button>
-                   </div>
-                 </>
-               )}
+              {showLogoutOptions && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowLogoutOptions(false)}></div>
+                  <div className="absolute top-full right-0 mt-3 w-64 bg-white rounded-2xl shadow-[0_12px_40px_rgba(0,0,0,0.08)] border border-slate-100 p-2 z-50 animate-in fade-in slide-in-from-top-2 origin-top-right">
+                    <div className="px-3 py-2 border-b border-slate-50 mb-1">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Session Security</p>
+                    </div>
+                    <button onClick={logout} className="w-full text-left flex items-center gap-3 px-3 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900 rounded-xl transition-colors">
+                      <LogOut className="w-4 h-4 text-slate-400" /> Logout Current Device
+                    </button>
+                    <button onClick={logoutAll} className="w-full text-left flex items-center gap-3 px-3 py-3 text-sm font-bold text-red-600 hover:bg-red-50 hover:text-red-700 rounded-xl transition-colors mt-1">
+                      <ShieldAlert className="w-4 h-4" /> Revoke All Active Devices
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -167,7 +167,7 @@ export default function Dashboard() {
                   <p className="text-[15px] text-slate-500 leading-relaxed font-medium">Check your resume against ATS algorithms</p>
                 </div>
               </Link>
-              
+
               <Link to="/interview-prep" className="block group h-full">
                 <div className="bg-white rounded-[40px] p-8 md:p-10 shadow-[0_8px_40px_rgba(0,0,0,0.03)] border border-slate-100/50 group-hover:shadow-[0_12px_40px_rgba(59,130,246,0.08)] transition-all duration-300 flex flex-col h-full group-hover:-translate-y-1">
                   <div className="w-[52px] h-[68px] rounded-[26px] border border-blue-100/60 flex items-center justify-center mb-6 bg-gradient-to-b from-white to-blue-50/50 shadow-[0_2px_12px_rgba(59,130,246,0.06)] group-hover:scale-110 transition-transform">
@@ -177,7 +177,7 @@ export default function Dashboard() {
                   <p className="text-[15px] text-slate-500 leading-relaxed font-medium">Generate tailored interview questions based on your resume</p>
                 </div>
               </Link>
-              
+
               <Link to="/resume-builder" className="block group h-full">
                 <div className="bg-white rounded-[40px] p-8 md:p-10 shadow-[0_8px_40px_rgba(0,0,0,0.03)] border border-slate-100/50 group-hover:shadow-[0_12px_40px_rgba(16,185,129,0.08)] transition-all duration-300 flex flex-col h-full group-hover:-translate-y-1">
                   <div className="w-[52px] h-[68px] rounded-[26px] border border-emerald-100/60 flex items-center justify-center mb-6 bg-gradient-to-b from-white to-emerald-50/50 shadow-[0_2px_12px_rgba(16,185,129,0.06)] group-hover:scale-110 transition-transform">
@@ -192,7 +192,7 @@ export default function Dashboard() {
 
           {/* History Section Reimagined */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8 mb-12">
-            
+
             {/* History List */}
             <div className="lg:col-span-2 flex flex-col">
               <div className="flex items-center justify-between mb-6 pl-2">
@@ -203,62 +203,62 @@ export default function Dashboard() {
                   </button>
                 )}
               </div>
-              
+
               <div className="bg-white rounded-[32px] p-2 shadow-[0_8px_30px_rgb(0,0,0,0.02)] border border-slate-100/80 flex-grow">
-                 {loading && activities.length === 0 ? (
-                    <div className="flex justify-center p-12">
-                      <Loader2 className="w-8 h-8 text-violet-500 animate-spin" />
-                    </div>
-                  ) : activities.length > 0 ? (
-                    <div>
-                      {activities.slice(0, 3).map((activity, index) => (
-                        <div key={activity._id} className={`p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors rounded-[24px] ${index !== Math.min(activities.length, 3) - 1 ? 'border-b border-slate-50' : ''}`}>
-                          <div className="flex items-center gap-5">
-                            <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center shrink-0 shadow-inner ${activity.type === 'interview' ? 'bg-blue-50 border border-blue-100/50' : 'bg-violet-50 border border-violet-100/50'}`}>
-                              {activity.type === 'interview' ? <BrainCircuit className="w-5 h-5 text-blue-600" /> : <Target className="w-5 h-5 text-violet-600" />}
-                            </div>
-                            <div>
-                              <h4 className="font-extrabold text-slate-900 text-base">
-                                {activity.type === 'interview' ? 'Interview Preparation' : 'ATS Scan'}
-                              </h4>
-                              <p className="text-sm text-slate-600 mt-0.5 font-medium line-clamp-1 capitalize">
-                                {activity.type === 'interview' 
-                                  ? `Generated technical Q&A for ${activity.title} role` 
-                                  : `Scanned and analyzed resume against ${activity.title} ATS algorithm`}
+                {loading && activities.length === 0 ? (
+                  <div className="flex justify-center p-12">
+                    <Loader2 className="w-8 h-8 text-violet-500 animate-spin" />
+                  </div>
+                ) : activities.length > 0 ? (
+                  <div>
+                    {activities.slice(0, 3).map((activity, index) => (
+                      <div key={activity._id} className={`p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors rounded-[24px] ${index !== Math.min(activities.length, 3) - 1 ? 'border-b border-slate-50' : ''}`}>
+                        <div className="flex items-center gap-5">
+                          <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center shrink-0 shadow-inner ${activity.type === 'interview' ? 'bg-blue-50 border border-blue-100/50' : 'bg-violet-50 border border-violet-100/50'}`}>
+                            {activity.type === 'interview' ? <BrainCircuit className="w-5 h-5 text-blue-600" /> : <Target className="w-5 h-5 text-violet-600" />}
+                          </div>
+                          <div>
+                            <h4 className="font-extrabold text-slate-900 text-base">
+                              {activity.type === 'interview' ? 'Interview Preparation' : 'ATS Scan'}
+                            </h4>
+                            <p className="text-sm text-slate-600 mt-0.5 font-medium line-clamp-1 capitalize">
+                              {activity.type === 'interview'
+                                ? `Generated technical Q&A for ${activity.title} role`
+                                : `Scanned and analyzed resume against ${activity.title} ATS algorithm`}
+                            </p>
+                            <div className="flex items-center gap-2 mt-2">
+                              <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                              <p className="text-xs text-slate-500 font-semibold">
+                                {new Date(activity.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                               </p>
-                              <div className="flex items-center gap-2 mt-2">
-                                <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                                <p className="text-xs text-slate-500 font-semibold">
-                                  {new Date(activity.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' })}
-                                </p>
-                              </div>
                             </div>
                           </div>
-                          {activity.type === 'interview' ? (
-                             <Link to={`/interview-report/${activity._id}`} className="bg-white border border-slate-200 hover:border-violet-200 hover:text-violet-700 text-slate-600 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-sm text-center w-full sm:w-auto">
-                               View Report
-                             </Link>
-                          ) : (
-                             <Link to={`/ats-report/${activity._id}`} className="bg-slate-50 border border-slate-200 hover:border-violet-200 hover:bg-white hover:text-violet-700 text-slate-700 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-sm text-center w-full sm:w-auto">
-                               View Scan
-                             </Link>
-                          )}
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center p-12 text-center">
-                      <div className="w-16 h-16 rounded-[20px] bg-slate-50 flex items-center justify-center mb-4 border border-slate-100 shadow-inner">
-                        <Calendar className="w-8 h-8 text-slate-400" />
+                        {activity.type === 'interview' ? (
+                          <Link to={`/interview-report/${activity._id}`} className="bg-white border border-slate-200 hover:border-violet-200 hover:text-violet-700 text-slate-600 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-sm text-center w-full sm:w-auto">
+                            View Report
+                          </Link>
+                        ) : (
+                          <Link to={`/ats-report/${activity._id}`} className="bg-slate-50 border border-slate-200 hover:border-violet-200 hover:bg-white hover:text-violet-700 text-slate-700 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-sm text-center w-full sm:w-auto">
+                            View Scan
+                          </Link>
+                        )}
                       </div>
-                      <h3 className="text-lg font-bold text-slate-900 mb-1">No Activity Yet</h3>
-                      <p className="text-slate-500 text-sm font-medium max-w-sm">When you run ATS scans or prepare for interviews, your history will appear here.</p>
-                      
-                      <Link to="/interview-prep" className="mt-6 px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm rounded-xl transition-colors shadow-[0_4px_12px_rgba(139,92,246,0.3)]">
-                        Start First Prep
-                      </Link>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center p-12 text-center">
+                    <div className="w-16 h-16 rounded-[20px] bg-slate-50 flex items-center justify-center mb-4 border border-slate-100 shadow-inner">
+                      <Calendar className="w-8 h-8 text-slate-400" />
                     </div>
-                  )}
+                    <h3 className="text-lg font-bold text-slate-900 mb-1">No Activity Yet</h3>
+                    <p className="text-slate-500 text-sm font-medium max-w-sm">When you run ATS scans or prepare for interviews, your history will appear here.</p>
+
+                    <Link to="/interview-prep" className="mt-6 px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm rounded-xl transition-colors shadow-[0_4px_12px_rgba(139,92,246,0.3)]">
+                      Start First Prep
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -315,75 +315,75 @@ export default function Dashboard() {
       {showHistoryModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity" onClick={() => { setShowHistoryModal(false); fetchDashboardData(3); }}></div>
-          
+
           <div className="bg-white rounded-[32px] w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between p-6 border-b border-slate-100 shrink-0">
-               <div>
-                  <h3 className="text-xl font-black text-slate-900">All Activity History</h3>
-                  <p className="text-sm text-slate-500 font-medium">Your complete timeline of career optimization.</p>
-               </div>
-               <button onClick={() => { setShowHistoryModal(false); fetchDashboardData(3); }} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600">
-                 <X className="w-6 h-6" />
-               </button>
+              <div>
+                <h3 className="text-xl font-black text-slate-900">All Activity History</h3>
+                <p className="text-sm text-slate-500 font-medium">Your complete timeline of career optimization.</p>
+              </div>
+              <button onClick={() => { setShowHistoryModal(false); fetchDashboardData(3); }} className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600">
+                <X className="w-6 h-6" />
+              </button>
             </div>
 
             <div className="p-2 overflow-y-auto flex-grow flex flex-col" style={{ scrollbarWidth: 'thin' }}>
-                {activities.map((activity, index) => (
-                    <div key={activity._id} className={`p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors rounded-[24px] ${index !== activities.length - 1 ? 'border-b border-slate-50' : ''}`}>
-                      <div className="flex items-center gap-5">
-                        <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center shrink-0 shadow-inner ${activity.type === 'interview' ? 'bg-blue-50 border border-blue-100/50' : 'bg-violet-50 border border-violet-100/50'}`}>
-                          {activity.type === 'interview' ? <BrainCircuit className="w-5 h-5 text-blue-600" /> : <Target className="w-5 h-5 text-violet-600" />}
-                        </div>
-                        <div>
-                          <h4 className="font-extrabold text-slate-900 text-base">
-                            {activity.type === 'interview' ? 'Interview Preparation' : 'ATS Scan'}
-                          </h4>
-                          <p className="text-sm text-slate-600 mt-0.5 font-medium line-clamp-1 capitalize">
-                            {activity.type === 'interview' 
-                              ? `Generated technical Q&A for ${activity.title} role` 
-                              : `Scanned and analyzed resume against ${activity.title} ATS algorithm`}
-                          </p>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                            <p className="text-xs text-slate-500 font-semibold">
-                              {new Date(activity.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' })}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="shrink-0 flex items-center justify-end">
-                        {activity.type === 'interview' ? (
-                          <Link to={`/interview-report/${activity._id}`} className="bg-white border border-slate-200 hover:border-violet-200 hover:text-violet-700 text-slate-600 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-sm text-center w-full sm:w-auto">
-                            View Report
-                          </Link>
-                        ) : (
-                          <Link to={`/ats-report/${activity._id}`} className="bg-slate-50 border border-slate-200 hover:border-violet-200 hover:bg-white hover:text-violet-700 text-slate-700 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-sm text-center w-full sm:w-auto">
-                            View Scan
-                          </Link>
-                        )}
+              {activities.map((activity, index) => (
+                <div key={activity._id} className={`p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-slate-50/80 transition-colors rounded-[24px] ${index !== activities.length - 1 ? 'border-b border-slate-50' : ''}`}>
+                  <div className="flex items-center gap-5">
+                    <div className={`w-12 h-12 rounded-[16px] flex items-center justify-center shrink-0 shadow-inner ${activity.type === 'interview' ? 'bg-blue-50 border border-blue-100/50' : 'bg-violet-50 border border-violet-100/50'}`}>
+                      {activity.type === 'interview' ? <BrainCircuit className="w-5 h-5 text-blue-600" /> : <Target className="w-5 h-5 text-violet-600" />}
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-slate-900 text-base">
+                        {activity.type === 'interview' ? 'Interview Preparation' : 'ATS Scan'}
+                      </h4>
+                      <p className="text-sm text-slate-600 mt-0.5 font-medium line-clamp-1 capitalize">
+                        {activity.type === 'interview'
+                          ? `Generated technical Q&A for ${activity.title} role`
+                          : `Scanned and analyzed resume against ${activity.title} ATS algorithm`}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                        <p className="text-xs text-slate-500 font-semibold">
+                          {new Date(activity.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </p>
                       </div>
                     </div>
-                ))}
-
-                {loadingModal && (
-                  <div className="flex justify-center p-6 shrink-0">
-                    <Loader2 className="w-6 h-6 text-violet-500 animate-spin" />
                   </div>
-                )}
+                  <div className="shrink-0 flex items-center justify-end">
+                    {activity.type === 'interview' ? (
+                      <Link to={`/interview-report/${activity._id}`} className="bg-white border border-slate-200 hover:border-violet-200 hover:text-violet-700 text-slate-600 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-sm text-center w-full sm:w-auto">
+                        View Report
+                      </Link>
+                    ) : (
+                      <Link to={`/ats-report/${activity._id}`} className="bg-slate-50 border border-slate-200 hover:border-violet-200 hover:bg-white hover:text-violet-700 text-slate-700 px-6 py-3 rounded-xl text-sm font-bold transition-all shadow-sm text-center w-full sm:w-auto">
+                        View Scan
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {loadingModal && (
+                <div className="flex justify-center p-6 shrink-0">
+                  <Loader2 className="w-6 h-6 text-violet-500 animate-spin" />
+                </div>
+              )}
             </div>
 
             <div className="p-4 border-t border-slate-100 bg-slate-50 shrink-0 rounded-b-[32px] flex justify-center">
-                {activities.length < totalActivities ? (
-                  <button 
-                    onClick={handleModalLoadMore}
-                    disabled={loadingModal}
-                    className="px-6 py-2.5 bg-violet-600 text-white rounded-xl text-sm font-bold hover:bg-violet-700 transition-colors shadow-lg shadow-violet-600/20 disabled:opacity-50"
-                  >
-                    Load More Activity
-                  </button>
-                ) : (
-                  <p className="text-sm font-bold text-slate-400 py-2.5">End of history</p>
-                )}
+              {activities.length < totalActivities ? (
+                <button
+                  onClick={handleModalLoadMore}
+                  disabled={loadingModal}
+                  className="px-6 py-2.5 bg-violet-600 text-white rounded-xl text-sm font-bold hover:bg-violet-700 transition-colors shadow-lg shadow-violet-600/20 disabled:opacity-50"
+                >
+                  Load More Activity
+                </button>
+              ) : (
+                <p className="text-sm font-bold text-slate-400 py-2.5">End of history</p>
+              )}
             </div>
           </div>
         </div>

@@ -7,13 +7,13 @@ const { issueCsrfToken, verifyCsrf } = require("./middlewares/csrf.middleware")
 
 const app = express()
 
-app.use(express.json({ limit: "5mb" }))
-app.use(express.urlencoded({ extended: true, limit: "5mb" }))
+app.use(express.json({ limit: "3mb" }))
+app.use(express.urlencoded({ extended: true, limit: "3mb" }))
 app.use(cookieParser())
 app.use(helmet())
 app.use(xssSanitizer)
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: process.env.CORS_ORIGIN?.includes(',') ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()) : (process.env.CORS_ORIGIN || 'http://localhost:5173'),
     credentials: true
 }))
 app.use(issueCsrfToken)
