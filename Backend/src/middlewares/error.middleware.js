@@ -65,6 +65,10 @@ function globalErrorHandler(err, req, res, _next) {
         statusCode = 400
         message = "Malformed JSON in request body."
     }
+    else if (err.type === "entity.too.large") {
+        statusCode = 413
+        message = "Request payload is too large. Please shorten the content and try again."
+    }
 
     // ── Custom errors with a message ──
     else if (err.message && statusCode !== 500) {

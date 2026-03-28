@@ -14,4 +14,9 @@ export const atsService = {
     const response = await api.post('/ats/improve', data);
     return response.data;
   },
+
+  getReportById: async (reportId) => {
+    const response = await api.get(`/ats/report/${reportId}`);
+    return response.data;
+  },
 };

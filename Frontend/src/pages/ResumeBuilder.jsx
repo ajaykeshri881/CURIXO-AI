@@ -22,6 +22,8 @@ export default function ResumeBuilder() {
   const [previewHtml, setPreviewHtml] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const previewRef = useRef(null);
+  const previewViewportRef = useRef(null);
+  const [previewScale, setPreviewScale] = useState(1);
   const [showLimitPrompt, setShowLimitPrompt] = useState(false);
 
   const [loadingMessage, setLoadingMessage] = useState('');
@@ -66,6 +68,39 @@ export default function ResumeBuilder() {
       previewRef.current.contentDocument.body.contentEditable = isEditing ? 'true' : 'false';
     }
   }, [isEditing]);
+
+  useEffect(() => {
+    if (!previewHtml || !previewViewportRef.current) return;
+
+    const A4_WIDTH_PX = 794;
+    const MIN_SCALE = 0.72;
+    const MAX_SCALE = 1;
+
+    const updatePreviewScale = () => {
+      if (!previewViewportRef.current) return;
+      const viewportWidth = previewViewportRef.current.clientWidth;
+      const usableWidth = Math.max(viewportWidth - 28, 320);
+      const nextScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, usableWidth / A4_WIDTH_PX));
+      setPreviewScale(Number(nextScale.toFixed(3)));
+    };
+
+    updatePreviewScale();
+
+    let resizeObserver;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(updatePreviewScale);
+      resizeObserver.observe(previewViewportRef.current);
+    }
+
+    window.addEventListener('resize', updatePreviewScale);
+    window.addEventListener('orientationchange', updatePreviewScale);
+
+    return () => {
+      if (resizeObserver) resizeObserver.disconnect();
+      window.removeEventListener('resize', updatePreviewScale);
+      window.removeEventListener('orientationchange', updatePreviewScale);
+    };
+  }, [previewHtml]);
 
   // If arriving from ATS page with improved resume HTML, pre-load it
   useEffect(() => {
@@ -112,21 +147,50 @@ export default function ResumeBuilder() {
     setDownloading(true);
     try {
       const contentEl = document.getElementById('resume-preview-content');
-      const finalHtml = (contentEl && contentEl.contentDocument) ? contentEl.contentDocument.documentElement.outerHTML : previewHtml;
+      let finalHtml = previewHtml;
+
+      if (isEditing && contentEl && contentEl.contentDocument) {
+        finalHtml = contentEl.contentDocument.documentElement.outerHTML;
+      }
+
+      if (typeof finalHtml === 'string') {
+        finalHtml = finalHtml
+          .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+          .replace(/\s(?:src|href)=(['"])(?:chrome-extension|moz-extension|safari-web-extension):[^'"]*\1/gi, '');
+      }
+
+      if (!finalHtml || !String(finalHtml).trim()) {
+        throw new Error('Resume preview is empty. Please generate preview first.');
+      }
       
       const pdfBlob = await resumeService.downloadPdfFromScratch({ resumeHtml: finalHtml });
-      
-      const url = window.URL.createObjectURL(new Blob([pdfBlob]));
+
+      const downloadBlob = pdfBlob instanceof Blob
+        ? pdfBlob
+        : new Blob([pdfBlob], { type: 'application/pdf' });
+
+      const url = window.URL.createObjectURL(downloadBlob);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `resume.pdf`);
       document.body.appendChild(link);
       link.click();
       link.parentNode.removeChild(link);
+      window.URL.revokeObjectURL(url);
 
       toast.success('Resume PDF downloaded successfully!');
     } catch (error) {
-      toast.error('Failed to download PDF');
+      if (error.response?.data instanceof Blob) {
+        try {
+          const text = await error.response.data.text();
+          const json = JSON.parse(text);
+          toast.error(json.message || 'Failed to download PDF');
+        } catch {
+          toast.error('Failed to download PDF');
+        }
+      } else {
+        toast.error(error.response?.data?.message || error.message || 'Failed to download PDF');
+      }
     } finally {
       setDownloading(false);
     }
@@ -196,7 +260,7 @@ export default function ResumeBuilder() {
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-400/20 rounded-full blur-[100px] pointer-events-none z-0" />
       <div className="fixed bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-sky-400/10 rounded-full blur-[120px] pointer-events-none z-0" />
 
-      <main className="relative z-10 max-w-6xl w-full mx-auto px-4 pt-24 lg:pt-28 pb-12 flex-grow">
+      <main className="relative z-10 max-w-[1500px] w-full mx-auto px-4 pt-24 lg:pt-28 pb-12 flex-grow">
         <div className="mb-6 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 flex flex-col md:flex-row items-center md:items-baseline gap-2 md:gap-3">
             <FileText className="hidden md:block text-emerald-600 w-10 h-10 translate-y-1" strokeWidth={3} />
@@ -209,7 +273,7 @@ export default function ResumeBuilder() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-7 bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white">
+          <div className="lg:col-span-6 bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white">
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               
               {/* Step 1: Target Role */}
@@ -380,7 +444,7 @@ export default function ResumeBuilder() {
             </form>
           </div>
 
-          <div className="lg:col-span-5 flex flex-col items-start lg:sticky lg:top-28 w-full pb-8">
+          <div className="lg:col-span-6 flex flex-col items-start lg:sticky lg:top-28 w-full pb-8">
             {!previewHtml ? (
               <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white w-full relative overflow-hidden">
                <h2 className="text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-3">
@@ -431,31 +495,46 @@ export default function ResumeBuilder() {
                </div>
               </div>
             ) : (
-              <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 shadow-xl shadow-slate-200/40 border border-white w-full h-[85vh] flex flex-col relative animate-in zoom-in-95 duration-500">
+              <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-4 sm:p-6 shadow-xl shadow-slate-200/40 border border-white w-full h-[78vh] lg:h-[88vh] max-h-[980px] flex flex-col relative animate-in zoom-in-95 duration-500">
                 <div className="flex justify-between items-center mb-4 pb-4 border-b border-slate-100">
                   <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
                     <FileSearch className="text-emerald-500 w-5 h-5" /> Preview & Edit
                   </h2>
-                  <button 
-                    onClick={() => setIsEditing(!isEditing)} 
-                    className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl transition-all shadow-sm
-                      ${isEditing 
-                         ? 'bg-emerald-600 text-white shadow-emerald-600/20 hover:bg-emerald-700' 
-                         : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'}`}
-                  >
-                    {isEditing ? <FileSearch size={16} /> : <FileSignature size={16} />}
-                    {isEditing ? 'View Final / Ready' : 'Edit Text Visually'}
-                  </button>
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs font-bold border border-slate-200">
+                      <Layers size={13} /> {Math.round(previewScale * 100)}% Fit
+                    </div>
+                    <button 
+                      onClick={() => setIsEditing(!isEditing)} 
+                      className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl transition-all shadow-sm
+                        ${isEditing 
+                           ? 'bg-emerald-600 text-white shadow-emerald-600/20 hover:bg-emerald-700' 
+                           : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'}`}
+                    >
+                      {isEditing ? <FileSearch size={16} /> : <FileSignature size={16} />}
+                      {isEditing ? 'View Final / Ready' : 'Edit Text Visually'}
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="flex-1 rounded-2xl border border-slate-200 overflow-hidden relative mb-4 flex transform-gpu bg-slate-100 shadow-inner">
-                  <div className="w-full h-full overflow-y-auto bg-slate-200/50 flex justify-center py-4" style={{ WebkitOverflowScrolling: 'touch' }}>
+                  <div
+                    ref={previewViewportRef}
+                    className="w-full h-full overflow-auto bg-slate-200/50 flex justify-center items-start p-3 sm:p-5"
+                    style={{ WebkitOverflowScrolling: 'touch' }}
+                  >
                     <iframe 
                       id="resume-preview-content"
                       ref={previewRef}
                       srcDoc={previewHtml}
-                      className={`transform origin-top transition-all bg-white ${isEditing ? 'outline-none ring-4 ring-emerald-500/40 shadow-2xl' : 'shadow-xl'}`} 
-                      style={{ transform: 'scale(0.8)', width: '210mm', minHeight: '297mm', border: 'none' }}
+                      className={`transform origin-top transition-all bg-white max-w-none ${isEditing ? 'outline-none ring-4 ring-emerald-500/40 shadow-2xl' : 'shadow-xl'}`} 
+                      style={{
+                        transform: `scale(${previewScale})`,
+                        transformOrigin: 'top center',
+                        width: '210mm',
+                        minHeight: '297mm',
+                        border: 'none'
+                      }}
                       onLoad={(e) => {
                           const iframe = e.target;
                           if (iframe.contentDocument && iframe.contentDocument.body) {
