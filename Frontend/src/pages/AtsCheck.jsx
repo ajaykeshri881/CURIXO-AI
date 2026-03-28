@@ -462,12 +462,12 @@ export default function AtsCheck() {
                        <svg className="w-full h-full transform -rotate-90 drop-shadow-sm" viewBox="0 0 100 100">
                          <circle cx="50" cy="50" r="45" fill="none" stroke="#f4f4f5" strokeWidth="8" />
                          <circle cx="50" cy="50" r="45" fill="none" stroke={result.score >= 80 ? '#22c55e' : result.score >= 50 ? '#eab308' : '#ef4444'} strokeWidth="8"
-                           strokeLinecap="round" strokeDasharray="283" strokeDashoffset={283 - (283 * ((result.score || 0)/100))}
+                           strokeLinecap="round" strokeDasharray="283" strokeDashoffset={283 - (283 * ((Math.round(result.score) || 0)/100))}
                            className="transition-all duration-1000 ease-out"
                          />
                        </svg>
                        <div className="absolute flex flex-col items-center">
-                         <span className="text-2xl font-black text-zinc-950">{result.score || 0}</span>
+                         <span className="text-2xl font-black text-zinc-950">{Math.round(result.score) || 0}</span>
                        </div>
                      </div>
                      <div>

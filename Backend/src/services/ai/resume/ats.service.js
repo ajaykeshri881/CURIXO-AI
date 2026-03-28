@@ -17,7 +17,7 @@ async function analyzeResumeWithATS(resumeText, jobTitle, jobDescription) {
         ${jobDescription}
 
         **Strict Analysis Rules:**
-        1.  **ATS Score (out of 100):** Calculate a score with extreme precision.
+        1.  **ATS Score (out of 100):** Calculate an integer score. Return a whole number only (e.g., 82, not 82.88).
             - Deduct points for every missing keyword from the job description.
             - Deduct points for experience that doesn't directly correlate with the job's requirements.
             - Analyze the formatting. The resume must be clean, simple, and easily parsable. No complex tables, columns, or graphics.
@@ -29,16 +29,20 @@ async function analyzeResumeWithATS(resumeText, jobTitle, jobDescription) {
 
         **Output Format (JSON only, no markdown):**
         {
-          "score": <number>,
+          "score": <number (integer)>,
           "strengths": "<string>",
           "weaknesses": "<string>",
           "missingKeywords": ["<keyword1>", "<keyword2>", ...],
           "suggestions": "<string>"
         }
-      `
+        `
 
         const text = await generateWithFailover(prompt)
-        return JSON.parse(cleanJsonText(text))
+        const parsedResult = JSON.parse(cleanJsonText(text));
+        if (parsedResult && typeof parsedResult.score === 'number') {
+            parsedResult.score = Math.round(parsedResult.score);
+        }
+        return parsedResult;
     } catch (error) {
         console.error("Error in analyzeResumeWithATS:", error)
         return { error: "Failed to analyze resume." }
