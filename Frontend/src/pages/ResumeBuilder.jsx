@@ -342,7 +342,7 @@ export default function ResumeBuilder() {
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-400/20 rounded-full blur-[100px] pointer-events-none z-0" />
       <div className="fixed bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-sky-400/10 rounded-full blur-[120px] pointer-events-none z-0" />
 
-      <main className="relative z-10 max-w-[1500px] w-full mx-auto px-4 pt-24 lg:pt-28 pb-12 flex-grow">
+      <main className="relative z-10 flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 pt-32 md:pt-40 pb-20">
         <div className="mb-6 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 flex flex-col md:flex-row items-center md:items-baseline gap-2 md:gap-3">
             <FileText className="hidden md:block text-emerald-600 w-10 h-10 translate-y-1" strokeWidth={3} />
