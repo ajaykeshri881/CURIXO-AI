@@ -1,10 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { atsService } from '../services/ats.service';
 import { resumeService } from '../services/resume.service';
 import toast from 'react-hot-toast';
-import { UploadCloud, FileText, Target, Loader2, ArrowRight, FileSearch, CheckCircle2, ChevronRight, Wand2, Download, Sparkles, Lock, LogIn, UserPlus } from 'lucide-react';
+import { UploadCloud, FileText, Target, Loader2, ArrowRight, FileSearch, CheckCircle2, ChevronRight, Wand2, Download, Sparkles, Lock, LogIn, UserPlus, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
@@ -23,7 +23,46 @@ export default function AtsCheck() {
   const [improvedResume, setImprovedResume] = useState(null);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [viewMoreContent, setViewMoreContent] = useState(null);
+  const [showLimitPrompt, setShowLimitPrompt] = useState(false);
   const fileInputRef = useRef(null);
+
+  const [loadingMessage, setLoadingMessage] = useState('');
+
+  const loadingMessages = [
+    "Scanning your resume...",
+    "Extracting core skills...",
+    "Comparing against ATS algorithms...",
+    "Identifying keyword gaps...",
+    "Generating match score..."
+  ];
+
+  const improvingMessages = [
+    "Analyzing critical feedback...",
+    "Structuring AI improvements...",
+    "Formulating high-impact phrasing...",
+    "Integrating missing keywords...",
+    "Finalizing ATS optimized output..."
+  ];
+
+  useEffect(() => {
+    let interval;
+    if (loading) {
+      let i = 0;
+      setLoadingMessage(loadingMessages[0]);
+      interval = setInterval(() => {
+        i = (i + 1) % loadingMessages.length;
+        setLoadingMessage(loadingMessages[i]);
+      }, 2500);
+    } else if (improving) {
+      let i = 0;
+      setLoadingMessage(improvingMessages[0]);
+      interval = setInterval(() => {
+        i = (i + 1) % improvingMessages.length;
+        setLoadingMessage(improvingMessages[i]);
+      }, 2500);
+    }
+    return () => clearInterval(interval);
+  }, [loading, improving]);
 
   const handleFileChange = (e) => {
     if (e.target.files?.[0]) {
@@ -75,7 +114,7 @@ export default function AtsCheck() {
         // Guest hit their free limit — show signup/login prompt
         setShowAuthPrompt(true);
       } else if (status === 429) {
-        toast.error('Daily ATS scan limit reached. Come back tomorrow!');
+        setShowLimitPrompt(true);
       } else {
         toast.error(error.response?.data?.message || 'Error analyzing resume');
       }
@@ -114,7 +153,7 @@ export default function AtsCheck() {
       if (status === 401) {
         setShowAuthPrompt(true);
       } else if (status === 429) {
-        toast.error('Daily resume build limit reached. Come back tomorrow!');
+        setShowLimitPrompt(true);
       } else {
         toast.error(error.response?.data?.message || 'Failed to improve resume');
       }
@@ -126,6 +165,50 @@ export default function AtsCheck() {
   return (
     <div className="min-h-screen bg-[#FAFAFC] text-zinc-900 font-sans selection:bg-violet-200 selection:text-violet-900 flex flex-col overflow-x-hidden">
       <Navbar />
+
+      {/* Full Screen Dynamic Loading Overlay */}
+      <AnimatePresence>
+        {(loading || improving) && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-white/70 backdrop-blur-md"
+          >
+            <div className="bg-white px-8 py-10 rounded-[2rem] shadow-2xl border border-violet-100 flex flex-col items-center max-w-sm w-full relative overflow-hidden">
+               <div className="absolute inset-0 bg-gradient-to-tr from-violet-50 to-indigo-50 opacity-50" />
+               <div className="relative z-10 flex flex-col items-center">
+                 <div className="w-20 h-20 mb-6 relative">
+                   <div className="absolute inset-0 border-4 border-violet-100 rounded-full" />
+                   <div className="absolute inset-0 border-4 border-violet-500 rounded-full border-t-transparent animate-spin" />
+                   <div className="absolute inset-0 flex items-center justify-center text-violet-600">
+                     <Target className="w-8 h-8 animate-pulse" />
+                   </div>
+                 </div>
+                 
+                 <h3 className="text-xl font-black text-slate-900 mb-2">
+                   {loading ? "Analyzing Resume" : "AI is Working"}
+                 </h3>
+                 
+                 <div className="h-6 flex items-center justify-center overflow-hidden w-full">
+                   <AnimatePresence mode="wait">
+                     <motion.p
+                       key={loadingMessage}
+                       initial={{ opacity: 0, y: 10 }}
+                       animate={{ opacity: 1, y: 0 }}
+                       exit={{ opacity: 0, y: -10 }}
+                       transition={{ duration: 0.3 }}
+                       className="text-sm font-semibold text-violet-700 text-center"
+                     >
+                       {loadingMessage}
+                     </motion.p>
+                   </AnimatePresence>
+                 </div>
+               </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Background Grid & Gradients */}
       <div 
@@ -549,6 +632,55 @@ export default function AtsCheck() {
                 className="w-full text-center mt-4 text-xs font-semibold text-slate-400 hover:text-slate-600 transition-colors"
               >
                 Maybe later
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Limit Prompt Modal for Exhausted Quota */}
+      <AnimatePresence>
+        {showLimitPrompt && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm"
+              onClick={() => setShowLimitPrompt(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative z-10 bg-white rounded-[2rem] w-full max-w-md p-8 shadow-2xl border border-white"
+            >
+              <div className="flex justify-center mb-6">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center shadow-inner">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center shadow-xl shadow-orange-500/30">
+                    <Clock className="w-7 h-7 text-white" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight">
+                  Daily Limit Reached
+                </h3>
+                <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-sm mx-auto">
+                  Curixo provides high-quality AI processing completely <span className="font-bold text-orange-600">for free</span>. To keep this sustainable for everyone without charging subscriptions, we use a fair-use daily limit.
+                </p>
+                <div className="mt-5 p-4 bg-orange-50 border border-orange-100 rounded-2xl shadow-inner">
+                  <p className="text-orange-800 text-sm font-bold">Please come back tomorrow when your AI usages reset!</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowLimitPrompt(false)}
+                className="w-full flex items-center justify-center gap-2 py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-2xl shadow-xl shadow-slate-900/20 transition-all uppercase tracking-wider"
+              >
+                Understood, see you tomorrow
               </button>
             </motion.div>
           </div>
