@@ -15,7 +15,7 @@ export const Footer = () => {
             The intelligent career acceleration platform. We build tools that give candidates an unfair advantage.
           </p>
         </div>
-        
+
         {/* Pages Section */}
         <div className="flex flex-col items-center md:items-start">
           <h4 className="text-zinc-950 font-bold mb-6 tracking-tight flex items-center gap-2 h-8">
@@ -37,9 +37,9 @@ export const Footer = () => {
           <p className="text-zinc-500 text-sm mb-6 font-medium leading-relaxed max-w-[240px]">
             Your ideas help us improve. We value your feedback on how to make Curixo better for everyone.
           </p>
-          <a 
-            href="https://forms.gle/QbRGa7T185AoYty37" 
-            target="_blank" 
+          <a
+            href="https://forms.gle/QbRGa7T185AoYty37"
+            target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm font-bold bg-violet-600 text-white px-5 py-2.5 rounded-full hover:bg-violet-700 transition-all shadow-lg shadow-violet-600/10 active:scale-95 group text-center"
           >
@@ -57,9 +57,9 @@ export const Footer = () => {
           <p className="text-zinc-500 text-sm mb-6 font-medium leading-relaxed max-w-[240px]">
             Curixo is built for the community. We're open source and welcome contributions to make career growth accessible.
           </p>
-          <a 
-            href="https://github.com/ajaykeshri881/CURIXO-AI-Powered-Career-Platform" 
-            target="_blank" 
+          <a
+            href="https://github.com/ajaykeshri881/CURIXO-AI-Powered-Career-Platform"
+            target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-sm font-bold bg-zinc-950 text-white px-5 py-2.5 rounded-full hover:bg-zinc-800 transition-all shadow-lg shadow-zinc-900/10 hover:shadow-zinc-900/20 active:scale-95"
           >
@@ -68,16 +68,16 @@ export const Footer = () => {
           </a>
         </div>
       </div>
-      
+
       <div className="max-w-7xl mx-auto pt-8 border-t border-zinc-200/60 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
         <p className="text-zinc-400 font-medium text-sm">© {currentYearIST} Curixo. All rights reserved.</p>
         <div className="flex items-center gap-1.5 text-zinc-500 text-sm font-medium">
           <span>Crafted with</span>
           <Heart className="w-4 h-4 text-rose-500 fill-rose-500 animate-pulse" />
           <span>by</span>
-          <a 
-            href="https://www.linkedin.com/in/ajaykeshri881" 
-            target="_blank" 
+          <a
+            href="https://www.linkedin.com/in/ajaykeshri881"
+            target="_blank"
             rel="noopener noreferrer"
             className="text-zinc-950 font-bold hover:text-violet-600 transition-colors border-b border-zinc-200 hover:border-violet-200 pb-0.5"
           >

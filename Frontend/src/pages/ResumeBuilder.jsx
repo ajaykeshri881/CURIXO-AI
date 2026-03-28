@@ -349,14 +349,14 @@ export default function ResumeBuilder() {
             <span>AI</span>
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-teal-600">Resume Builder</span>
           </h1>
-          <p className="mt-4 text-slate-500 text-lg max-w-2xl mx-auto md:mx-0 font-medium leading-relaxed">
+          <p className="mt-4 text-slate-600 text-base md:text-lg max-w-2xl mx-auto md:mx-0 font-medium leading-relaxed">
             Fill in the details below to instantly generate a professional, highly-optimized, and ATS-friendly PDF resume crafted exactly to your specifications.
           </p>
 
-          <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 shadow-sm">
+          <div className="mt-5 rounded-2xl border border-emerald-200 bg-emerald-50/80 p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm">
             <div>
               <p className="text-sm sm:text-base font-extrabold text-emerald-900">Already have a resume?</p>
-              <p className="text-xs sm:text-sm font-medium text-emerald-800/90 mt-0.5">
+              <p className="text-xs sm:text-sm font-medium text-emerald-800 mt-1">
                 Check ATS score, identify missing keywords, and improve your resume instantly.
               </p>
             </div>
@@ -401,7 +401,7 @@ export default function ResumeBuilder() {
                       >
                         {currentStep > step.num ? <CheckCircle2 size={18} /> : step.num}
                       </button>
-                      <span className={`absolute mt-12 text-[10px] whitespace-nowrap sm:text-xs font-bold uppercase tracking-wider ${currentStep === step.num ? 'text-emerald-700' : currentStep > step.num ? 'text-slate-700' : 'text-slate-400'}`}>
+                      <span className={`absolute mt-12 text-[11px] whitespace-nowrap sm:text-xs font-bold uppercase tracking-wider ${currentStep === step.num ? 'text-emerald-700' : currentStep > step.num ? 'text-slate-700' : 'text-slate-400'}`}>
                         {step.label}
                       </span>
                     </div>
@@ -424,7 +424,7 @@ export default function ResumeBuilder() {
                     >
                       {/* Target Role */}
                       <div>
-                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                        <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                           Target Job Title <span className="text-red-500">*</span>
                         </label>
                         <div className="relative group">
@@ -443,7 +443,7 @@ export default function ResumeBuilder() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                          <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                             Full Name <span className="text-red-500">*</span>
                           </label>
                           <input
@@ -455,7 +455,7 @@ export default function ResumeBuilder() {
                           />
                         </div>
                         <div>
-                          <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                             Email <span className="text-red-500">*</span>
                           </label>
                           <input
@@ -470,7 +470,7 @@ export default function ResumeBuilder() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                          <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                             Phone Number <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
                           </label>
                           <input
@@ -482,7 +482,7 @@ export default function ResumeBuilder() {
                           />
                         </div>
                         <div>
-                          <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                             Location <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
                           </label>
                           <input
@@ -497,7 +497,7 @@ export default function ResumeBuilder() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                          <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                             LinkedIn Profile <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
                           </label>
                           <input
@@ -509,7 +509,7 @@ export default function ResumeBuilder() {
                           />
                         </div>
                         <div>
-                          <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                          <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                             GitHub / Portfolio <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
                           </label>
                           <input
@@ -534,7 +534,7 @@ export default function ResumeBuilder() {
                       className="flex flex-col gap-6"
                     >
                       <div>
-                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                        <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                           Education History <span className="text-red-500">*</span>
                         </label>
                         <textarea
@@ -546,7 +546,7 @@ export default function ResumeBuilder() {
                       </div>
 
                       <div>
-                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                        <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                           Key Projects <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
                         </label>
                         <textarea
@@ -569,7 +569,7 @@ export default function ResumeBuilder() {
                       className="flex flex-col gap-6"
                     >
                       <div>
-                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                        <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                           Core Skills <span className="text-red-500">*</span>
                         </label>
                         <div className="relative group">
@@ -590,7 +590,7 @@ export default function ResumeBuilder() {
                       </div>
 
                       <div>
-                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                        <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                           Work Experience <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
                         </label>
                         <textarea
@@ -613,7 +613,7 @@ export default function ResumeBuilder() {
                       className="flex flex-col gap-6"
                     >
                       <div>
-                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                        <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                           Professional Summary <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
                         </label>
                         <textarea
@@ -625,7 +625,7 @@ export default function ResumeBuilder() {
                       </div>
 
                       <div>
-                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                        <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                           Certifications <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
                         </label>
                         <textarea
@@ -637,7 +637,7 @@ export default function ResumeBuilder() {
                       </div>
                       
                       <div>
-                        <label className="flex items-center gap-2 font-bold text-slate-900 mb-2 text-sm">
+                        <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
                           Key Achievements <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
                         </label>
                         <textarea
@@ -727,7 +727,7 @@ export default function ResumeBuilder() {
                     </div>
                     <div className="pt-1">
                       <h3 className="font-bold text-slate-900 text-sm">Provide Basic Details</h3>
-                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">Fill in the core information about yourself, your target role, and past experience so the AI contextually understands your profile.</p>
+                      <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">Fill in the core information about yourself, your target role, and past experience so the AI contextually understands your profile.</p>
                     </div>
                   </div>
 
@@ -737,7 +737,7 @@ export default function ResumeBuilder() {
                     </div>
                     <div className="pt-1">
                       <h3 className="font-bold text-slate-900 text-sm">Review Edit & Preview</h3>
-                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">Click 'Generate Preview' to receive your interactive HTML format that you can view and edit freely.</p>
+                      <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">Click 'Generate Preview' to receive your interactive HTML format that you can view and edit freely.</p>
                     </div>
                   </div>
 
@@ -747,7 +747,7 @@ export default function ResumeBuilder() {
                     </div>
                     <div className="pt-1">
                       <h3 className="font-bold text-slate-900 text-sm">Download Instantly</h3>
-                      <p className="text-xs text-slate-500 mt-1 leading-relaxed">Instantly compile and download the flawlessly crafted, professional PDF to directly hand to your next employer.</p>
+                      <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">Instantly compile and download the flawlessly crafted, professional PDF to directly hand to your next employer.</p>
                     </div>
                   </div>
 

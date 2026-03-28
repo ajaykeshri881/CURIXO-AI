@@ -52,7 +52,7 @@ export default function InterviewReportView() {
   return (
     <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-violet-200 selection:text-violet-900 flex flex-col overflow-x-hidden">
       <Navbar />
-      <main className="flex-grow relative py-24 sm:px-6 lg:px-8">
+      <main className="flex-grow relative pt-28 sm:pt-32 pb-16 px-4 sm:px-6 lg:px-8">
         {/* Soft, modern background gradients */}
         <div className="absolute top-[-10%] sm:top-[0%] right-[-10%] sm:right-[5%] w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] rounded-full bg-blue-100/40 blur-3xl opacity-70 mix-blend-multiply pointer-events-none" />
         <div className="absolute bottom-[-10%] sm:bottom-[0%] left-[-10%] sm:left-[-5%] w-[400px] h-[400px] sm:w-[500px] sm:h-[500px] rounded-full bg-violet-100/40 blur-3xl opacity-70 mix-blend-multiply pointer-events-none" />
@@ -69,7 +69,7 @@ export default function InterviewReportView() {
               <BrainCircuit className="w-8 h-8 text-blue-600" />
               Interview Analysis
             </h1>
-            <p className="text-zinc-500 font-medium mt-1">
+            <p className="text-zinc-600 font-medium mt-2">
               Generated on {new Date(report.createdAt).toLocaleDateString()}
             </p>
           </div>

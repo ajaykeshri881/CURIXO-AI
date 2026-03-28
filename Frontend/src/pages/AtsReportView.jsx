@@ -55,7 +55,7 @@ export default function AtsReportView() {
   return (
     <div className="min-h-screen bg-[#FAFAFC] text-zinc-900 font-sans selection:bg-violet-200 selection:text-violet-900 flex flex-col">
       <Navbar />
-      <main className="flex-grow pt-32 md:pt-40 pb-20 px-4 sm:px-6 max-w-4xl mx-auto w-full relative z-10">
+      <main className="flex-grow pt-28 md:pt-36 pb-20 px-4 sm:px-6 max-w-4xl mx-auto w-full relative z-10">
         <Link to="/dashboard" className="inline-flex items-center gap-2 text-sm font-bold text-zinc-500 hover:text-zinc-900 mb-8 transition-colors group">
            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Dashboard
         </Link>
@@ -67,7 +67,7 @@ export default function AtsReportView() {
                </div>
                <div>
                  <h1 className="text-2xl sm:text-3xl font-black text-slate-900">ATS Scan Result</h1>
-                 <p className="text-slate-500 font-medium">Scanned against <span className="font-bold text-slate-700">{data.jobTitle}</span> role</p>
+                 <p className="text-slate-600 font-medium mt-1">Scanned against <span className="font-bold text-slate-800">{data.jobTitle}</span> role</p>
                </div>
             </div>
         </div>
@@ -94,7 +94,7 @@ export default function AtsReportView() {
                 </div>
                 <div className="text-center sm:text-left">
                 <h3 className="text-2xl font-black text-zinc-900">Overall Match Score</h3>
-                <p className="text-zinc-500 text-base font-medium mt-1 leading-relaxed">
+                <p className="text-zinc-600 text-base font-medium mt-1.5 leading-relaxed">
                     Based on deep keyword extraction, structure analysis, and relevance matching against standard Applicant Tracking Systems.
                 </p>
                 </div>
@@ -112,7 +112,7 @@ export default function AtsReportView() {
                      </h4>
                      <span className="text-xs font-bold text-green-700 uppercase opacity-0 group-hover:opacity-100 transition-opacity bg-green-100 px-3 py-1 rounded-full">View Full</span>
                   </div>
-                  <p className="text-sm text-green-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-3">{result.strengths}</p>
+                  <p className="text-sm text-green-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-4">{result.strengths}</p>
                 </div>
                 
                 {/* Missing Keywords */}
@@ -142,7 +142,7 @@ export default function AtsReportView() {
                      </h4>
                      <span className="text-xs font-bold text-amber-600 uppercase opacity-0 group-hover:opacity-100 transition-opacity bg-amber-100 px-3 py-1 rounded-full">View Full</span>
                   </div>
-                  <p className="text-sm text-amber-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-3">{result.weaknesses}</p>
+                  <p className="text-sm text-amber-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-4">{result.weaknesses}</p>
                 </div>
 
                 {/* Suggestions */}
@@ -156,7 +156,7 @@ export default function AtsReportView() {
                      </h4>
                      <span className="text-xs font-bold text-blue-600 uppercase opacity-0 group-hover:opacity-100 transition-opacity bg-blue-100 px-3 py-1 rounded-full">View Full</span>
                   </div>
-                  <p className="text-sm text-blue-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-3">{result.suggestions}</p>
+                  <p className="text-sm text-blue-800 leading-relaxed whitespace-pre-wrap font-medium line-clamp-4">{result.suggestions}</p>
                 </div>
             </div>
         </motion.div>

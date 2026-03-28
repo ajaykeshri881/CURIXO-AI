@@ -226,25 +226,25 @@ export default function AtsCheck() {
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-violet-400/20 rounded-full blur-[100px] pointer-events-none z-0" />
       <div className="fixed bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-blue-400/10 rounded-full blur-[120px] pointer-events-none z-0" />
 
-      <main className="relative z-10 max-w-6xl w-full mx-auto px-4 pt-24 lg:pt-28 pb-12 flex-grow ">
-        <div className="mb-6 text-center md:text-left">
+      <main className="relative z-10 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-28 lg:pt-32 pb-16 flex-grow ">
+        <div className="mb-8 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 flex flex-col md:flex-row items-center md:items-baseline gap-2 md:gap-3">
             <Target className="hidden md:block text-violet-600 w-10 h-10 translate-y-1" strokeWidth={3} />
             <span>ATS</span>
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600">Resume Scanner</span>
           </h1>
-          <p className="mt-4 text-slate-500 text-lg max-w-2xl mx-auto md:mx-0 font-medium leading-relaxed">
+          <p className="mt-4 text-slate-600 text-base md:text-lg max-w-2xl mx-auto md:mx-0 font-medium leading-relaxed">
             Upload your resume to reveal your match score and analyze keywords. Adding a job description is optional but recommended for better accuracy.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-7 bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <div className="lg:col-span-7 bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-9 shadow-xl shadow-slate-200/40 border border-white">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               {/* Step 1: Upload */}
               <div>
-                <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-violet-100 text-violet-700 text-sm shadow-sm">1</span>
+                <label className="flex items-center gap-3 font-bold text-slate-800 mb-3 text-base">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-violet-100 text-violet-700 text-sm font-extrabold shadow-sm">1</span>
                   Upload Resume (PDF)
                 </label>
                 <div 
@@ -282,8 +282,8 @@ export default function AtsCheck() {
 
               {/* Step 2: Job Title */}
               <div>
-                <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-100 text-blue-700 text-sm shadow-sm">2</span>
+                <label className="flex items-center gap-3 font-bold text-slate-800 mb-3 text-base">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-blue-100 text-blue-700 text-sm font-extrabold shadow-sm">2</span>
                   Target Job Title
                 </label>
                 <div className="relative group">
@@ -302,17 +302,17 @@ export default function AtsCheck() {
 
               {/* Step 3: Job Description */}
               <div>
-                <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base justify-between">
+                <label className="flex items-center gap-3 font-bold text-slate-800 mb-3 text-base justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 text-sm shadow-sm">3</span>
-                    Paste Job Description <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">Optional</span>
+                    <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 text-sm font-extrabold shadow-sm">3</span>
+                    Paste Job Description <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg">Optional</span>
                   </div>
                 </label>
                 <textarea 
                   placeholder="Paste the target job description here for a tailored match analysis..." 
                   value={jobDesc}
                   onChange={(e) => setJobDesc(e.target.value)}
-                  className="w-full h-32 bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all resize-none placeholder:text-slate-400 shadow-sm"
+                  className="w-full h-32 bg-slate-50/80 border border-slate-200 text-slate-800 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all resize-none placeholder:text-slate-400 shadow-sm leading-relaxed"
                 ></textarea>
               </div>
 
@@ -346,22 +346,22 @@ export default function AtsCheck() {
           </div>
 
           <div className="lg:col-span-5 flex flex-col">
-            <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white h-full flex flex-col min-h-[350px] lg:min-h-0 relative overflow-hidden">
-               <h2 className="text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-3">
+            <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white h-full flex flex-col min-h-[380px] lg:min-h-0 relative overflow-hidden">
+               <h2 className="text-xl font-extrabold text-slate-900 mb-5 flex items-center gap-3">
                  Results
-                 <span className="px-3 py-1 rounded-full bg-violet-50 text-violet-600 text-xs font-bold uppercase tracking-wider ml-auto border border-violet-100 shadow-sm">Live Preview</span>
+                 <span className="px-3 py-1.5 rounded-full bg-violet-50 text-violet-600 text-xs font-bold uppercase tracking-wider ml-auto border border-violet-100 shadow-sm">Live Preview</span>
                </h2>
                {!result && !loading && !improvedResume && (
-                  <div className="flex-1 border-2 border-dashed border-slate-200/80 rounded-3xl flex flex-col items-center justify-center p-6 text-center bg-slate-50/50 relative overflow-hidden group hover:border-violet-200 transition-colors">
-                    <div className="flex flex-col items-center justify-center mt-2">
-                      <div className="relative w-20 h-20 flex items-center justify-center mb-4">
+                  <div className="flex-1 border-2 border-dashed border-slate-200/80 rounded-3xl flex flex-col items-center justify-center p-8 text-center bg-slate-50/50 relative overflow-hidden group hover:border-violet-200 transition-colors">
+                    <div className="flex flex-col items-center justify-center">
+                      <div className="relative w-20 h-20 flex items-center justify-center mb-5">
                         <div className="absolute inset-0 bg-violet-50 rounded-full group-hover:scale-110 transition-transform duration-500"></div>
                         <div className="absolute inset-6 bg-violet-600 rounded-full shadow-xl shadow-violet-600/30 flex items-center justify-center text-white transform group-hover:scale-110 transition-transform duration-500 delay-150">
                           <Target size={24} strokeWidth={2.5} />
                         </div>
                       </div>
                       <h3 className="text-slate-900 font-extrabold text-lg mb-2">Awaiting Your Input</h3>
-                      <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-[260px]">
+                      <p className="text-slate-600 text-sm font-medium leading-relaxed max-w-[280px]">
                         Upload a resume and hit scan to reveal your ATS match score and keyword analysis.
                       </p>
                     </div>

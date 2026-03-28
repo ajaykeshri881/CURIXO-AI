@@ -106,7 +106,7 @@ export default function Dashboard() {
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-violet-200/50 rounded-full blur-[120px] pointer-events-none z-0"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-200/50 rounded-full blur-[120px] pointer-events-none z-0"></div>
 
-      <main className="relative z-10 flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 pt-32 md:pt-40 pb-20">
+      <main className="relative z-10 flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 pt-28 md:pt-36 pb-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -115,12 +115,12 @@ export default function Dashboard() {
         >
 
           {/* Top Section */}
-          <div className="w-full pl-2 mb-2 flex flex-col md:flex-row md:items-start justify-between gap-6">
+          <div className="w-full pl-2 mb-4 flex flex-col md:flex-row md:items-start justify-between gap-6">
             <div>
-              <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-2">
-                Welcome back, <span className="text-violet-600">{user?.name || "User"}.</span> 👋
+              <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tight mb-3">
+                Welcome back, <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-indigo-600">{user?.name || "User"}</span> 👋
               </h1>
-              <p className="text-slate-500 text-base md:text-lg">
+              <p className="text-slate-600 text-base md:text-lg leading-relaxed max-w-xl">
                 Your AI career assistants are ready. Optimize your profile and land that dream role today.
               </p>
             </div>
@@ -153,45 +153,45 @@ export default function Dashboard() {
           </div>
 
           {/* AI Tools Grid */}
-          <div className="mt-2">
-            <h2 className="text-2xl font-extrabold flex items-center gap-3 text-slate-900 mb-6 pl-2">
-              Available Tools
+          <div className="mt-4">
+            <h2 className="text-2xl font-extrabold flex items-center gap-3 text-slate-900 mb-7 pl-2">
+              <Sparkles className="w-6 h-6 text-violet-500" /> Available Tools
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
               <Link to="/ats-check" className="block group h-full">
-                <div className="bg-white rounded-[40px] p-8 md:p-10 shadow-[0_8px_40px_rgba(0,0,0,0.03)] border border-slate-100/50 group-hover:shadow-[0_12px_40px_rgba(139,92,246,0.08)] transition-all duration-300 flex flex-col h-full group-hover:-translate-y-1">
-                  <div className="w-[52px] h-[68px] rounded-[26px] border border-violet-100/60 flex items-center justify-center mb-6 bg-gradient-to-b from-white to-violet-50/50 shadow-[0_2px_12px_rgba(139,92,246,0.06)] group-hover:scale-110 transition-transform">
+                <div className="bg-white rounded-[32px] p-8 md:p-10 shadow-[0_8px_40px_rgba(0,0,0,0.03)] border border-slate-100/50 group-hover:shadow-[0_16px_48px_rgba(139,92,246,0.12)] transition-all duration-300 flex flex-col h-full group-hover:-translate-y-1.5">
+                  <div className="w-14 h-14 rounded-2xl border border-violet-100 flex items-center justify-center mb-6 bg-gradient-to-br from-violet-50 to-violet-100/50 shadow-sm group-hover:scale-110 transition-transform">
                     <Target className="w-7 h-7 text-[#7C3AED]" strokeWidth={2.5} />
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight group-hover:text-violet-700 transition-colors">ATS Scanner</h3>
-                  <p className="text-[15px] text-slate-500 leading-relaxed font-medium">Check your resume against ATS algorithms</p>
+                  <h3 className="text-xl font-black text-slate-900 mb-2 tracking-tight group-hover:text-violet-700 transition-colors">ATS Scanner</h3>
+                  <p className="text-sm text-slate-600 leading-relaxed font-medium">Upload your resume and instantly check it against ATS algorithms for compatibility.</p>
                 </div>
               </Link>
 
               <Link to="/interview-prep" className="block group h-full">
-                <div className="bg-white rounded-[40px] p-8 md:p-10 shadow-[0_8px_40px_rgba(0,0,0,0.03)] border border-slate-100/50 group-hover:shadow-[0_12px_40px_rgba(59,130,246,0.08)] transition-all duration-300 flex flex-col h-full group-hover:-translate-y-1">
-                  <div className="w-[52px] h-[68px] rounded-[26px] border border-blue-100/60 flex items-center justify-center mb-6 bg-gradient-to-b from-white to-blue-50/50 shadow-[0_2px_12px_rgba(59,130,246,0.06)] group-hover:scale-110 transition-transform">
+                <div className="bg-white rounded-[32px] p-8 md:p-10 shadow-[0_8px_40px_rgba(0,0,0,0.03)] border border-slate-100/50 group-hover:shadow-[0_16px_48px_rgba(59,130,246,0.12)] transition-all duration-300 flex flex-col h-full group-hover:-translate-y-1.5">
+                  <div className="w-14 h-14 rounded-2xl border border-blue-100 flex items-center justify-center mb-6 bg-gradient-to-br from-blue-50 to-blue-100/50 shadow-sm group-hover:scale-110 transition-transform">
                     <BrainCircuit className="w-7 h-7 text-[#2563EB]" strokeWidth={2.5} />
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight group-hover:text-blue-600 transition-colors">Interview Preparation</h3>
-                  <p className="text-[15px] text-slate-500 leading-relaxed font-medium">Generate tailored interview questions based on your resume</p>
+                  <h3 className="text-xl font-black text-slate-900 mb-2 tracking-tight group-hover:text-blue-600 transition-colors">Interview Preparation</h3>
+                  <p className="text-sm text-slate-600 leading-relaxed font-medium">Generate tailored interview questions and strategies based on your resume and target role.</p>
                 </div>
               </Link>
 
               <Link to="/resume-builder" className="block group h-full">
-                <div className="bg-white rounded-[40px] p-8 md:p-10 shadow-[0_8px_40px_rgba(0,0,0,0.03)] border border-slate-100/50 group-hover:shadow-[0_12px_40px_rgba(16,185,129,0.08)] transition-all duration-300 flex flex-col h-full group-hover:-translate-y-1">
-                  <div className="w-[52px] h-[68px] rounded-[26px] border border-emerald-100/60 flex items-center justify-center mb-6 bg-gradient-to-b from-white to-emerald-50/50 shadow-[0_2px_12px_rgba(16,185,129,0.06)] group-hover:scale-110 transition-transform">
+                <div className="bg-white rounded-[32px] p-8 md:p-10 shadow-[0_8px_40px_rgba(0,0,0,0.03)] border border-slate-100/50 group-hover:shadow-[0_16px_48px_rgba(16,185,129,0.12)] transition-all duration-300 flex flex-col h-full group-hover:-translate-y-1.5">
+                  <div className="w-14 h-14 rounded-2xl border border-emerald-100 flex items-center justify-center mb-6 bg-gradient-to-br from-emerald-50 to-emerald-100/50 shadow-sm group-hover:scale-110 transition-transform">
                     <FileText className="w-7 h-7 text-[#059669]" strokeWidth={2.5} />
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-3 tracking-tight group-hover:text-emerald-600 transition-colors">Resume Builder</h3>
-                  <p className="text-[15px] text-slate-500 leading-relaxed font-medium">Create an ATS-friendly resume from scratch</p>
+                  <h3 className="text-xl font-black text-slate-900 mb-2 tracking-tight group-hover:text-emerald-600 transition-colors">Resume Builder</h3>
+                  <p className="text-sm text-slate-600 leading-relaxed font-medium">Create a professional, ATS-friendly resume from scratch with AI-powered formatting.</p>
                 </div>
               </Link>
             </div>
           </div>
 
           {/* History Section Reimagined */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8 mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-10 mb-12">
 
             {/* History List */}
             <div className="lg:col-span-2 flex flex-col">
@@ -218,15 +218,15 @@ export default function Dashboard() {
                             {activity.type === 'interview' ? <BrainCircuit className="w-5 h-5 text-blue-600" /> : <Target className="w-5 h-5 text-violet-600" />}
                           </div>
                           <div>
-                            <h4 className="font-extrabold text-slate-900 text-base">
+                            <h4 className="font-extrabold text-slate-900 text-[15px]">
                               {activity.type === 'interview' ? 'Interview Preparation' : 'ATS Scan'}
                             </h4>
-                            <p className="text-sm text-slate-600 mt-0.5 font-medium line-clamp-1 capitalize">
+                            <p className="text-sm text-slate-700 mt-1 font-medium line-clamp-1 capitalize">
                               {activity.type === 'interview'
                                 ? `Generated technical Q&A for ${activity.title} role`
                                 : `Scanned and analyzed resume against ${activity.title} ATS algorithm`}
                             </p>
-                            <div className="flex items-center gap-2 mt-2">
+                            <div className="flex items-center gap-2 mt-2.5">
                               <Calendar className="w-3.5 h-3.5 text-slate-400" />
                               <p className="text-xs text-slate-500 font-semibold">
                                 {new Date(activity.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
@@ -263,42 +263,42 @@ export default function Dashboard() {
             </div>
 
             {/* Limits Card */}
-            <div className="lg:col-span-1 bg-white rounded-[40px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100/80 flex flex-col h-full relative overflow-hidden mt-2 lg:mt-0">
-              <div className="flex flex-col mb-8 lg:mt-2 gap-1.5">
+            <div className="lg:col-span-1 bg-white rounded-[32px] p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100/80 flex flex-col h-full relative overflow-hidden mt-2 lg:mt-0">
+              <div className="flex flex-col mb-8 lg:mt-2 gap-2">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">Daily Allowance</h3>
-                  <div className="p-2 bg-violet-50 rounded-full">
+                  <div className="p-2.5 bg-violet-50 rounded-xl">
                     <Clock className="w-4 h-4 text-violet-500" />
                   </div>
                 </div>
-                <p className="text-sm font-medium text-slate-500">Limits renew at 12:00 Midnight.</p>
+                <p className="text-sm font-medium text-slate-600">Limits renew at 12:00 AM Midnight IST.</p>
               </div>
 
               <div className="flex flex-col gap-6 flex-grow justify-center lg:pb-2">
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   <div className="flex justify-between text-sm font-bold">
-                    <span className="text-slate-700">ATS Scans</span>
-                    <span className="text-violet-600">{(limits.ats_check || 3) - (usages.ats_check || 0)}/{limits.ats_check || 3}</span>
+                    <span className="text-slate-800">ATS Scans</span>
+                    <span className="text-violet-600 font-extrabold">{(limits.ats_check || 3) - (usages.ats_check || 0)}/{limits.ats_check || 3}</span>
                   </div>
                   <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
                     <div className="h-full bg-violet-500 rounded-full transition-all duration-1000" style={{ width: `${(((limits.ats_check || 3) - (usages.ats_check || 0)) / (limits.ats_check || 3)) * 100}%` }}></div>
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   <div className="flex justify-between text-sm font-bold">
-                    <span className="text-slate-700">Interview Preparations</span>
-                    <span className="text-blue-600">{(limits.interview_prep || 3) - (usages.interview_prep || 0)}/{limits.interview_prep || 3}</span>
+                    <span className="text-slate-800">Interview Preparations</span>
+                    <span className="text-blue-600 font-extrabold">{(limits.interview_prep || 3) - (usages.interview_prep || 0)}/{limits.interview_prep || 3}</span>
                   </div>
                   <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
                     <div className="h-full bg-blue-500 rounded-full transition-all duration-1000" style={{ width: `${(((limits.interview_prep || 3) - (usages.interview_prep || 0)) / (limits.interview_prep || 3)) * 100}%` }}></div>
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   <div className="flex justify-between text-sm font-bold">
-                    <span className="text-slate-700">Resume Builds</span>
-                    <span className="text-emerald-600">{(limits.resume_build || 3) - (usages.resume_build || 0)}/{limits.resume_build || 3}</span>
+                    <span className="text-slate-800">Resume Builds</span>
+                    <span className="text-emerald-600 font-extrabold">{(limits.resume_build || 3) - (usages.resume_build || 0)}/{limits.resume_build || 3}</span>
                   </div>
                   <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
                     <div className="h-full bg-emerald-500 rounded-full transition-all duration-1000" style={{ width: `${(((limits.resume_build || 3) - (usages.resume_build || 0)) / (limits.resume_build || 3)) * 100}%` }}></div>

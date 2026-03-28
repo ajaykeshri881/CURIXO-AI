@@ -159,25 +159,25 @@ export default function InterviewPrep() {
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-[100px] pointer-events-none z-0" />
       <div className="fixed bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-emerald-400/10 rounded-full blur-[120px] pointer-events-none z-0" />
 
-      <main className="relative z-10 max-w-6xl w-full mx-auto px-4 pt-24 lg:pt-28 pb-12 flex-grow">
-        <div className="mb-6 text-center md:text-left">
+      <main className="relative z-10 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-28 lg:pt-32 pb-16 flex-grow">
+        <div className="mb-8 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 flex flex-col md:flex-row items-center md:items-baseline gap-2 md:gap-3">
             <BrainCircuit className="hidden md:block text-blue-600 w-10 h-10 translate-y-1" strokeWidth={3} />
             <span>AI</span>
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-600">Interview Preparation</span>
           </h1>
-          <p className="mt-4 text-slate-500 text-lg max-w-2xl mx-auto md:mx-0 font-medium leading-relaxed">
+          <p className="mt-4 text-slate-600 text-base md:text-lg max-w-2xl mx-auto md:mx-0 font-medium leading-relaxed">
             Generate tailored interview questions, strategies, and personalized talking points modeled after your exact background and target role.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-7 bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white">
-             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <div className="lg:col-span-7 bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-9 shadow-xl shadow-slate-200/40 border border-white">
+             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
                
                <div>
-                  <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-blue-100 text-blue-700 text-sm shadow-sm">1</span>
+                  <label className="flex items-center gap-3 font-bold text-slate-800 mb-3 text-base">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-blue-100 text-blue-700 text-sm font-extrabold shadow-sm">1</span>
                     Upload Resume (PDF)
                   </label>
                   <div 
@@ -214,12 +214,12 @@ export default function InterviewPrep() {
                </div>
 
                <div>
-                  <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-cyan-100 text-cyan-700 text-sm shadow-sm">2</span>
+                  <label className="flex items-center gap-3 font-bold text-slate-800 mb-3 text-base">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-cyan-100 text-cyan-700 text-sm font-extrabold shadow-sm">2</span>
                     Target Job Description
                   </label>
                  <textarea
-                   className="w-full h-32 bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-400 transition-all resize-none placeholder:text-slate-400 shadow-sm"
+                   className="w-full h-32 bg-slate-50/80 border border-slate-200 text-slate-800 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-cyan-500/10 focus:border-cyan-400 transition-all resize-none placeholder:text-slate-400 shadow-sm leading-relaxed"
                    placeholder="Paste the target role description here..."
                    value={jobDesc}
                    onChange={(e) => setJobDesc(e.target.value)}
@@ -227,12 +227,12 @@ export default function InterviewPrep() {
                </div>
 
                <div>
-                 <label className="flex items-center gap-3 font-bold text-slate-900 mb-2 text-base">
-                    <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-100 text-indigo-700 text-sm shadow-sm">3</span>
+                 <label className="flex items-center gap-3 font-bold text-slate-800 mb-3 text-base">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 text-sm font-extrabold shadow-sm">3</span>
                     Introductory Self Description
                   </label>
                  <textarea
-                   className="w-full h-24 bg-slate-50/80 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all resize-none placeholder:text-slate-400 shadow-sm"
+                   className="w-full h-24 bg-slate-50/80 border border-slate-200 text-slate-800 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all resize-none placeholder:text-slate-400 shadow-sm leading-relaxed"
                    placeholder="Briefly describe your background, strengths, and areas you're worried about..."
                    value={selfDesc}
                    onChange={(e) => setSelfDesc(e.target.value)}
@@ -269,23 +269,23 @@ export default function InterviewPrep() {
             </div>
 
             <div className="lg:col-span-5 flex flex-col">
-              <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white h-full flex flex-col min-h-[350px] lg:min-h-0 relative overflow-hidden">
-                 <h2 className="text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-3">
+              <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white h-full flex flex-col min-h-[380px] lg:min-h-0 relative overflow-hidden">
+                 <h2 className="text-xl font-extrabold text-slate-900 mb-5 flex items-center gap-3">
                    Interview Report
-                   <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider ml-auto border border-blue-100 shadow-sm">AI Generated</span>
+                   <span className="px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider ml-auto border border-blue-100 shadow-sm">AI Generated</span>
                  </h2>
 
                 {!report && !loading && (
-                   <div className="flex-1 border-2 border-dashed border-slate-200/80 rounded-3xl flex flex-col items-center justify-center p-6 text-center bg-slate-50/50 relative overflow-hidden group hover:border-blue-200 transition-colors">
-                     <div className="flex flex-col items-center justify-center mt-2">
-                       <div className="relative w-20 h-20 flex items-center justify-center mb-4">
+                   <div className="flex-1 border-2 border-dashed border-slate-200/80 rounded-3xl flex flex-col items-center justify-center p-8 text-center bg-slate-50/50 relative overflow-hidden group hover:border-blue-200 transition-colors">
+                     <div className="flex flex-col items-center justify-center">
+                       <div className="relative w-20 h-20 flex items-center justify-center mb-5">
                          <div className="absolute inset-0 bg-blue-50 rounded-full group-hover:scale-110 transition-transform duration-500"></div>
                          <div className="absolute inset-6 bg-blue-600 rounded-full shadow-xl shadow-blue-600/30 flex items-center justify-center text-white transform group-hover:scale-110 transition-transform duration-500 delay-150">
                            <BrainCircuit size={24} strokeWidth={2.5} />
                          </div>
                        </div>
                        <h3 className="text-slate-900 font-extrabold text-lg mb-2">Awaiting Parameters</h3>
-                       <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-[260px]">
+                       <p className="text-slate-600 text-sm font-medium leading-relaxed max-w-[280px]">
                          Submit your resume and details to generate tailored interview questions and strategies.
                        </p>
                      </div>
@@ -302,7 +302,7 @@ export default function InterviewPrep() {
                          </div>
                        </div>
                        <h3 className="text-slate-900 font-extrabold text-lg mb-2 animate-pulse">Processing context...</h3>
-                       <p className="text-slate-500 text-xs font-medium leading-relaxed max-w-[220px]">
+                       <p className="text-slate-600 text-xs font-medium leading-relaxed max-w-[220px]">
                          Curixo AI is reading your resume and generating hyper-relevant questions.
                        </p>
                      </div>
@@ -313,11 +313,11 @@ export default function InterviewPrep() {
                       <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
                         <CheckCircle2 className="w-8 h-8 text-blue-500" />
                       </div>
-                      <h3 className="text-lg font-bold text-slate-900 mb-2">Preparation Ready</h3>
-                      <p className="text-slate-500 text-sm font-medium text-center mb-6">Your tailored interview guide has been generated based on your profile.</p>
+                      <h3 className="text-lg font-bold text-slate-900 mb-3">Preparation Ready</h3>
+                      <p className="text-slate-600 text-sm font-medium text-center mb-6 leading-relaxed">Your tailored interview guide has been generated based on your profile.</p>
                       <button 
                          onClick={() => window.location.href = `/interview-report/${report._id}`}
-                         className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-white bg-blue-600 font-bold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all font-bold text-sm uppercase tracking-wider"
+                         className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-white bg-blue-600 font-bold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all text-sm uppercase tracking-wider"
                       >
                          View Full Report <ArrowRight className="w-4 h-4" />
                       </button>
