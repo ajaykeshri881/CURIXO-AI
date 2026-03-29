@@ -289,7 +289,7 @@ export default function AtsCheck() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-7 bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-9 shadow-xl shadow-slate-200/40 border border-white">
+          <div className="lg:col-span-7 bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-9 shadow-xl shadow-slate-200/40 border border-white flex flex-col">
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               {/* Step 1: Upload */}
               <div>
@@ -395,8 +395,8 @@ export default function AtsCheck() {
             </form>
           </div>
 
-          <div className="lg:col-span-5 flex flex-col">
-            <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white h-full flex flex-col min-h-[380px] lg:min-h-0 relative overflow-hidden">
+          <div className="lg:col-span-5 flex flex-col min-h-[500px] lg:min-h-0 lg:relative">
+            <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white flex flex-col lg:absolute lg:inset-0 h-full overflow-hidden">
               <h2 className="text-xl font-extrabold text-slate-900 mb-5 flex items-center gap-3">
                 Results
                 <span className="px-3 py-1.5 rounded-full bg-violet-50 text-violet-600 text-xs font-bold uppercase tracking-wider ml-auto border border-violet-100 shadow-sm">Live Preview</span>
@@ -437,7 +437,7 @@ export default function AtsCheck() {
               )}
 
               {improvedResume && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500 overflow-y-auto custom-scrollbar flex-1 pr-2 -mr-2 pb-2">
                   <div className="flex items-center justify-between bg-green-50 border border-green-200 p-4 rounded-2xl">
                     <h3 className="text-green-900 font-bold flex items-center gap-2">
                       <Wand2 className="w-5 h-5 text-green-600" />
@@ -506,7 +506,7 @@ export default function AtsCheck() {
               )}
 
               {result && !improvedResume && (
-                <div className="space-y-4 animate-in zoom-in-95 duration-500">
+                <div className="space-y-4 animate-in zoom-in-95 duration-500 overflow-y-auto custom-scrollbar flex-1 pr-2 -mr-2 pb-2">
                   <div className="flex items-center gap-5">
                     <div className="relative w-20 h-20 flex items-center justify-center">
                       <svg className="w-full h-full transform -rotate-90 drop-shadow-sm" viewBox="0 0 100 100">
