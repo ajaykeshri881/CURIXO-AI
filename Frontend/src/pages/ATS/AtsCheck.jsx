@@ -355,7 +355,7 @@ export default function AtsCheck() {
                 <label className="flex items-center gap-3 font-bold text-slate-800 mb-3 text-base justify-between">
                   <div className="flex items-center gap-3">
                     <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 text-sm font-extrabold shadow-sm">3</span>
-                    Paste Job Description <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg">Optional</span>
+                    Paste Job Description
                   </div>
                 </label>
                 <textarea
