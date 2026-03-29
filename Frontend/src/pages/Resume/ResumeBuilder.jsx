@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { resumeService } from '../../services/resume.service';
 import toast from 'react-hot-toast';
-import { FileText, Loader2, Download, CheckCircle2, FileSignature, Layers, ArrowRight, Zap, Code, FileSearch, Clock, Maximize2, Minimize2, Save, Edit3 } from 'lucide-react';
+import { FileText, Loader2, Download, CheckCircle2, FileSignature, Layers, ArrowRight, Zap, Code, FileSearch, Clock, Maximize2, Minimize2, Save, Edit3, Bold, Italic, Underline, Link as LinkIcon, List, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
@@ -221,6 +221,26 @@ export default function ResumeBuilder() {
       }
     }
   }, []);
+
+  const executeCommand = (command, value = null) => {
+    const iframe = previewRef.current;
+    if (iframe && iframe.contentDocument) {
+      if (command === 'createLink') {
+        const url = prompt('Enter link URL (e.g., https://example.com):');
+        if (url) {
+          iframe.contentDocument.execCommand(command, false, url);
+          // Add default styling or a class immediately so it acts as an editing-link
+          const selection = iframe.contentWindow.getSelection();
+          if (selection && selection.anchorNode && selection.anchorNode.parentNode) {
+            selection.anchorNode.parentNode.setAttribute('target', '_blank');
+          }
+        }
+      } else {
+        iframe.contentDocument.execCommand(command, false, value);
+      }
+      iframe.contentWindow.focus();
+    }
+  };
 
   const validateStep = () => {
     if (currentStep === 1) {
@@ -870,7 +890,46 @@ export default function ResumeBuilder() {
                   </div>
                 </div>
 
-                <div className="flex-1 rounded-2xl border border-slate-200 overflow-hidden relative mb-4 flex transform-gpu bg-slate-100 shadow-inner">
+                <div className="flex-1 rounded-2xl border border-slate-200 overflow-hidden relative mb-4 flex flex-col transform-gpu bg-slate-100 shadow-inner">
+                  {/* Rich Text Editor Toolbar */}
+                  <AnimatePresence>
+                    {isEditing && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="flex flex-wrap items-center gap-1.5 p-2 bg-slate-50 border-b border-slate-200 z-10"
+                      >
+                        <button onClick={() => executeCommand('bold')} className="p-2 rounded hover:bg-slate-200 text-slate-700 transition" title="Bold">
+                          <Bold size={16} />
+                        </button>
+                        <button onClick={() => executeCommand('italic')} className="p-2 rounded hover:bg-slate-200 text-slate-700 transition" title="Italic">
+                          <Italic size={16} />
+                        </button>
+                        <button onClick={() => executeCommand('underline')} className="p-2 rounded hover:bg-slate-200 text-slate-700 transition" title="Underline">
+                          <Underline size={16} />
+                        </button>
+                        <div className="w-px h-5 bg-slate-300 mx-1"></div>
+                        <button onClick={() => executeCommand('justifyLeft')} className="p-2 rounded hover:bg-slate-200 text-slate-700 transition" title="Align Left">
+                          <AlignLeft size={16} />
+                        </button>
+                        <button onClick={() => executeCommand('justifyCenter')} className="p-2 rounded hover:bg-slate-200 text-slate-700 transition" title="Align Center">
+                          <AlignCenter size={16} />
+                        </button>
+                        <button onClick={() => executeCommand('justifyRight')} className="p-2 rounded hover:bg-slate-200 text-slate-700 transition" title="Align Right">
+                          <AlignRight size={16} />
+                        </button>
+                        <div className="w-px h-5 bg-slate-300 mx-1"></div>
+                        <button onClick={() => executeCommand('insertUnorderedList')} className="p-2 rounded hover:bg-slate-200 text-slate-700 transition" title="Bullet List">
+                          <List size={16} />
+                        </button>
+                        <button onClick={() => executeCommand('createLink')} className="p-2 rounded hover:bg-slate-200 text-slate-700 transition" title="Insert Link">
+                          <LinkIcon size={16} />
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   <div
                     ref={previewViewportRef}
                     className="w-full h-full overflow-auto bg-slate-200/50 flex justify-center items-start p-3 sm:p-5"
