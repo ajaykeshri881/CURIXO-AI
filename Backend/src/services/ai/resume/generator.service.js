@@ -16,6 +16,7 @@ CRITICAL INSTRUCTIONS:
 5. Enhance all wording to be highly professional and action-oriented.
 6. If the user has NOT provided any work experience data, return an EMPTY "experience" array ([]). Do NOT invent or fabricate any work experience. Only include experience the user explicitly mentioned.
 7. If the user did not explicitly provide any 'Achievements', you MUST generate 2-3 impressive achievements by intelligently extracting implicit successes from their provided work experience or projects. Do not invent completely fake metrics, but do highlight their real work as explicit achievements.
+8. For the 'skills' field, intelligently GROUP the provided skills into 2-4 meaningful categories (e.g. 'Languages & Frameworks', 'Tools & Platforms', 'Databases', 'Soft Skills'). Each category must be relevant to the job title and the skills provided.
 
 User Profile JSON:
 ${JSON.stringify(userInfo, null, 2)}
@@ -31,7 +32,9 @@ Return this exact structure:
   "github": "",
   "portfolio": "",
   "summary": "",
-  "skills": [""],
+  "skills": [
+    { "category": "", "items": [""] }
+  ],
   "experience": [
     {
       "role": "",

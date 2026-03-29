@@ -182,7 +182,8 @@ function buildResumeHtml(data) {
       <section>
         <h2>Technical Skills</h2>
         <div class="skills-block">
-          <p>${data.skills.map(s => safeText(s)).join(", ")}</p>
+          ${data.skills.map(group => `
+          <p><strong>${safeText(group.category)}:</strong> ${group.items.map(i => safeText(i)).join(", ")}</p>`).join("")}
         </div>
       </section>` : ""}
 
@@ -204,10 +205,10 @@ function buildResumeHtml(data) {
         </div>`).join("")}
       </section>` : ""}
 
-      <!-- KEY PROJECTS -->
+      <!-- PROJECTS -->
       ${data.projects.length ? `
       <section>
-        <h2>Key Projects</h2>
+        <h2>Projects</h2>
         ${data.projects.map((item) => `
         <div class="item">
           <div class="item-head">
@@ -248,7 +249,7 @@ function buildResumeHtml(data) {
       <!-- KEY ACHIEVEMENTS -->
       ${data.achievements && data.achievements.length ? `
       <section>
-        <h2>Key Achievements</h2>
+        <h2>Achievements</h2>
         <ul class="plain-list">
           ${data.achievements.map(a => `<li>${safeText(a)}</li>`).join("")}
         </ul>

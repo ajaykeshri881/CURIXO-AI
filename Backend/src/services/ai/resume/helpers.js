@@ -36,7 +36,19 @@ function normalizeResumeData(data, fallbackJobTitle = "") {
         github: data?.github || "",
         portfolio: data?.portfolio || "",
         summary: data?.summary || "",
-        skills: cleanArray(data?.skills, []),
+        skills: (() => {
+            const raw = data?.skills;
+            if (!Array.isArray(raw) || raw.length === 0) return [];
+            // New grouped format: [{category, items}]
+            if (typeof raw[0] === 'object' && raw[0] !== null && 'items' in raw[0]) {
+                return raw
+                    .filter(g => g && g.category && Array.isArray(g.items) && g.items.some(i => i && String(i).trim().length > 0))
+                    .map(g => ({ category: g.category, items: g.items.filter(i => i && String(i).trim().length > 0) }));
+            }
+            // Flat fallback: convert to single group
+            const flat = raw.filter(s => s && String(s).trim().length > 0);
+            return flat.length ? [{ category: 'Skills', items: flat }] : [];
+        })(),
         experience: cleanArray(data?.experience, ['role', 'company', 'bullets']).map(exp => ({
             ...exp,
             bullets: Array.isArray(exp.bullets) ? exp.bullets.filter(b => b && String(b).trim().length > 0) : []
