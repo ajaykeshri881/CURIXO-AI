@@ -226,14 +226,21 @@ export default function ResumeBuilder() {
     const iframe = previewRef.current;
     if (iframe && iframe.contentDocument) {
       if (command === 'createLink') {
-        const url = prompt('Enter link URL (e.g., https://example.com):');
-        if (url) {
-          iframe.contentDocument.execCommand(command, false, url);
-          // Add default styling or a class immediately so it acts as an editing-link
-          const selection = iframe.contentWindow.getSelection();
-          if (selection && selection.anchorNode && selection.anchorNode.parentNode) {
-            selection.anchorNode.parentNode.setAttribute('target', '_blank');
-          }
+        const selection = iframe.contentWindow.getSelection();
+        if (!selection || selection.rangeCount === 0 || selection.toString().trim() === '') {
+          toast.error("Please highlight some text first to create a link.", { icon: '📝' });
+          return;
+        }
+
+        const dummyUrl = 'http://#temp-link#';
+        iframe.contentDocument.execCommand(command, false, dummyUrl);
+        
+        const anchorNode = iframe.contentDocument.querySelector(`a[href="${dummyUrl}"]`);
+        if (anchorNode) {
+          anchorNode.setAttribute('target', '_blank');
+          setLinkEditTarget(anchorNode);
+          setLinkEditData({ text: anchorNode.textContent, url: '' });
+          setLinkEditorOpen(true);
         }
       } else {
         iframe.contentDocument.execCommand(command, false, value);
@@ -1119,7 +1126,16 @@ export default function ResumeBuilder() {
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
                 <button 
                   type="button"
-                  onClick={() => setLinkEditorOpen(false)} 
+                  onClick={() => {
+                    if (linkEditTarget && linkEditTarget.getAttribute('href') === 'http://#temp-link#') {
+                      const parent = linkEditTarget.parentNode;
+                      while(linkEditTarget.firstChild) {
+                         parent.insertBefore(linkEditTarget.firstChild, linkEditTarget);
+                      }
+                      parent.removeChild(linkEditTarget);
+                    }
+                    setLinkEditorOpen(false);
+                  }} 
                   className="px-5 py-2.5 font-bold text-sm text-slate-500 hover:bg-slate-100 rounded-xl transition-colors"
                 >
                   Cancel
