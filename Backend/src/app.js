@@ -34,6 +34,11 @@ app.use("/api/ats", atsRouter)
 app.use("/api/resume", resumeRouter)
 app.use("/api/dashboard", dashboardRouter)
 
+/* Health check endpoint for Render */
+app.get("/api/health", (req, res) => {
+    res.status(200).json({ status: "UP", message: "Server is healthy" });
+});
+
 /* 404 catch-all for unknown routes */
 app.use((req, res) => {
     res.status(404).json({ message: `Route not found: ${req.method} ${req.originalUrl}` })
