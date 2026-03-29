@@ -68,11 +68,12 @@ async function improveResumeWithAI(resumeText, jobTitle, jobDescription, atsFeed
               ${JSON.stringify(atsFeedback, null, 2)}
 
               **Instructions:**
-              1.  **Keyword Integration:** Seamlessly integrate every single "Missing Keyword" from the ATS feedback into the resume. The integration must be natural and contextually appropriate.
-              2.  **Action-Oriented Language:** Rewrite all experience bullet points using the STAR (Situation, Task, Action, Result) method. Start every bullet point with a powerful action verb.
-              3.  **Quantify Everything:** Where possible, add quantifiable achievements (e.g., "Increased user engagement by 25%", "Reduced API response time by 150ms"). If no numbers are present, frame the achievement in a way that implies significant impact.
-              4.  **Tailor Summary:** Rewrite the professional summary to be a powerful, concise pitch that mirrors the language and priorities of the job description.
-              5.  **ATS-Friendly Formatting:** Structure the final output as clean, semantic HTML. Use vanilla inline CSS to make it look like a highly professional, modern resume suitable for a PDF export. 
+              1.  **Keyword Integration:** Seamlessly integrate "Missing Keyword" from the ATS feedback into the resume ONLY IF they contextually align with the candidate's actual experience. DO NOT lie or invent fake experiences just to include a keyword.
+              2.  **Action-Oriented Language:** Rewrite all experience bullet points using the STAR (Situation, Task, Action, Result) method. Start every bullet point with a powerful action verb based strictly on the original text.
+              3.  **No Fabrications:** DO NOT add random, fake, or hallucinated achievements, metrics, companies, or jobs. Do not invent filler content. Stick strictly to the reality of the user's provided resume.
+              4.  **Complete Sections:** Ensure that all essential resume sections (Summary, Experience, Education, Skills, Projects) are present, properly formatted for ATS systems, and accurately reflect the user's provided information.
+              5.  **Tailor Summary:** Rewrite the professional summary to mirror the language of the job description using ONLY the candidate's real background.
+              6.  **ATS-Friendly Formatting:** Structure the final output as clean, semantic HTML. Use vanilla inline CSS to make it look like a highly professional, modern resume suitable for a PDF export. 
                   - Use standard layout components like <header>, <section>, <h1>, <h2>, <ul>, <li>.
                   - Use a clean sans-serif font like Inter, Arial, or Helvetica.
                   - Do NOT use complex multi-column layouts, tables, or Javascript. Keep the HTML simple and linearly parsable so ATS systems can easily read it.
