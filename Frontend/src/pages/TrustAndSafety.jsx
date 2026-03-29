@@ -27,7 +27,7 @@ export default function PrivacyPolicy() {
           <div className="prose prose-slate prose-lg max-w-none text-slate-600">
 
             <p className="leading-relaxed mb-6">
-              Welcome to Curixo. Your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your information when you use our platform and services.
+              Welcome to Curixo AI. Your privacy is important to us. This Privacy Policy explains how we collect, use, and protect your information when you use our platform and services.
             </p>
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">
@@ -55,7 +55,7 @@ export default function PrivacyPolicy() {
               4. Cookies & Tracking
             </h2>
             <p className="leading-relaxed mb-6">
-              Curixo may use cookies and similar technologies to improve user experience, analyze usage, and enhance performance. You can control cookie preferences through your browser settings.
+              Curixo AI may use cookies and similar technologies to improve user experience, analyze usage, and enhance performance. You can control cookie preferences through your browser settings.
             </p>
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">

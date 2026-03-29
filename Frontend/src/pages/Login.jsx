@@ -44,7 +44,7 @@ export default function Login() {
                 Welcome back
               </h2>
               <p className="mt-2 text-sm font-medium text-zinc-500">
-                New to Curixo?{' '}
+                New to Curixo AI?{' '}
                 <Link to="/register" className="font-bold text-violet-600 hover:text-violet-700 transition-colors underline decoration-violet-200 underline-offset-4">
                   Create a new account
                 </Link>
@@ -101,7 +101,7 @@ export default function Login() {
                   disabled={isLoading}
                   className="group relative w-full flex justify-center items-center py-4 px-4 border border-transparent text-sm font-bold rounded-2xl text-white bg-zinc-950 hover:bg-zinc-800 focus:outline-none focus:ring-4 focus:ring-zinc-950/10 shadow-xl shadow-zinc-900/20 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
                 >
-                  {isLoading ? 'Signing in...' : 'Sign in to Curixo'}
+                  {isLoading ? 'Signing in...' : 'Sign in to Curixo AI'}
                   {!isLoading && <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />}
                 </motion.button>
               </div>

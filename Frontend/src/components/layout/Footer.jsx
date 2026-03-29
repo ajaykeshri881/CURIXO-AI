@@ -10,7 +10,7 @@ export const Footer = () => {
         {/* Brand Section */}
         <div className="flex flex-col items-center md:items-start">
           <div className="flex items-center gap-2.5 mb-6 h-8">
-            <span className="text-xl font-bold tracking-tight text-zinc-950">Curixo</span>
+            <span className="text-xl font-bold tracking-tight text-zinc-950">Curixo AI</span>
           </div>
           <p className="text-zinc-500 text-sm leading-relaxed font-medium max-w-[240px]">
             The intelligent career acceleration platform. We build tools that give candidates an unfair advantage.
@@ -36,7 +36,7 @@ export const Footer = () => {
             <MessageSquare className="w-5 h-5 text-zinc-400" /> Feedback
           </h4>
           <p className="text-zinc-500 text-sm mb-6 font-medium leading-relaxed max-w-[240px]">
-            Your ideas help us improve. We value your feedback on how to make Curixo better for everyone.
+            Your ideas help us improve. We value your feedback on how to make Curixo AI better for everyone.
           </p>
           <a
             href="https://forms.gle/QbRGa7T185AoYty37"
@@ -56,7 +56,7 @@ export const Footer = () => {
             <Github className="w-5 h-5 text-zinc-400" /> Open Source
           </h4>
           <p className="text-zinc-500 text-sm mb-6 font-medium leading-relaxed max-w-[240px]">
-            Curixo is built for the community. We're open source and welcome contributions to make career growth accessible.
+            Curixo AI is built for the community. We're open source and welcome contributions to make career growth accessible.
           </p>
           <a
             href="https://github.com/ajaykeshri881/CURIXO-AI-Powered-Career-Platform"
@@ -71,7 +71,7 @@ export const Footer = () => {
       </div>
 
       <div className="max-w-7xl mx-auto pt-8 border-t border-zinc-200/60 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
-        <p className="text-zinc-400 font-medium text-sm">© {currentYearIST} Curixo. All rights reserved.</p>
+        <p className="text-zinc-400 font-medium text-sm">© {currentYearIST} Curixo AI. All rights reserved.</p>
         <div className="flex items-center gap-1.5 text-zinc-500 text-sm font-medium">
           <span>Crafted with</span>
           <Heart className="w-4 h-4 text-rose-500 fill-rose-500 animate-pulse" />

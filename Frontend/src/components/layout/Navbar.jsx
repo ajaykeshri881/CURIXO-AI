@@ -54,9 +54,9 @@ export const Navbar = () => {
         {/* Logo - Left */}
         <div className="flex-1 flex items-center">
           <Link to="/" className="flex items-center gap-2.5 group cursor-pointer" onClick={() => window.scrollTo(0,0)}>
-            <img src={logo} alt="Curixo" className="w-8 h-8 object-contain transition-transform group-hover:scale-105" />
+            <img src={logo} alt="Curixo AI" className="w-8 h-8 object-contain transition-transform group-hover:scale-105" />
             <span className="text-xl font-black tracking-tight text-zinc-950">
-              Curixo
+              Curixo AI
             </span>
           </Link>
         </div>

@@ -888,7 +888,7 @@ export default function ResumeBuilder() {
                   Daily Limit Reached
                 </h3>
                 <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-sm mx-auto">
-                  Curixo provides high-quality AI processing completely <span className="font-bold text-orange-600">for free</span>. To keep this sustainable for everyone without charging subscriptions, we use a fair-use daily limit.
+                  Curixo AI provides high-quality AI processing completely <span className="font-bold text-orange-600">for free</span>. To keep this sustainable for everyone without charging subscriptions, we use a fair-use daily limit.
                 </p>
 
                 {/* Live Countdown */}

@@ -359,7 +359,7 @@ export default function InterviewPrep() {
                   Daily Limit Reached
                 </h3>
                 <p className="text-slate-500 text-sm font-medium leading-relaxed max-w-sm mx-auto">
-                  Curixo provides high-quality AI processing completely <span className="font-bold text-orange-600">for free</span>. To keep this sustainable for everyone without charging subscriptions, we use a fair-use daily limit.
+                  Curixo AI provides high-quality AI processing completely <span className="font-bold text-orange-600">for free</span>. To keep this sustainable for everyone without charging subscriptions, we use a fair-use daily limit.
                 </p>
                 <div className="mt-5 p-4 bg-orange-50 border border-orange-100 rounded-2xl shadow-inner">
                   <p className="text-orange-800 text-sm font-bold">Please come back tomorrow when your AI usages reset!</p>

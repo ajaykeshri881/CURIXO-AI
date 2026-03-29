@@ -17,7 +17,7 @@ export const Workflow = () => {
         <div className="lg:w-1/3 text-center md:text-left">
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tighter text-zinc-950 mb-4 md:mb-6">Designed for velocity.</h2>
           <p className="text-zinc-500 text-lg font-medium leading-relaxed">
-            Stop guessing what recruiters want. Curixo gives you a clear, step-by-step roadmap to perfectly tailor your application for every single role in minutes.
+            Stop guessing what recruiters want. Curixo AI gives you a clear, step-by-step roadmap to perfectly tailor your application for every single role in minutes.
           </p>
         </div>
 

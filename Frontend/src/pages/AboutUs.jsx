@@ -16,7 +16,7 @@ export default function AboutUs() {
 
           <header className="mb-12 border-b border-slate-200/60 pb-8">
             <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 mb-4">
-              About Curixo
+              About Curixo AI
             </h1>
             <p className="text-slate-500 font-medium">
               Effective Date: March 29, 2026
@@ -26,12 +26,12 @@ export default function AboutUs() {
           <div className="prose prose-slate prose-lg max-w-none text-slate-600">
 
             <p className="leading-relaxed mb-6">
-              Welcome to Curixo. This page outlines the history, mission, and organizational details of our platform. By understanding who we are, we hope to build transparency and trust with the professionals and organizations who utilize our services.
+              Welcome to Curixo AI. This page outlines the history, mission, and organizational details of our platform. By understanding who we are, we hope to build transparency and trust with the professionals and organizations who utilize our services.
             </p>
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">1. Who We Are</h2>
             <p className="leading-relaxed mb-6">
-              Curixo is an intelligent career acceleration platform designed to empower job seekers in the modern, AI-driven recruitment landscape. Founded with the vision of democratizing access to professional grade career tools, Curixo provides software to analyze, refine, and optimize resumes against Applicant Tracking Systems (ATS) and prepare candidates for technical and behavioral interviews.
+              Curixo AI is an intelligent career acceleration platform designed to empower job seekers in the modern, AI-driven recruitment landscape. Founded with the vision of democratizing access to professional grade career tools, Curixo AI provides software to analyze, refine, and optimize resumes against Applicant Tracking Systems (ATS) and prepare candidates for technical and behavioral interviews.
             </p>
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">2. Our Mission</h2>
@@ -41,7 +41,7 @@ export default function AboutUs() {
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">3. Core Values</h2>
             <p className="leading-relaxed mb-6">
-              At Curixo, all of our platform operations and product developments are guided by the following core principles:
+              At Curixo AI, all of our platform operations and product developments are guided by the following core principles:
             </p>
             <ul className="list-disc pl-6 space-y-3 mb-6 marker:text-slate-400">
               <li className="pl-2">
@@ -57,12 +57,12 @@ export default function AboutUs() {
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">4. Open Source & Community</h2>
             <p className="leading-relaxed mb-6">
-              Curixo strongly believes in the power of the open-source community. Portions of our platform architecture are available for review, contribution, and discussion to foster an ecosystem of continuous improvement and community-driven development in career tech.
+              Curixo AI strongly believes in the power of the open-source community. Portions of our platform architecture are available for review, contribution, and discussion to foster an ecosystem of continuous improvement and community-driven development in career tech.
             </p>
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">5. Contact Information</h2>
             <p className="leading-relaxed mb-6">
-              If you have any questions about this About Us page or would like to partner with Curixo, please reach out to our team at:
+              If you have any questions about this About Us page or would like to partner with Curixo AI, please reach out to our team at:
             </p>
 
             <div className="mt-8 bg-slate-50/50 border border-slate-200/80 p-6 sm:p-8 rounded-2xl shadow-sm">

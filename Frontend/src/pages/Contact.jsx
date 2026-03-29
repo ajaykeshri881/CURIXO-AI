@@ -26,7 +26,7 @@ export default function Contact() {
           <div className="prose prose-slate prose-lg max-w-none text-slate-600">
 
             <p className="leading-relaxed mb-6">
-              Thank you for choosing Curixo. Whether you have a question about utilizing our AI resume scanner, need assistance with your account, or want to provide feedback on our interview preparation tools, our team is ready to listen.
+              Thank you for choosing Curixo AI. Whether you have a question about utilizing our AI resume scanner, need assistance with your account, or want to provide feedback on our interview preparation tools, our team is ready to listen.
             </p>
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">1. General Inquiries & Support</h2>
@@ -45,7 +45,7 @@ export default function Contact() {
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">2. Open Source & Contributions</h2>
             <p className="leading-relaxed mb-6">
-              Curixo is a platform built for the professional community. If you encountered a bug, have a feature request, or wish to contribute to the open-source portions of our codebase, you can reach out directly via our official GitHub repository. We welcome pull requests and issue submissions.
+              Curixo AI is a platform built for the professional community. If you encountered a bug, have a feature request, or wish to contribute to the open-source portions of our codebase, you can reach out directly via our official GitHub repository. We welcome pull requests and issue submissions.
             </p>
 
             <div className="mt-8 bg-slate-50/50 border border-slate-200/80 p-6 sm:p-8 rounded-2xl shadow-sm">

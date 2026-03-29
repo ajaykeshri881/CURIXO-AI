@@ -26,12 +26,12 @@ export default function TermsOfService() {
           <div className="prose prose-slate prose-lg max-w-none text-slate-600">
 
             <p className="leading-relaxed mb-6">
-              Welcome to Curixo. By accessing and using our website, platform, and services, you accept and agree to be bound by the terms and provision of this agreement.
+              Welcome to Curixo AI. By accessing and using our website, platform, and services, you accept and agree to be bound by the terms and provision of this agreement.
             </p>
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">1. Use of Service</h2>
             <p className="leading-relaxed mb-6">
-              Curixo provides an AI-powered career platform designed to help users scan resumes, prepare for interviews, and optimize their professional profiles. You agree to use these tools responsibly and strictly for personal career development purposes. Any automated scraping, reverse engineering, or mass extraction of our AI feedback models is strictly prohibited.
+              Curixo AI provides an AI-powered career platform designed to help users scan resumes, prepare for interviews, and optimize their professional profiles. You agree to use these tools responsibly and strictly for personal career development purposes. Any automated scraping, reverse engineering, or mass extraction of our AI feedback models is strictly prohibited.
             </p>
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">2. User Accounts</h2>
@@ -41,12 +41,12 @@ export default function TermsOfService() {
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">3. Fair Use & Rate Limiting</h2>
             <p className="leading-relaxed mb-6">
-              Curixo provides free tier access to its AI features. To protect our infrastructure and ensure fair accessibility for all candidates, we enforce strict daily rate limits. Attempts to bypass these limitations through multiple accounts or proxies may result in permanent suspension of access.
+              Curixo AI provides free tier access to its AI features. To protect our infrastructure and ensure fair accessibility for all candidates, we enforce strict daily rate limits. Attempts to bypass these limitations through multiple accounts or proxies may result in permanent suspension of access.
             </p>
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">4. Limitation of Liability</h2>
             <p className="leading-relaxed mb-6">
-              Curixo acts as an informational tool. We do not guarantee employment, interviews, or specific career outcomes resulting from the use of our ATS scanner or interview prep tools. The AI-generated feedback is algorithmic and should be reviewed by you before being submitted to employers.
+              Curixo AI acts as an informational tool. We do not guarantee employment, interviews, or specific career outcomes resulting from the use of our ATS scanner or interview prep tools. The AI-generated feedback is algorithmic and should be reviewed by you before being submitted to employers.
             </p>
 
             <h2 className="text-2xl font-bold tracking-tight text-slate-900 mt-12 mb-4">5. Contact Information</h2>
