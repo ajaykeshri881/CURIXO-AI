@@ -19,6 +19,9 @@ import InterviewPrep from './pages/InterviewPrep';
 import InterviewReportView from './pages/InterviewReportView';
 import AtsReportView from './pages/AtsReportView';
 import NotFound from './pages/NotFound';
+import AboutUs from './pages/AboutUs';
+import TermsOfService from './pages/TermsOfService';
+import Contact from './pages/Contact';
 
 function App() {
   return (
@@ -29,7 +32,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          
+
           {/* Protected Routes */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/ats-check" element={<AtsCheck />} />
@@ -37,8 +40,11 @@ function App() {
           <Route path="/interview-prep" element={<ProtectedRoute><InterviewPrep /></ProtectedRoute>} />
           <Route path="/interview-report/:id" element={<ProtectedRoute><InterviewReportView /></ProtectedRoute>} />
           <Route path="/ats-report/:id" element={<ProtectedRoute><AtsReportView /></ProtectedRoute>} />
-          
+
           {/* Catch-all 404 Route */}
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

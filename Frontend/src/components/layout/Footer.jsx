@@ -1,4 +1,5 @@
 import { Github, MessageSquare, Layers, Heart } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export const Footer = () => {
   const currentYearIST = new Intl.DateTimeFormat('en-IN', { timeZone: 'Asia/Kolkata', year: 'numeric' }).format(new Date());
@@ -22,10 +23,10 @@ export const Footer = () => {
             <Layers className="w-5 h-5 text-zinc-400" /> Pages
           </h4>
           <ul className="space-y-4 text-sm text-zinc-500 font-medium">
-            <li><a href="#" className="hover:text-zinc-950 transition-colors">About Us</a></li>
+            <li><Link to="/about" className="hover:text-zinc-950 transition-colors">About Us</Link></li>
             <li><a href="#" className="hover:text-zinc-950 transition-colors">Privacy Policy</a></li>
-            <li><a href="#" className="hover:text-zinc-950 transition-colors">Terms of Service</a></li>
-            <li><a href="#" className="hover:text-zinc-950 transition-colors">Contact</a></li>
+            <li><Link to="/terms-of-service" className="hover:text-zinc-950 transition-colors">Terms of Service</Link></li>
+            <li><Link to="/contact" className="hover:text-zinc-950 transition-colors">Contact</Link></li>
           </ul>
         </div>
 
