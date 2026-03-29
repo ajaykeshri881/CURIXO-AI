@@ -78,7 +78,7 @@ export default function ResumeBuilder() {
     if (!previewHtml || !previewViewportRef.current) return;
 
     const A4_WIDTH_PX = 794;
-    const MIN_SCALE = 0.72;
+    const MIN_SCALE = 0.3;
     const MAX_SCALE = 1;
 
     const updatePreviewScale = () => {
@@ -790,48 +790,55 @@ export default function ResumeBuilder() {
                     className="w-full h-full overflow-auto bg-slate-200/50 flex justify-center items-start p-3 sm:p-5"
                     style={{ WebkitOverflowScrolling: 'touch' }}
                   >
-                    <iframe
-                      id="resume-preview-content"
-                      ref={previewRef}
-                      srcDoc={previewHtml}
-                      className={`transform origin-top transition-all bg-white max-w-none ${isEditing ? 'outline-none ring-4 ring-emerald-500/40 shadow-2xl' : 'shadow-xl'}`}
-                      style={{
-                        transform: `scale(${previewScale})`,
-                        transformOrigin: 'top center',
-                        width: '210mm',
-                        minHeight: '297mm',
-                        border: 'none'
-                      }}
-                      onLoad={(e) => {
-                        const iframe = e.target;
-                        if (iframe.contentDocument && iframe.contentDocument.body) {
-                          iframe.contentDocument.body.style.margin = '0';
-                          iframe.contentDocument.body.contentEditable = isEditing ? 'true' : 'false';
+                    <div className="flex justify-center transition-all duration-300 relative" style={{ width: `calc(210mm * ${previewScale})`, minHeight: `calc(297mm * ${previewScale})` }}>
+                      <div style={{ position: 'absolute', top: 0, left: 0, width: '210mm', transform: `scale(${previewScale})`, transformOrigin: 'top left' }}>
+                        <iframe
+                          id="resume-preview-content"
+                          ref={previewRef}
+                          srcDoc={previewHtml}
+                          className={`bg-white transition-all max-w-none ${isEditing ? 'outline-none ring-4 ring-emerald-500/40 shadow-2xl' : 'shadow-xl'}`}
+                          style={{
+                            width: '210mm',
+                            minHeight: '297mm',
+                            border: 'none',
+                            display: 'block'
+                          }}
+                          onLoad={(e) => {
+                            const iframe = e.target;
+                            if (iframe.contentDocument && iframe.contentDocument.body) {
+                              iframe.contentDocument.body.style.margin = '0';
+                              iframe.contentDocument.body.contentEditable = isEditing ? 'true' : 'false';
 
-                          const adjustHeight = () => {
-                            if (iframe.contentDocument && iframe.contentDocument.documentElement) {
-                              iframe.style.height = `${iframe.contentDocument.documentElement.scrollHeight}px`;
+                              const adjustHeight = () => {
+                                if (iframe.contentDocument && iframe.contentDocument.documentElement) {
+                                  const newHeight = iframe.contentDocument.documentElement.scrollHeight;
+                                  iframe.style.height = `${newHeight}px`;
+                                  if (iframe.parentElement && iframe.parentElement.parentElement) {
+                                    iframe.parentElement.parentElement.style.minHeight = `calc(${newHeight}px * ${previewScale})`;
+                                  }
+                                }
+                              };
+
+                              if (iframe.contentWindow && iframe.contentWindow.ResizeObserver) {
+                                const ro = new iframe.contentWindow.ResizeObserver(adjustHeight);
+                                ro.observe(iframe.contentDocument.body);
+                              } else {
+                                iframe.contentDocument.body.addEventListener('input', adjustHeight);
+                                setTimeout(adjustHeight, 100);
+                              }
+
+                              const style = iframe.contentDocument.createElement('style');
+                              style.textContent = '::-webkit-scrollbar { display: none; } html { scrollbar-width: none; overflow: hidden !important; } style, meta, title, head { display: none !important; }';
+                              if (iframe.contentDocument.head) {
+                                iframe.contentDocument.head.appendChild(style);
+                              }
+                              // Set initial height
+                              setTimeout(adjustHeight, 50);
                             }
-                          };
-
-                          if (iframe.contentWindow && iframe.contentWindow.ResizeObserver) {
-                            const ro = new iframe.contentWindow.ResizeObserver(adjustHeight);
-                            ro.observe(iframe.contentDocument.body);
-                          } else {
-                            iframe.contentDocument.body.addEventListener('input', adjustHeight);
-                            setTimeout(adjustHeight, 100);
-                          }
-
-                          const style = iframe.contentDocument.createElement('style');
-                          style.textContent = '::-webkit-scrollbar { display: none; } html { scrollbar-width: none; overflow: hidden !important; } style, meta, title, head { display: none !important; }';
-                          if (iframe.contentDocument.head) {
-                            iframe.contentDocument.head.appendChild(style);
-                          }
-                          // Set initial height
-                          setTimeout(adjustHeight, 50);
-                        }
-                      }}
-                    />
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
