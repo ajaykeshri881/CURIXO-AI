@@ -14,7 +14,6 @@ router.post(
 router.post(
 	'/create-from-scratch/pdf',
 	authUser,
-	rateLimitPerDay({ feature: 'resume_build', userLimit: 30, guestLimit: 0, requireLogin: true }),
 	resumeController.downloadPdfFromScratch
 );
 

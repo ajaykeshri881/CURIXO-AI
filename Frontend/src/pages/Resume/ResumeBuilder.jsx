@@ -283,6 +283,7 @@ export default function ResumeBuilder() {
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
+    if (loading) return;
     // Prevent generation unless the user is on the final step
     if (currentStep < 4) {
       nextStep();
@@ -322,6 +323,7 @@ export default function ResumeBuilder() {
   };
 
   const handleDownloadPdf = async () => {
+    if (downloading) return;
     setDownloading(true);
     try {
       const contentEl = document.getElementById('resume-preview-content');
@@ -788,12 +790,6 @@ export default function ResumeBuilder() {
                 ) : (
                   <button
                     type="submit"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      if (validateStep()) {
-                        handleSubmit(e);
-                      }
-                    }}
                     disabled={loading}
                     className={`
                       ml-auto px-8 py-3.5 font-bold text-sm rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 shadow-xl 
@@ -956,7 +952,7 @@ export default function ResumeBuilder() {
                     className="w-full h-full overflow-auto bg-slate-200/50 flex justify-center items-start p-3 sm:p-5"
                     style={{ WebkitOverflowScrolling: 'touch' }}
                   >
-                    <div className="flex justify-center transition-all duration-300 relative overflow-hidden" style={{ width: `calc(210mm * ${previewScale})`, minHeight: `calc(297mm * ${previewScale})` }}>
+                    <div className="flex justify-center transition-all duration-300 relative" style={{ width: `calc(210mm * ${previewScale})`, minHeight: `calc(297mm * ${previewScale})` }}>
                       <div style={{ position: 'absolute', top: 0, left: 0, width: '210mm', transform: `scale(${previewScale})`, transformOrigin: 'top left' }}>
                         <iframe
                           id="resume-preview-content"
@@ -987,8 +983,9 @@ export default function ResumeBuilder() {
 
                                   iframe.style.height = `${newHeight}px`;
                                   if (iframe.parentElement && iframe.parentElement.parentElement) {
-                                    iframe.parentElement.parentElement.style.minHeight = `calc(${newHeight}px * ${previewScale})`;
-                                    iframe.parentElement.parentElement.style.height = `calc(${newHeight}px * ${previewScale})`;
+                                    const scaledHeight = Math.ceil(newHeight * previewScale) + 80;
+                                    iframe.parentElement.parentElement.style.minHeight = `${scaledHeight}px`;
+                                    iframe.parentElement.parentElement.style.height = `${scaledHeight}px`;
                                   }
                                 }
                               };

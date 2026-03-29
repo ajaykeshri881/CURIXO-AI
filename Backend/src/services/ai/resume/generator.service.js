@@ -15,8 +15,12 @@ CRITICAL INSTRUCTIONS:
 4. Ensure the summary is powerful and comprehensive. Do not output a sparse or empty-looking resume.
 5. Enhance all wording to be highly professional and action-oriented.
 6. If the user has NOT provided any work experience data, return an EMPTY "experience" array ([]). Do NOT invent or fabricate any work experience. Only include experience the user explicitly mentioned.
-7. If the user did not explicitly provide any 'Achievements', you MUST generate 2-3 impressive achievements by intelligently extracting implicit successes from their provided work experience or projects. Do not invent completely fake metrics, but do highlight their real work as explicit achievements.
-8. For the 'skills' field, intelligently GROUP the provided skills into 2-4 meaningful categories (e.g. 'Languages & Frameworks', 'Tools & Platforms', 'Databases', 'Soft Skills'). Each category must be relevant to the job title and the skills provided.
+7. ACHIEVEMENTS are MANDATORY — always output a non-empty "achievements" array with 2-4 entries. Derive them intelligently from the user's real projects, education, and experience by highlighting concrete outcomes, technical feats, or scope of impact. If the user explicitly listed achievements, include those and supplement with derived ones. Never invent fictional companies, awards, or metrics — but you MAY frame real work impressively (e.g. "Built and deployed a full-stack MERN application serving X feature set"). The field must never be empty or contain only blank strings.
+8. For the 'skills' field, intelligently GROUP the provided skills into practical categories such as Frontend, Backend, Databases, DevOps & Cloud, Tools & Platforms, Testing, and Concepts (include only categories that apply).
+9. Skills formatting rule:
+  - Each category should have a concise label and a non-empty items array.
+  - Do not put all skills into one generic bucket like "Skills" unless absolutely unavoidable.
+  - Keep items realistic and derived from user-provided data.
 
 User Profile JSON:
 ${JSON.stringify(userInfo, null, 2)}
@@ -47,6 +51,7 @@ Return this exact structure:
     {
       "degree": "",
       "school": "",
+      "location": "",
       "year": "",
       "bullets": [""]
     }

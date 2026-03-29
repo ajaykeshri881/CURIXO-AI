@@ -35,6 +35,19 @@ const processQueue = (error) => {
   failedQueue = [];
 };
 
+function shouldRetry429WithRefresh(originalRequest, error) {
+  const url = originalRequest?.url || '';
+  const message = String(error?.response?.data?.message || '').toLowerCase();
+
+  // True usage limits should never trigger a token refresh + replay.
+  if (message.includes('limit reached') || message.includes('usage exhausted')) {
+    return false;
+  }
+
+  // Keep 429-refresh handling only for optional-auth ATS check edge case.
+  return url.includes('/ats/check');
+}
+
 // Response interceptor for handling global errors like 401 Unauthorized
 api.interceptors.response.use(
   (response) => response,
@@ -46,11 +59,11 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // If 401 or 429 and we haven't retried yet, attempt to refresh the token.
-    // 429 is included because an expired access token can cause optionalAuth
-    // to treat the user as a guest, triggering the guest rate limit falsely.
     const status = error.response?.status;
-    if ((status === 401 || status === 429) && !originalRequest._retry) {
+    const shouldAttemptRefresh =
+      status === 401 || (status === 429 && shouldRetry429WithRefresh(originalRequest, error));
+
+    if (shouldAttemptRefresh && !originalRequest._retry) {
       if (isRefreshing) {
         // If a refresh is already in progress, queue this request
         return new Promise((resolve, reject) => {

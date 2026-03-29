@@ -50,6 +50,10 @@ exports.improveResume = async (req, res) => {
 
         const improvedResume = await improveResumeWithAI(resumeText, jobTitle, jobDescription, atsFeedback);
 
+        if (improvedResume?.error) {
+            return res.status(500).json({ message: improvedResume.error });
+        }
+
         res.status(200).json({ improvedResume });
     } catch (error) {
         console.error('Error improving resume:', error);

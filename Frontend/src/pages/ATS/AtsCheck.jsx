@@ -19,6 +19,7 @@ export default function AtsCheck() {
   const [jobDesc, setJobDesc] = useState('');
   const [loading, setLoading] = useState(false);
   const [improving, setImproving] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
   const [result, setResult] = useState(null);
   const [improvedResume, setImprovedResume] = useState(null);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
@@ -472,6 +473,8 @@ export default function AtsCheck() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={async () => {
+                      if (downloadingPdf) return;
+                      setDownloadingPdf(true);
                       const toastId = toast.loading('Generating PDF format...');
                       try {
                         const pdfBlob = await resumeService.downloadPdfFromScratch({ resumeHtml: improvedResume });
@@ -496,11 +499,22 @@ export default function AtsCheck() {
                         } else {
                           toast.error(e.response?.data?.message || 'Failed to generate PDF', { id: toastId });
                         }
+                      } finally {
+                        setDownloadingPdf(false);
                       }
                     }}
-                    className="w-full flex justify-center items-center gap-2 py-4 px-4 rounded-2xl text-white bg-green-600 font-bold hover:bg-green-700 shadow-lg shadow-green-600/20 transition-all font-bold text-sm uppercase tracking-wider"
+                    disabled={downloadingPdf}
+                    className={`w-full flex justify-center items-center gap-2 py-4 px-4 rounded-2xl text-white font-bold transition-all text-sm uppercase tracking-wider ${
+                      downloadingPdf
+                        ? 'bg-zinc-400 cursor-wait shadow-none'
+                        : 'bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/20'
+                    }`}
                   >
-                    <Download className="w-5 h-5" /> Download Beautiful PDF
+                    {downloadingPdf ? (
+                      <><Loader2 className="w-5 h-5 animate-spin" /> Preparing PDF...</>
+                    ) : (
+                      <><Download className="w-5 h-5" /> Download Beautiful PDF</>
+                    )}
                   </motion.button>
                 </div>
               )}

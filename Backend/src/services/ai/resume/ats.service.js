@@ -1,5 +1,6 @@
 const { generateWithFailover } = require("../google")
-const { cleanJsonText } = require("./helpers")
+const { cleanJsonText, normalizeResumeData } = require("./helpers")
+const { buildResumeHtml } = require("./template")
 
 async function analyzeResumeWithATS(resumeText, jobTitle, jobDescription) {
     try {
@@ -51,39 +52,91 @@ async function analyzeResumeWithATS(resumeText, jobTitle, jobDescription) {
 
 async function improveResumeWithAI(resumeText, jobTitle, jobDescription, atsFeedback) {
     try {
-        const prompt = `
-              You are an expert resume writer and career coach with a specialization in passing ATS scans with a 100% score.
-              Your task is to rewrite and perfect the given resume based on the provided ATS feedback to make it an undeniable match for the job description.
+                const prompt = `
+You are an expert ATS resume writer.
+Rewrite the resume as structured JSON so it is stronger for the target role while remaining fully truthful.
 
-              **Original Resume:**
-              ${resumeText}
+STRICT RULES:
+1. Use ONLY facts present in the original resume and ATS feedback context. Do not invent companies, job titles, degrees, awards, or fake metrics.
+2. You may improve language, clarity, and impact, but must preserve factual integrity.
+3. Ensure all major sections are well-formed: summary, skills, experience, projects, education.
+4. EDUCATION FORMAT is mandatory:
+     - "school" must contain only the institution/college name (for example: "IES College of Technology, Bhopal").
+     - "degree" must contain only the course/degree name (for example: "B.Tech in Computer Science & Engineering").
+     - Do NOT combine school + degree + year in one field.
+     - If coursework exists, place it in education.bullets as a separate bullet.
+5. ACHIEVEMENTS are mandatory:
+     - Return a non-empty "achievements" array with 2-4 entries.
+     - Derive achievements from real resume content only (projects, education, experience, certifications).
+     - No fabricated awards, rankings, or numbers.
+6. Keep output ATS-friendly and concise with strong action-oriented bullets.
+7. SKILLS FORMAT is mandatory:
+    - Group skills into practical categories such as Frontend, Backend, Databases, DevOps & Cloud, Tools & Platforms, Testing, and Concepts (include only relevant ones).
+    - Do not return a single generic category like "Skills" unless there is no other valid grouping possible.
+8. Return strict JSON only. No markdown.
 
-              **Job Title:**
-              ${jobTitle}
+Original Resume Text:
+${resumeText}
 
-              **Job Description:**
-              ${jobDescription}
+Target Job Title:
+${jobTitle}
 
-              **ATS Feedback to Address:**
-              ${JSON.stringify(atsFeedback, null, 2)}
+Job Description:
+${jobDescription}
 
-              **Instructions:**
-              1.  **Keyword Integration:** Seamlessly integrate the "Missing Keyword" from the ATS feedback into the resume naturally, adjusting the surrounding context so it flows beautifully with the candidate's existing experience.
-              2.  **Action-Oriented Language & Expansion:** Rewrite all experience bullet points using the STAR method. START every bullet point with a powerful action verb. If the original text is short or basic, you MUST confidently EXPAND and ELABORATE upon the described responsibilities using standard, universally accepted industry practices. Ensure every role has 3-5 high-impact, detailed sentence-length bullets.
-              3.  **No Fake Jobs:** DO NOT invent entirely fake or unmentioned companies, job titles, or degrees. However, DO logically flesh out the given roles to make them sound incredibly competent, senior, and ATS-optimized.
-              4.  **Complete Sections:** Ensure that all essential resume sections (Summary, Experience, Education, Skills, Projects) are present, look full, and are properly formatted for ATS systems.
-              5.  **Tailor Summary:** Rewrite the professional summary to mirror the language of the job description using ONLY the candidate's real background.
-              6.  **ATS-Friendly Formatting:** Structure the final output as clean, semantic HTML. Use vanilla inline CSS to make it look like a highly professional, modern resume suitable for a PDF export. 
-                  - Use standard layout components like <header>, <section>, <h1>, <h2>, <ul>, <li>.
-                  - Use a clean sans-serif font like Inter, Arial, or Helvetica.
-                  - Do NOT use complex multi-column layouts, tables, or Javascript. Keep the HTML simple and linearly parsable so ATS systems can easily read it.
+ATS Feedback:
+${JSON.stringify(atsFeedback, null, 2)}
 
-              **Output format rules:**
-              Return ONLY the raw HTML string containing the <style> block and the resume body content. Do NOT include \`<!DOCTYPE html>\`, \`<html>\`, \`<head>\`, \`<meta>\`, or \`<title>\` tags, as this output will be directly injected into a <div> element. Do not include any markdown wrappers (like \`\`\`html) or explanatory text.
-          `
+Return this exact JSON shape:
+{
+    "name": "",
+    "title": "",
+    "email": "",
+    "phone": "",
+    "location": "",
+    "linkedin": "",
+    "github": "",
+    "portfolio": "",
+    "summary": "",
+    "skills": [
+        { "category": "", "items": [""] }
+    ],
+    "experience": [
+        {
+            "role": "",
+            "company": "",
+            "duration": "",
+            "bullets": [""]
+        }
+    ],
+    "education": [
+        {
+            "degree": "",
+            "school": "",
+            "location": "",
+            "year": "",
+            "bullets": [""]
+        }
+    ],
+    "projects": [
+        {
+            "name": "",
+            "description": "",
+            "techStack": "",
+            "githubUrl": "",
+            "demoUrl": ""
+        }
+    ],
+    "certifications": [""],
+    "achievements": [""]
+}
+`
 
-        const text = await generateWithFailover(prompt)
-        return text.replace(/```html/g, "").replace(/```/g, "").trim()
+                const text = await generateWithFailover(prompt)
+                const structuredDataRaw = JSON.parse(cleanJsonText(text))
+                const structuredData = normalizeResumeData(structuredDataRaw, jobTitle)
+
+                return buildResumeHtml(structuredData)
     } catch (error) {
         console.error("Error in improveResumeWithAI:", error)
         return { error: "Failed to improve resume." }

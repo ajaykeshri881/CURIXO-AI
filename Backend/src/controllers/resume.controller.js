@@ -27,21 +27,13 @@ exports.createFromScratch = async (req, res) => {
 
 exports.downloadPdfFromScratch = async (req, res) => {
     try {
-        const { jobTitle, userInfo, resumeHtml } = req.body;
+        const { resumeHtml } = req.body;
 
-        if (!resumeHtml && (!jobTitle || !userInfo)) {
-            return res.status(400).json({ message: 'Provide resumeHtml or provide jobTitle and userInfo.' });
+        if (!resumeHtml || !String(resumeHtml).trim()) {
+            return res.status(400).json({ message: 'resumeHtml is required to download PDF.' });
         }
 
-        let htmlToRender = resumeHtml
-
-        if (!htmlToRender) {
-            const resumePackage = await generateResumeHtmlFromScratch(jobTitle, userInfo)
-            if (resumePackage?.error) {
-                return res.status(500).json({ message: resumePackage.error })
-            }
-            htmlToRender = resumePackage.resumeHtml
-        }
+        const htmlToRender = resumeHtml
 
         const pdfBuffer = await generateResumePdfFromHtml(htmlToRender)
 
