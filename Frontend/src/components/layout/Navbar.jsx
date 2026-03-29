@@ -65,7 +65,7 @@ export const Navbar = () => {
 
   return (
     <nav className="fixed top-0 w-full z-50 flex justify-center pt-4 md:pt-6 px-4 pointer-events-none transform-gpu">
-      <div className={`pointer-events-auto flex items-center w-full max-w-6xl transition-all duration-500 rounded-3xl md:rounded-[2rem] px-5 md:px-6 py-3 md:py-3 border will-change-transform ${glassEffect}`}>
+      <div className={`relative z-50 pointer-events-auto flex items-center w-full max-w-6xl transition-all duration-500 rounded-3xl md:rounded-[2rem] px-5 md:px-6 py-3 md:py-3 border will-change-transform ${glassEffect}`}>
 
         {/* Logo - Left */}
         <div className="flex-1 flex items-center">
@@ -140,6 +140,19 @@ export const Navbar = () => {
         </div>
       </div>
 
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsOpen(false)}
+            className="fixed inset-0 top-0 left-0 w-screen h-screen bg-zinc-900/10 backdrop-blur-md z-40 lg:hidden pointer-events-auto"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
@@ -147,7 +160,7 @@ export const Navbar = () => {
             initial={{ opacity: 0, y: -20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
-            className="absolute top-20 left-4 right-4 bg-white/95 backdrop-blur-3xl border border-zinc-200 rounded-3xl overflow-hidden shadow-2xl pointer-events-auto p-6 lg:hidden transform-gpu will-change-transform"
+            className="absolute top-20 left-4 right-4 bg-white/95 backdrop-blur-3xl border border-zinc-200 rounded-3xl overflow-hidden shadow-2xl pointer-events-auto p-6 lg:hidden transform-gpu z-50 will-change-transform"
           >
             <div className="flex flex-col gap-2">
               {displayLinks.map((link) => {
