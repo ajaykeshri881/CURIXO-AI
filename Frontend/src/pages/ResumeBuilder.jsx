@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { resumeService } from '../services/resume.service';
 import toast from 'react-hot-toast';
-import { FileText, Loader2, Download, CheckCircle2, FileSignature, Layers, ArrowRight, Zap, Code, FileSearch, Clock } from 'lucide-react';
+import { FileText, Loader2, Download, CheckCircle2, FileSignature, Layers, ArrowRight, Zap, Code, FileSearch, Clock, Maximize2, Minimize2, Save, Edit3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
@@ -24,12 +24,18 @@ export default function ResumeBuilder() {
   const [downloading, setDownloading] = useState(false);
   const [previewHtml, setPreviewHtml] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const previewRef = useRef(null);
   const previewViewportRef = useRef(null);
   const [previewScale, setPreviewScale] = useState(1);
   const [showLimitPrompt, setShowLimitPrompt] = useState(false);
   const [countdown, setCountdown] = useState('');
+  
+  // Link Editor State
+  const [linkEditorOpen, setLinkEditorOpen] = useState(false);
+  const [linkEditTarget, setLinkEditTarget] = useState(null);
+  const [linkEditData, setLinkEditData] = useState({ text: '', url: '' });
 
   const [loadingMessage, setLoadingMessage] = useState('');
 
@@ -69,13 +75,67 @@ export default function ResumeBuilder() {
   }, [loading, downloading]);
 
   useEffect(() => {
-    if (previewRef.current && previewRef.current.contentDocument && previewRef.current.contentDocument.body) {
-      previewRef.current.contentDocument.body.contentEditable = isEditing ? 'true' : 'false';
+    const iframeDoc = previewRef.current?.contentDocument;
+    if (!iframeDoc || !iframeDoc.body) return;
+
+    iframeDoc.body.contentEditable = isEditing ? 'true' : 'false';
+
+    const handleClick = (e) => {
+      const anchor = e.target.closest('a');
+      if (anchor) {
+        e.preventDefault();
+        if (isEditing) {
+          e.stopPropagation();
+          if (typeof window.parent.openLinkEditor === 'function') {
+            window.parent.openLinkEditor(anchor);
+          }
+        } else if (anchor.href) {
+          window.open(anchor.href, '_blank');
+        }
+      }
+    };
+
+    const anchors = iframeDoc.querySelectorAll('a');
+    anchors.forEach(a => {
+      if (isEditing) {
+        a.setAttribute('title', 'Click to edit link destination');
+        a.classList.add('editing-link');
+      } else {
+        a.removeAttribute('title');
+        a.classList.remove('editing-link');
+      }
+    });
+
+    iframeDoc.addEventListener('click', handleClick);
+
+    let style = iframeDoc.getElementById('editor-styles');
+    if (isEditing && !style) {
+      style = iframeDoc.createElement('style');
+      style.id = 'editor-styles';
+      style.textContent = `
+        a.editing-link { outline: 2px dashed #10b981; outline-offset: 2px; border-radius: 2px; cursor: pointer !important; position: relative; display: inline-block; }
+        a.editing-link:hover { background: #ecfdf5; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+        a.editing-link::after { content: '✎'; position: absolute; top: -10px; right: -10px; background: #10b981; color: white; border-radius: 50%; width: 16px; height: 16px; font-size: 10px; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+        a.editing-link:hover::after { opacity: 1; }
+      `;
+      if (iframeDoc.head) iframeDoc.head.appendChild(style);
+    } else if (!isEditing && style) {
+      style.remove();
     }
-  }, [isEditing]);
+
+    return () => {
+      iframeDoc.removeEventListener('click', handleClick);
+    };
+  }, [isEditing, previewHtml]);
 
   useEffect(() => {
     if (!previewHtml || !previewViewportRef.current) return;
+
+    window.openLinkEditor = (anchorNode) => {
+       setLinkEditTarget(anchorNode);
+       setLinkEditData({ text: anchorNode.textContent, url: anchorNode.getAttribute('href') || '' });
+       setLinkEditorOpen(true);
+    };
 
     const A4_WIDTH_PX = 794;
     const MIN_SCALE = 0.3;
@@ -104,6 +164,7 @@ export default function ResumeBuilder() {
       if (resizeObserver) resizeObserver.disconnect();
       window.removeEventListener('resize', updatePreviewScale);
       window.removeEventListener('orientationchange', updatePreviewScale);
+      delete window.openLinkEditor;
     };
   }, [previewHtml]);
 
@@ -212,6 +273,7 @@ export default function ResumeBuilder() {
       const response = await resumeService.createFromScratch(mappedData);
       setPreviewHtml(response.resumeHtml);
       setIsEditing(false);
+      setIsFullscreen(true);
 
       toast.success('Preview generated successfully! You can now edit or download it.');
     } catch (error) {
@@ -342,7 +404,7 @@ export default function ResumeBuilder() {
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-400/20 rounded-full blur-[100px] pointer-events-none z-0" />
       <div className="fixed bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-sky-400/10 rounded-full blur-[120px] pointer-events-none z-0" />
 
-      <main className="relative z-10 flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 pt-32 md:pt-40 pb-20">
+      <main className={`relative ${isFullscreen ? 'z-[100]' : 'z-10'} flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 pt-32 md:pt-40 pb-20`}>
         <div className="mb-6 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 flex flex-col md:flex-row items-center md:items-baseline gap-2 md:gap-3">
             <FileText className="hidden md:block text-emerald-600 w-10 h-10 translate-y-1" strokeWidth={3} />
@@ -711,7 +773,7 @@ export default function ResumeBuilder() {
             </form>
           </div>
 
-          <div className="lg:col-span-6 flex flex-col items-start lg:sticky lg:top-28 w-full pb-8">
+          <div className={previewHtml && isFullscreen ? "fixed inset-0 z-[150] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in" : "lg:col-span-6 flex flex-col items-start lg:sticky lg:top-28 w-full pb-8"}>
             {!previewHtml ? (
               <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white w-full relative overflow-hidden">
                 <h2 className="text-xl font-extrabold text-slate-900 mb-4 flex items-center gap-3">
@@ -762,7 +824,7 @@ export default function ResumeBuilder() {
                 </div>
               </div>
             ) : (
-              <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-4 sm:p-6 shadow-xl shadow-slate-200/40 border border-white w-full h-[78vh] lg:h-[88vh] max-h-[980px] flex flex-col relative animate-in zoom-in-95 duration-500">
+              <div className={isFullscreen ? "bg-white rounded-[2rem] p-4 sm:p-6 shadow-2xl w-full h-full max-w-6xl flex flex-col relative animate-in zoom-in-95 duration-300 border border-emerald-100" : "bg-white/80 backdrop-blur-sm rounded-[2rem] p-4 sm:p-6 shadow-xl shadow-slate-200/40 border border-white w-full h-[78vh] lg:h-[88vh] max-h-[980px] flex flex-col relative animate-in zoom-in-95 duration-500"}>
                 <div className="flex justify-between items-center mb-4 pb-4 border-b border-slate-100">
                   <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
                     <FileSearch className="text-emerald-500 w-5 h-5" /> Preview & Edit
@@ -773,13 +835,30 @@ export default function ResumeBuilder() {
                     </div>
                     <button
                       onClick={() => setIsEditing(!isEditing)}
-                      className={`flex items-center gap-2 text-sm font-bold px-4 py-2 rounded-xl transition-all shadow-sm
+                      className={`relative flex items-center gap-2 text-sm font-black px-5 py-2.5 rounded-xl transition-all shadow-lg group overflow-hidden
                         ${isEditing
-                          ? 'bg-emerald-600 text-white shadow-emerald-600/20 hover:bg-emerald-700'
-                          : 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'}`}
+                          ? 'bg-amber-500 text-white hover:bg-amber-600 shadow-amber-500/40 ring-2 ring-amber-500 ring-offset-2 hover:-translate-y-0.5'
+                          : 'bg-indigo-600 text-white shadow-indigo-600/30 hover:bg-indigo-700 hover:-translate-y-0.5'}`}
                     >
-                      {isEditing ? <FileSearch size={16} /> : <FileSignature size={16} />}
-                      {isEditing ? 'View Final / Ready' : 'Edit Text Visually'}
+                      {isEditing && <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                      </span>}
+                      
+                      <div className="absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                      {isEditing ? <Save size={18} className="relative z-10" /> : <Edit3 size={18} className="relative z-10" />}
+                      <span className="hidden sm:inline relative z-10 uppercase tracking-wide">{isEditing ? 'Save Changes' : 'Edit Document'}</span>
+                      <span className="sm:hidden relative z-10 uppercase tracking-wide">{isEditing ? 'Save' : 'Edit'}</span>
+                    </button>
+                    <button
+                      onClick={() => setIsFullscreen(!isFullscreen)}
+                      className={`flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-xl transition-all shadow-sm 
+                        ${isFullscreen 
+                          ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 border border-rose-200' 
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'}`}
+                      title={isFullscreen ? "Minimize Screen" : "Expand Fullscreen"}
+                    >
+                      {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
                     </button>
                   </div>
                 </div>
@@ -923,6 +1002,69 @@ export default function ResumeBuilder() {
               >
                 Understood, see you tomorrow
               </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Link Editor Modal */}
+      <AnimatePresence>
+        {linkEditorOpen && (
+          <div className="fixed inset-0 z-[200] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="bg-white rounded-[2rem] p-6 sm:p-8 w-full max-w-md shadow-2xl border border-white"
+            >
+              <h3 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+                <FileSignature className="text-emerald-500 w-5 h-5" /> Edit Hyperlink
+              </h3>
+              
+              <div className="mb-5">
+                <label className="block text-sm font-bold text-slate-700 mb-2">Display Text</label>
+                <input 
+                  type="text"
+                  autoFocus
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all placeholder:text-slate-400"
+                  value={linkEditData.text} 
+                  onChange={(e) => setLinkEditData({ ...linkEditData, text: e.target.value })} 
+                />
+              </div>
+
+              <div className="mb-8">
+                <label className="block text-sm font-bold text-slate-700 mb-2">Destination URL</label>
+                <input 
+                  type="url"
+                  className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl px-4 py-3 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all placeholder:text-slate-400"
+                  value={linkEditData.url} 
+                  onChange={(e) => setLinkEditData({ ...linkEditData, url: e.target.value })} 
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <button 
+                  type="button"
+                  onClick={() => setLinkEditorOpen(false)} 
+                  className="px-5 py-2.5 font-bold text-sm text-slate-500 hover:bg-slate-100 rounded-xl transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    if (linkEditTarget) {
+                      linkEditTarget.textContent = linkEditData.text;
+                      linkEditTarget.setAttribute('href', linkEditData.url);
+                      toast.success('Link applied perfectly!');
+                    }
+                    setLinkEditorOpen(false);
+                  }} 
+                  className="px-6 py-2.5 font-bold text-sm bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl shadow-lg shadow-emerald-500/30 transition-all hover:-translate-y-0.5"
+                >
+                  Save Link
+                </button>
+              </div>
             </motion.div>
           </div>
         )}
