@@ -13,7 +13,7 @@ app.use(cookieParser())
 app.use(helmet())
 app.use(xssSanitizer)
 app.use(cors({
-    origin: process.env.CORS_ORIGIN?.includes(',') ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()) : (process.env.CORS_ORIGIN || 'http://localhost:5173'),
+    origin: process.env.CORS_ORIGIN?.includes(',') ? process.env.CORS_ORIGIN.split(',').map(o => o.trim()) : process.env.CORS_ORIGIN,
     credentials: true
 }))
 app.use(issueCsrfToken)

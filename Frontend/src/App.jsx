@@ -10,19 +10,19 @@ import { ProtectedRoute } from './components/layout/ProtectedRoute';
 
 // Pages
 import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import AtsCheck from './pages/AtsCheck';
-import ResumeBuilder from './pages/ResumeBuilder';
-import InterviewPrep from './pages/InterviewPrep';
-import InterviewReportView from './pages/InterviewReportView';
-import AtsReportView from './pages/AtsReportView';
+import Login from './pages/Auth/Login';
+import Register from './pages/Auth/Register';
+import Dashboard from './pages/Dashboard/Dashboard';
+import AtsCheck from './pages/ATS/AtsCheck';
+import ResumeBuilder from './pages/Resume/ResumeBuilder';
+import InterviewPrep from './pages/Interview/InterviewPrep';
+import InterviewReportView from './pages/Interview/InterviewReportView';
+import AtsReportView from './pages/ATS/AtsReportView';
 import NotFound from './pages/NotFound';
-import AboutUs from './pages/AboutUs';
-import TermsOfService from './pages/TermsOfService';
-import TrustAndSafety from './pages/TrustAndSafety';
-import Contact from './pages/Contact';
+import AboutUs from './pages/Info/AboutUs';
+import TermsOfService from './pages/Info/TermsOfService';
+import TrustAndSafety from './pages/Info/TrustAndSafety';
+import Contact from './pages/Info/Contact';
 
 function App() {
   return (
@@ -42,11 +42,13 @@ function App() {
           <Route path="/interview-report/:id" element={<ProtectedRoute><InterviewReportView /></ProtectedRoute>} />
           <Route path="/ats-report/:id" element={<ProtectedRoute><AtsReportView /></ProtectedRoute>} />
 
-          {/* Catch-all 404 Route */}
+          {/* Info Pages */}
           <Route path="/about" element={<AboutUs />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
           <Route path="/privacy-policy" element={<TrustAndSafety />} />
           <Route path="/contact" element={<Contact />} />
+
+          {/* Catch-all 404 Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>

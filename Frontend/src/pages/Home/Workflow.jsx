@@ -1,13 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Upload, FileText, BarChart3 } from 'lucide-react';
+import { Upload, FileText, BarChart3, BrainCircuit } from 'lucide-react';
 import { SectionWrapper } from '../../components/ui/SectionWrapper';
 
 export const Workflow = () => {
   const steps = [
     { icon: <Upload className="w-6 h-6 text-zinc-950" />, title: "Upload Resume", desc: "Simply upload your current resume in PDF format to get started." },
     { icon: <FileText className="w-6 h-6 text-zinc-950" />, title: "Add Job Details", desc: "Enter the target job title and paste the job description." },
-    { icon: <BarChart3 className="w-6 h-6 text-zinc-950" />, title: "Check & Improve", desc: "Get your ATS match score and use AI to optimize your resume instantly." }
+    { icon: <BarChart3 className="w-6 h-6 text-zinc-950" />, title: "Check & Improve", desc: "Get your ATS match score and use AI to optimize your resume instantly." },
+    { icon: <BrainCircuit className="w-6 h-6 text-zinc-950" />, title: "Get Interview Preparation Roadmap", desc: "Receive a personalized AI-generated interview plan with targeted questions, skill gaps, and a day-by-day preparation schedule." },
   ];
 
   return (

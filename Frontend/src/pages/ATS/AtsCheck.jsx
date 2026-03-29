@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { atsService } from '../services/ats.service';
-import { resumeService } from '../services/resume.service';
+import { useAuth } from '../../context/AuthContext';
+import { atsService } from '../../services/ats.service';
+import { resumeService } from '../../services/resume.service';
 import toast from 'react-hot-toast';
 import { UploadCloud, FileText, Target, Loader2, ArrowRight, FileSearch, CheckCircle2, ChevronRight, Wand2, Download, Sparkles, Lock, LogIn, UserPlus, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Navbar } from '../components/layout/Navbar';
-import { Footer } from '../components/layout/Footer';
+import { Navbar } from '../../components/layout/Navbar';
+import { Footer } from '../../components/layout/Footer';
 
 export default function AtsCheck() {
   const navigate = useNavigate();
@@ -24,6 +24,7 @@ export default function AtsCheck() {
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [viewMoreContent, setViewMoreContent] = useState(null);
   const [showLimitPrompt, setShowLimitPrompt] = useState(false);
+  const [countdown, setCountdown] = useState('');
   const fileInputRef = useRef(null);
 
   const [loadingMessage, setLoadingMessage] = useState('');
@@ -43,6 +44,49 @@ export default function AtsCheck() {
     "Integrating missing keywords...",
     "Finalizing ATS optimized output..."
   ];
+
+  // Countdown timer — ticks every second while the limit modal is open
+  useEffect(() => {
+    if (!showLimitPrompt) return;
+
+    const getSecondsUntilMidnightIST = () => {
+      const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+      const now = new Date();
+      const nowIST = new Date(now.getTime() + IST_OFFSET_MS);
+      // Midnight of next IST day expressed as UTC timestamp
+      const nextMidnightIST = new Date(
+        Date.UTC(
+          nowIST.getUTCFullYear(),
+          nowIST.getUTCMonth(),
+          nowIST.getUTCDate() + 1,
+          0, 0, 0, 0
+        ) - IST_OFFSET_MS
+      );
+      return Math.max(0, Math.floor((nextMidnightIST - now) / 1000));
+    };
+
+    const format = (secs) => {
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      const s = secs % 60;
+      return [
+        String(h).padStart(2, '0'),
+        String(m).padStart(2, '0'),
+        String(s).padStart(2, '0')
+      ].join(':');
+    };
+
+    // Set immediately so there's no 1-second blank
+    setCountdown(format(getSecondsUntilMidnightIST()));
+
+    const timer = setInterval(() => {
+      const secs = getSecondsUntilMidnightIST();
+      setCountdown(format(secs));
+      if (secs <= 0) clearInterval(timer);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [showLimitPrompt]);
 
   useEffect(() => {
     let interval;
@@ -203,6 +247,12 @@ export default function AtsCheck() {
                       {loadingMessage}
                     </motion.p>
                   </AnimatePresence>
+                </div>
+
+                <div className="mt-6 flex items-center justify-center">
+                  <span className="px-3 py-1 bg-violet-50 rounded-full text-[10px] font-bold text-violet-500 uppercase tracking-widest border border-violet-100/50 shadow-sm">
+                    This usually takes 1–2 minutes.
+                  </span>
                 </div>
               </div>
             </div>
@@ -672,7 +722,20 @@ export default function AtsCheck() {
                   Curixo AI provides high-quality AI processing completely <span className="font-bold text-orange-600">for free</span>. To keep this sustainable for everyone without charging subscriptions, we use a fair-use daily limit.
                 </p>
                 <div className="mt-5 p-4 bg-orange-50 border border-orange-100 rounded-2xl shadow-inner">
-                  <p className="text-orange-800 text-sm font-bold">Please come back tomorrow when your AI usages reset!</p>
+                  <p className="text-orange-700 text-xs font-semibold uppercase tracking-widest mb-2">Your limit resets in</p>
+                  <div className="flex items-center justify-center gap-2">
+                    {countdown.split(':').map((unit, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <div className="bg-white border border-orange-200 rounded-xl px-3 py-2 min-w-[3rem] text-center shadow-sm">
+                          <span className="text-2xl font-black text-orange-600 tabular-nums">{unit}</span>
+                          <p className="text-[9px] font-bold text-orange-400 uppercase tracking-widest mt-0.5">
+                            {['Hours', 'Mins', 'Secs'][i]}
+                          </p>
+                        </div>
+                        {i < 2 && <span className="text-xl font-black text-orange-300 -mt-3">:</span>}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 

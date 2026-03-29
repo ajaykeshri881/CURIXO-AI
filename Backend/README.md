@@ -593,6 +593,31 @@ Request 4 → Key #1 ✅ (cycles back)
 - Console logs show which key succeeded/failed for debugging
 
 ---
+## ⚠️ DNS Resolution Issue (Development Only)
+
+If you face issues like:
+
+* Database connection failing
+* External APIs not resolving
+* `ENOTFOUND` or DNS-related errors
+
+This might be due to your local ISP DNS.
+
+### ✅ Fix (Optional)
+
+You can force Google DNS in development:
+
+```js
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+```
+
+
+## ⚠️ Important
+
+* Use this **only in development**
+* Do NOT enable in production (cloud providers manage DNS internally)
+
 
 ## 📜 License
 

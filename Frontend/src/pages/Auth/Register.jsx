@@ -1,23 +1,24 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { ArrowRight, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { ArrowRight, Mail, Lock, User as UserIcon, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Navbar } from '../components/layout/Navbar';
-import { Footer } from '../components/layout/Footer';
+import { Navbar } from '../../components/layout/Navbar';
+import { Footer } from '../../components/layout/Footer';
 
-export default function Login() {
+export default function Register() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { register } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    const success = await login(email, password);
+    const success = await register(name, email, password);
     setIsLoading(false);
     if (success) {
       navigate('/dashboard'); // Will create dashboard next
@@ -41,17 +42,34 @@ export default function Login() {
           >
             <div className="text-center mb-8">
               <h2 className="text-3xl font-black tracking-tight text-zinc-950">
-                Welcome back
+                Create an account
               </h2>
               <p className="mt-2 text-sm font-medium text-zinc-500">
-                New to Curixo AI?{' '}
-                <Link to="/register" className="font-bold text-violet-600 hover:text-violet-700 transition-colors underline decoration-violet-200 underline-offset-4">
-                  Create a new account
+                Already have an account?{' '}
+                <Link to="/login" className="font-bold text-violet-600 hover:text-violet-700 transition-colors underline decoration-violet-200 underline-offset-4">
+                  Sign in instead
                 </Link>
               </p>
             </div>
 
             <form className="space-y-5" onSubmit={handleSubmit}>
+              <div>
+                <label className="block text-sm font-bold text-zinc-700">Full Name</label>
+                <div className="mt-2 relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <UserIcon className="h-5 w-5 text-zinc-400" />
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="block w-full pl-12 pr-4 py-3.5 border border-zinc-200/80 rounded-2xl focus:ring-4 focus:ring-violet-500/10 focus:border-violet-500 text-sm bg-zinc-50/50 hover:bg-zinc-50 focus:bg-white transition-all outline-none font-medium text-zinc-900 placeholder:text-zinc-400"
+                    placeholder="John Doe"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-bold text-zinc-700">Email address</label>
                 <div className="mt-2 relative">
@@ -101,7 +119,7 @@ export default function Login() {
                   disabled={isLoading}
                   className="group relative w-full flex justify-center items-center py-4 px-4 border border-transparent text-sm font-bold rounded-2xl text-white bg-zinc-950 hover:bg-zinc-800 focus:outline-none focus:ring-4 focus:ring-zinc-950/10 shadow-xl shadow-zinc-900/20 disabled:opacity-70 disabled:cursor-not-allowed transition-all"
                 >
-                  {isLoading ? 'Signing in...' : 'Sign in to Curixo AI'}
+                  {isLoading ? 'Creating account...' : 'Create account'}
                   {!isLoading && <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />}
                 </motion.button>
               </div>

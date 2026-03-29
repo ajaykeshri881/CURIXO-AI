@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { interviewService } from '../services/interview.service';
+import { interviewService } from '../../services/interview.service';
 import toast from 'react-hot-toast';
-import { UploadCloud, Loader2, BrainCircuit, CheckCircle2, FileSearch, Sparkles, ChevronRight, ArrowRight, Clock } from 'lucide-react';
+import { UploadCloud, Loader2, BrainCircuit, CheckCircle2, FileSearch, Sparkles, ChevronRight, ArrowRight, Clock, Maximize2, Minimize2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import InterviewReportDisplay from '../components/ui/InterviewReportDisplay';
-import { Navbar } from '../components/layout/Navbar';
-import { Footer } from '../components/layout/Footer';
+import InterviewReportDisplay from '../../components/ui/InterviewReportDisplay';
+import { Navbar } from '../../components/layout/Navbar';
+import { Footer } from '../../components/layout/Footer';
 
 export default function InterviewPrep() {
   const [file, setFile] = useState(null);
@@ -16,6 +16,8 @@ export default function InterviewPrep() {
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState(null);
   const [showLimitPrompt, setShowLimitPrompt] = useState(false);
+  const [countdown, setCountdown] = useState('');
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const fileInputRef = useRef(null);
 
   const [loadingMessage, setLoadingMessage] = useState('');
@@ -28,6 +30,49 @@ export default function InterviewPrep() {
     "Generating behavioral scenarios...",
     "Finalizing interview strategy report..."
   ];
+
+  // Countdown timer — ticks every second while the limit modal is open
+  useEffect(() => {
+    if (!showLimitPrompt) return;
+
+    const getSecondsUntilMidnightIST = () => {
+      const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000;
+      const now = new Date();
+      const nowIST = new Date(now.getTime() + IST_OFFSET_MS);
+      // Midnight of next IST day expressed as UTC timestamp
+      const nextMidnightIST = new Date(
+        Date.UTC(
+          nowIST.getUTCFullYear(),
+          nowIST.getUTCMonth(),
+          nowIST.getUTCDate() + 1,
+          0, 0, 0, 0
+        ) - IST_OFFSET_MS
+      );
+      return Math.max(0, Math.floor((nextMidnightIST - now) / 1000));
+    };
+
+    const format = (secs) => {
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      const s = secs % 60;
+      return [
+        String(h).padStart(2, '0'),
+        String(m).padStart(2, '0'),
+        String(s).padStart(2, '0')
+      ].join(':');
+    };
+
+    // Set immediately so there's no 1-second blank
+    setCountdown(format(getSecondsUntilMidnightIST()));
+
+    const timer = setInterval(() => {
+      const secs = getSecondsUntilMidnightIST();
+      setCountdown(format(secs));
+      if (secs <= 0) clearInterval(timer);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [showLimitPrompt]);
 
   useEffect(() => {
     let interval;
@@ -137,6 +182,12 @@ export default function InterviewPrep() {
                      </motion.p>
                    </AnimatePresence>
                  </div>
+
+                 <div className="mt-6 flex items-center justify-center">
+                   <span className="px-3 py-1 bg-blue-50 rounded-full text-[10px] font-bold text-blue-500 uppercase tracking-widest border border-blue-100/50 shadow-sm">
+                     This usually takes 1–2 minutes.
+                   </span>
+                 </div>
                </div>
             </div>
           </motion.div>
@@ -159,7 +210,7 @@ export default function InterviewPrep() {
       <div className="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-400/20 rounded-full blur-[100px] pointer-events-none z-0" />
       <div className="fixed bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-emerald-400/10 rounded-full blur-[120px] pointer-events-none z-0" />
 
-      <main className="relative z-10 max-w-6xl w-full mx-auto px-4 sm:px-6 pt-28 lg:pt-32 pb-16 flex-grow">
+      <main className={`relative max-w-6xl w-full mx-auto px-4 sm:px-6 pt-28 lg:pt-32 pb-16 flex-grow ${isFullscreen ? 'z-[200]' : 'z-10'}`}>
         <div className="mb-8 text-center md:text-left">
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 flex flex-col md:flex-row items-center md:items-baseline gap-2 md:gap-3">
             <BrainCircuit className="hidden md:block text-blue-600 w-10 h-10 translate-y-1" strokeWidth={3} />
@@ -268,11 +319,21 @@ export default function InterviewPrep() {
              </form>
             </div>
 
-            <div className="lg:col-span-5 flex flex-col">
-              <div className="bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white h-full flex flex-col min-h-[380px] lg:min-h-0 relative overflow-hidden">
-                 <h2 className="text-xl font-extrabold text-slate-900 mb-5 flex items-center gap-3">
+            <div className={report && isFullscreen ? "fixed inset-0 z-[150] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-2 sm:p-6 md:p-10 animate-in fade-in" : "lg:col-span-5 flex flex-col lg:sticky lg:top-28 w-full pb-8"}>
+              <div className={report && isFullscreen ? "bg-white rounded-[2rem] p-4 sm:p-6 lg:p-8 shadow-2xl w-full h-full max-w-7xl flex flex-col relative animate-in zoom-in-95 duration-300 border border-blue-100" : "bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white h-full flex flex-col min-h-[380px] max-h-[90vh] relative overflow-hidden"}>
+                 <h2 className="text-xl font-extrabold text-slate-900 mb-5 flex items-center gap-3 shrink-0">
                    Interview Report
-                   <span className="px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider ml-auto border border-blue-100 shadow-sm">AI Generated</span>
+                   {report ? (
+                     <button
+                       onClick={() => setIsFullscreen(!isFullscreen)}
+                       className="ml-auto flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider border border-blue-200 shadow-sm transition-colors"
+                     >
+                       {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />} 
+                       {isFullscreen ? 'Exit Full Screen' : 'Full Screen'}
+                     </button>
+                   ) : (
+                     <span className="px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider ml-auto border border-blue-100 shadow-sm">AI Generated</span>
+                   )}
                  </h2>
 
                 {!report && !loading && (
@@ -309,18 +370,8 @@ export default function InterviewPrep() {
                    </div>
                 )}
                 {report && (
-                  <div className="flex-1 flex flex-col items-center justify-center bg-blue-50/80 border border-blue-100 rounded-3xl p-6 shadow-sm overflow-hidden animate-in fade-in zoom-in-95 duration-500">
-                      <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 shadow-sm">
-                        <CheckCircle2 className="w-8 h-8 text-blue-500" />
-                      </div>
-                      <h3 className="text-lg font-bold text-slate-900 mb-3">Preparation Ready</h3>
-                      <p className="text-slate-600 text-sm font-medium text-center mb-6 leading-relaxed">Your tailored interview guide has been generated based on your profile.</p>
-                      <button 
-                         onClick={() => window.location.href = `/interview-report/${report._id}`}
-                         className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl text-white bg-blue-600 font-bold hover:bg-blue-700 shadow-lg shadow-blue-600/20 transition-all text-sm uppercase tracking-wider"
-                      >
-                         View Full Report <ArrowRight className="w-4 h-4" />
-                      </button>
+                  <div className={`flex-1 w-full overflow-y-auto custom-scrollbar animate-in fade-in zoom-in-95 duration-500 bg-white rounded-[2rem] ${isFullscreen ? 'h-full' : 'max-h-[80vh]'}`}>
+                    <InterviewReportDisplay report={report} />
                   </div>
                 )}
               </div>
@@ -362,7 +413,20 @@ export default function InterviewPrep() {
                   Curixo AI provides high-quality AI processing completely <span className="font-bold text-orange-600">for free</span>. To keep this sustainable for everyone without charging subscriptions, we use a fair-use daily limit.
                 </p>
                 <div className="mt-5 p-4 bg-orange-50 border border-orange-100 rounded-2xl shadow-inner">
-                  <p className="text-orange-800 text-sm font-bold">Please come back tomorrow when your AI usages reset!</p>
+                  <p className="text-orange-700 text-xs font-semibold uppercase tracking-widest mb-2">Your limit resets in</p>
+                  <div className="flex items-center justify-center gap-2">
+                    {countdown.split(':').map((unit, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <div className="bg-white border border-orange-200 rounded-xl px-3 py-2 min-w-[3rem] text-center shadow-sm">
+                          <span className="text-2xl font-black text-orange-600 tabular-nums">{unit}</span>
+                          <p className="text-[9px] font-bold text-orange-400 uppercase tracking-widest mt-0.5">
+                            {['Hours', 'Mins', 'Secs'][i]}
+                          </p>
+                        </div>
+                        {i < 2 && <span className="text-xl font-black text-orange-300 -mt-3">:</span>}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
 

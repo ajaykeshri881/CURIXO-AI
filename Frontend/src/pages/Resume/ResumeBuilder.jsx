@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { resumeService } from '../services/resume.service';
+import { resumeService } from '../../services/resume.service';
 import toast from 'react-hot-toast';
 import { FileText, Loader2, Download, CheckCircle2, FileSignature, Layers, ArrowRight, Zap, Code, FileSearch, Clock, Maximize2, Minimize2, Save, Edit3 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Navbar } from '../components/layout/Navbar';
-import { Footer } from '../components/layout/Footer';
+import { Navbar } from '../../components/layout/Navbar';
+import { Footer } from '../../components/layout/Footer';
 
 export default function ResumeBuilder() {
   const location = useLocation();
@@ -144,7 +144,7 @@ export default function ResumeBuilder() {
     const updatePreviewScale = () => {
       if (!previewViewportRef.current) return;
       const viewportWidth = previewViewportRef.current.clientWidth;
-      const usableWidth = Math.max(viewportWidth - 28, 320);
+      const usableWidth = Math.max(viewportWidth - 56, 320);
       const nextScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, usableWidth / A4_WIDTH_PX));
       setPreviewScale(Number(nextScale.toFixed(3)));
     };
@@ -215,6 +215,7 @@ export default function ResumeBuilder() {
   useEffect(() => {
     if (location.state?.improvedHtml) {
       setPreviewHtml(location.state.improvedHtml);
+      setIsFullscreen(true);
       if (location.state.jobTitle) {
         setFormData(prev => ({ ...prev, jobTitle: location.state.jobTitle }));
       }
@@ -381,6 +382,12 @@ export default function ResumeBuilder() {
                       {loadingMessage}
                     </motion.p>
                   </AnimatePresence>
+                </div>
+
+                <div className="mt-6 flex items-center justify-center">
+                  <span className="px-3 py-1 bg-emerald-50 rounded-full text-[10px] font-bold text-emerald-500 uppercase tracking-widest border border-emerald-100/50 shadow-sm">
+                    This usually takes 1–2 minutes.
+                  </span>
                 </div>
               </div>
             </div>
@@ -869,7 +876,7 @@ export default function ResumeBuilder() {
                     className="w-full h-full overflow-auto bg-slate-200/50 flex justify-center items-start p-3 sm:p-5"
                     style={{ WebkitOverflowScrolling: 'touch' }}
                   >
-                    <div className="flex justify-center transition-all duration-300 relative" style={{ width: `calc(210mm * ${previewScale})`, minHeight: `calc(297mm * ${previewScale})` }}>
+                    <div className="flex justify-center transition-all duration-300 relative overflow-hidden" style={{ width: `calc(210mm * ${previewScale})`, minHeight: `calc(297mm * ${previewScale})` }}>
                       <div style={{ position: 'absolute', top: 0, left: 0, width: '210mm', transform: `scale(${previewScale})`, transformOrigin: 'top left' }}>
                         <iframe
                           id="resume-preview-content"
@@ -889,11 +896,19 @@ export default function ResumeBuilder() {
                               iframe.contentDocument.body.contentEditable = isEditing ? 'true' : 'false';
 
                               const adjustHeight = () => {
-                                if (iframe.contentDocument && iframe.contentDocument.documentElement) {
-                                  const newHeight = iframe.contentDocument.documentElement.scrollHeight;
+                                if (iframe.contentDocument) {
+                                  const body = iframe.contentDocument.body;
+                                  const html = iframe.contentDocument.documentElement;
+                                  // Ensure we get the absolute max height
+                                  const newHeight = Math.max(
+                                    body.scrollHeight, body.offsetHeight,
+                                    html.clientHeight, html.scrollHeight, html.offsetHeight
+                                  ) + 50; // Add 50px buffer to prevent custom margin cutoffs
+
                                   iframe.style.height = `${newHeight}px`;
                                   if (iframe.parentElement && iframe.parentElement.parentElement) {
                                     iframe.parentElement.parentElement.style.minHeight = `calc(${newHeight}px * ${previewScale})`;
+                                    iframe.parentElement.parentElement.style.height = `calc(${newHeight}px * ${previewScale})`;
                                   }
                                 }
                               };
@@ -907,7 +922,7 @@ export default function ResumeBuilder() {
                               }
 
                               const style = iframe.contentDocument.createElement('style');
-                              style.textContent = '::-webkit-scrollbar { display: none; } html { scrollbar-width: none; overflow: hidden !important; } style, meta, title, head { display: none !important; }';
+                              style.textContent = '::-webkit-scrollbar { display: none; } html { scrollbar-width: none; } style, meta, title, head { display: none !important; }';
                               if (iframe.contentDocument.head) {
                                 iframe.contentDocument.head.appendChild(style);
                               }

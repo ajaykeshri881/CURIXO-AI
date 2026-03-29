@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { interviewService } from '../services/interview.service';
+import { interviewService } from '../../services/interview.service';
 import toast from 'react-hot-toast';
 import { ArrowLeft, Loader2, BrainCircuit } from 'lucide-react';
-import InterviewReportDisplay from '../components/ui/InterviewReportDisplay';
-import { Navbar } from '../components/layout/Navbar';
-import { Footer } from '../components/layout/Footer';
+import InterviewReportDisplay from '../../components/ui/InterviewReportDisplay';
+import { Navbar } from '../../components/layout/Navbar';
+import { Footer } from '../../components/layout/Footer';
 
 export default function InterviewReportView() {
   const { id } = useParams();

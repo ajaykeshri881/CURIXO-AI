@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { BrainCircuit, FileText, Target, LogOut, Loader2, Calendar, ShieldAlert, Sparkles, ArrowRight, Clock, X } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { dashboardService } from '../services/dashboard.service';
-import { Navbar } from '../components/layout/Navbar';
-import { Footer } from '../components/layout/Footer';
+import { dashboardService } from '../../services/dashboard.service';
+import { Navbar } from '../../components/layout/Navbar';
+import { Footer } from '../../components/layout/Footer';
 
 export default function Dashboard() {
   const { user, logout, logoutAll } = useAuth();
