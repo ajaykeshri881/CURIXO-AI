@@ -12,6 +12,20 @@ function cleanJsonText(text) {
 }
 
 function normalizeResumeData(data, fallbackJobTitle = "") {
+    const cleanArray = (arr, coreKeys) => {
+        if (!Array.isArray(arr)) return [];
+        return arr.filter(item => {
+            if (typeof item === 'string') return item.trim().length > 0;
+            if (!item || typeof item !== 'object') return false;
+            // Return true if any of the core keys exist and aren't empty strings
+            return coreKeys.some(key => {
+                const val = item[key];
+                if (Array.isArray(val)) return val.some(v => v && String(v).trim().length > 0);
+                return val && String(val).trim().length > 0;
+            });
+        });
+    };
+
     return {
         name: data?.name || data?.fullName || "Candidate Name",
         title: data?.title || data?.headline || fallbackJobTitle || "Professional",
@@ -22,10 +36,18 @@ function normalizeResumeData(data, fallbackJobTitle = "") {
         github: data?.github || "",
         portfolio: data?.portfolio || "",
         summary: data?.summary || "",
-        skills: Array.isArray(data?.skills) ? data.skills : [],
-        experience: Array.isArray(data?.experience) ? data.experience : [],
-        education: Array.isArray(data?.education) ? data.education : [],
-        projects: Array.isArray(data?.projects) ? data.projects : []
+        skills: cleanArray(data?.skills, []),
+        experience: cleanArray(data?.experience, ['role', 'company', 'bullets']).map(exp => ({
+            ...exp,
+            bullets: Array.isArray(exp.bullets) ? exp.bullets.filter(b => b && String(b).trim().length > 0) : []
+        })),
+        education: cleanArray(data?.education, ['degree', 'school']).map(edu => ({
+            ...edu,
+            bullets: Array.isArray(edu.bullets) ? edu.bullets.filter(b => b && String(b).trim().length > 0) : []
+        })),
+        projects: cleanArray(data?.projects, ['name', 'description']),
+        certifications: cleanArray(data?.certifications, []),
+        achievements: cleanArray(data?.achievements, [])
     }
 }
 

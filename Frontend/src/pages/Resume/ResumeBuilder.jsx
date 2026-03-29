@@ -265,6 +265,7 @@ export default function ResumeBuilder() {
       return true;
     }
     if (currentStep === 4) {
+      if (!formData.summary.trim()) { toast.error("Professional Summary is required"); return false; }
       return true;
     }
     return true;
@@ -282,6 +283,11 @@ export default function ResumeBuilder() {
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
+    // Prevent generation unless the user is on the final step
+    if (currentStep < 4) {
+      nextStep();
+      return;
+    }
     if (!validateStep()) return;
     setLoading(true);
     try {
@@ -291,9 +297,9 @@ export default function ResumeBuilder() {
           personalDetails: formData.personalDetails,
           summary: formData.summary,
           skills: formData.skills.split(',').map(s => s.trim()),
-          experience: [{ title: 'Professional', company: 'Various', description: formData.experience }],
+          experience: formData.experience.trim() ? [{ title: 'Professional', description: formData.experience }] : [],
           education: [{ title: 'Education', description: formData.education }],
-          projects: formData.projects ? [{ title: 'Projects', description: formData.projects }] : [],
+          projects: formData.projects.trim() ? [{ title: 'Projects', description: formData.projects }] : [],
           extraDetails: `Certifications:\n${formData.certifications}\n\nAchievements:\n${formData.achievements}`
         }
       };
@@ -468,7 +474,15 @@ export default function ResumeBuilder() {
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-6 bg-white/80 backdrop-blur-sm rounded-[2rem] p-6 lg:p-8 shadow-xl shadow-slate-200/40 border border-white">
-            <form onSubmit={handleSubmit} className="flex flex-col">
+            <form
+              onSubmit={handleSubmit}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && currentStep < 4) {
+                  e.preventDefault();
+                }
+              }}
+              className="flex flex-col"
+            >
               
               {/* Stepper Progress */}
               <div className="mb-8 px-2 sm:px-4">
@@ -710,7 +724,7 @@ export default function ResumeBuilder() {
                     >
                       <div>
                         <label className="flex items-center gap-2 font-bold text-slate-800 mb-3 text-sm">
-                          Professional Summary <span className="text-slate-400 font-medium text-xs ml-1">(Optional)</span>
+                          Professional Summary <span className="text-red-500">*</span>
                         </label>
                         <textarea
                           className="w-full h-24 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all resize-none placeholder:text-slate-400 shadow-sm leading-relaxed"

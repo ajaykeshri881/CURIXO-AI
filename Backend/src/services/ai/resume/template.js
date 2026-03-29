@@ -11,157 +11,249 @@ function buildResumeHtml(data) {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${safeText(data.name)} - Resume</title>
     <style>
-      :root {
-        --text: #1f2937;
-        --muted: #6b7280;
-        --line: #e5e7eb;
-        --heading: #111827;
-        --accent: #0f766e;
-      }
-      * { box-sizing: border-box; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
       body {
-        margin: 0;
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        color: var(--text);
-        background: #f8fafc;
+        font-family: "Times New Roman", Times, serif;
+        font-size: 11pt;
+        color: #1a1a1a;
+        background: #f0f0f0;
+        line-height: 1.45;
       }
       .page {
         width: 210mm;
         min-height: 297mm;
-        margin: 12mm auto;
+        margin: 10mm auto;
         background: #ffffff;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        padding: 16mm;
+        padding: 15mm 18mm;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
       }
+
+      /* ── HEADER ── */
       .header {
-        border-bottom: 2px solid var(--line);
-        padding-bottom: 10px;
-        margin-bottom: 14px;
+        text-align: center;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1.5px solid #1a1a1a;
       }
-      h1 {
-        margin: 0;
-        font-size: 28px;
-        color: var(--heading);
+      .header h1 {
+        font-size: 22pt;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: #000;
+        text-transform: uppercase;
       }
-      .title {
+      .header .contacts {
+        font-size: 9.5pt;
+        color: #333;
         margin-top: 4px;
-        font-size: 14px;
-        color: var(--accent);
-        font-weight: 600;
-      }
-      .contacts {
-        margin-top: 8px;
-        font-size: 11px;
-        color: var(--muted);
         line-height: 1.6;
       }
-      section { margin-top: 12px; }
+      .header .contacts a {
+        color: #333;
+        text-decoration: none;
+      }
+
+      /* ── SECTION HEADINGS ── */
+      section {
+        margin-top: 10px;
+      }
       h2 {
-        margin: 0 0 6px;
-        font-size: 13px;
+        font-size: 10.5pt;
+        font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        color: var(--heading);
+        letter-spacing: 0.06em;
+        color: #1a237e;
+        border-bottom: 1.5px solid #1a237e;
+        padding-bottom: 2px;
+        margin-bottom: 7px;
       }
-      p {
-        margin: 0;
-        line-height: 1.5;
-        font-size: 12px;
+
+      /* ── SUMMARY ── */
+      .summary-text {
+        font-size: 10pt;
+        line-height: 1.6;
+        color: #222;
+        text-align: justify;
       }
-      .skills {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
+
+      /* ── SKILLS ── */
+      .skills-block {
+        font-size: 10pt;
+        line-height: 1.7;
       }
-      .chip {
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        padding: 2px 8px;
-        font-size: 11px;
+      .skills-block p {
+        margin-bottom: 2px;
       }
+      .skills-block strong {
+        color: #000;
+      }
+
+      /* ── ITEM (experience / projects) ── */
       .item {
-        margin-bottom: 10px;
+        margin-bottom: 9px;
       }
       .item-head {
         display: flex;
         justify-content: space-between;
-        gap: 12px;
         align-items: baseline;
-        font-size: 12px;
       }
-      .item-title { font-weight: 700; }
-      .item-meta { color: var(--muted); font-size: 11px; }
+      .item-role {
+        font-weight: 700;
+        font-size: 10.5pt;
+        color: #000;
+      }
+      .item-company {
+        font-size: 10pt;
+        color: #333;
+        font-style: italic;
+      }
+      .item-location-date {
+        font-size: 10pt;
+        color: #333;
+        font-style: italic;
+        white-space: nowrap;
+        text-align: right;
+      }
       ul {
-        margin: 6px 0 0 16px;
+        margin: 4px 0 0 18px;
         padding: 0;
       }
       li {
-        margin-bottom: 4px;
-        font-size: 12px;
-        line-height: 1.45;
+        font-size: 10pt;
+        margin-bottom: 3px;
+        line-height: 1.5;
       }
-      @page {
-        size: A4;
-        margin: 10mm;
+
+      /* ── EDUCATION ── */
+      .edu-school {
+        font-weight: 700;
+        font-size: 10.5pt;
+        color: #000;
       }
+      .edu-degree {
+        font-size: 10pt;
+        color: #1a237e;
+        font-style: italic;
+        margin-top: 1px;
+      }
+      .edu-year {
+        font-size: 10pt;
+        color: #333;
+        font-style: italic;
+        white-space: nowrap;
+      }
+
+      /* ── CERTIFICATIONS / ACHIEVEMENTS ── */
+      .plain-list {
+        margin: 4px 0 0 18px;
+        padding: 0;
+      }
+      .plain-list li {
+        font-size: 10pt;
+        margin-bottom: 3px;
+      }
+
+      /* ── PRINT ── */
+      @page { size: A4; margin: 0; }
       @media print {
         body { background: #fff; }
-        .page {
-          margin: 0;
-          box-shadow: none;
-          width: auto;
-          min-height: auto;
-          padding: 0;
-        }
+        .page { margin: 0; box-shadow: none; padding: 12mm 15mm; }
       }
     </style>
   </head>
   <body>
     <main class="page">
+
+      <!-- HEADER -->
       <header class="header">
         <h1>${safeText(data.name)}</h1>
-        <div class="title">${safeText(data.title)}</div>
-        <div class="contacts">${contacts.map(safeText).join(" | ")}</div>
+        <div class="contacts">${contacts.map(safeText).join(" &nbsp;|&nbsp; ")}</div>
       </header>
 
-      ${data.summary ? `<section><h2>Professional Summary</h2><p>${safeText(data.summary)}</p></section>` : ""}
+      <!-- PROFESSIONAL SUMMARY -->
+      ${data.summary ? `
+      <section>
+        <h2>Professional Summary</h2>
+        <p class="summary-text">${safeText(data.summary)}</p>
+      </section>` : ""}
 
-      ${data.skills.length ? `<section><h2>Skills</h2><div class="skills">${data.skills.map((skill) => `<span class="chip">${safeText(skill)}</span>`).join("")}</div></section>` : ""}
+      <!-- TECHNICAL SKILLS -->
+      ${data.skills.length ? `
+      <section>
+        <h2>Technical Skills</h2>
+        <div class="skills-block">
+          <p>${data.skills.map(s => safeText(s)).join(", ")}</p>
+        </div>
+      </section>` : ""}
 
-      ${data.experience.length ? `<section><h2>Work Experience</h2>${data.experience.map((item) => `
-            <div class="item">
-              <div class="item-head">
-                <span class="item-title">${safeText(item.role || "")}${item.company ? `, ${safeText(item.company)}` : ""}</span>
-                <span class="item-meta">${safeText(item.duration || "")}</span>
-              </div>
-              <ul>
-                ${(Array.isArray(item.bullets) ? item.bullets : []).map((bullet) => `<li>${safeText(bullet)}</li>`).join("")}
-              </ul>
-            </div>
-          `).join("")}</section>` : ""}
+      <!-- PROFESSIONAL EXPERIENCE -->
+      ${data.experience.length ? `
+      <section>
+        <h2>Professional Experience</h2>
+        ${data.experience.map((item) => `
+        <div class="item">
+          <div class="item-head">
+            <span class="item-role">${safeText(item.role || "")}</span>
+            <span class="item-location-date">${safeText(item.duration || "")}</span>
+          </div>
+          ${item.company ? `<div class="item-company">${safeText(item.company)}</div>` : ""}
+          ${Array.isArray(item.bullets) && item.bullets.length ? `
+          <ul>
+            ${item.bullets.map(b => `<li>${safeText(b)}</li>`).join("")}
+          </ul>` : ""}
+        </div>`).join("")}
+      </section>` : ""}
 
-      ${data.education.length ? `<section><h2>Education</h2>${data.education.map((item) => `
-            <div class="item">
-              <div class="item-head">
-                <span class="item-title">${safeText(item.degree || "")}${item.school ? `, ${safeText(item.school)}` : ""}</span>
-                <span class="item-meta">${safeText(item.year || "")}</span>
-              </div>
-            </div>
-          `).join("")}</section>` : ""}
+      <!-- KEY PROJECTS -->
+      ${data.projects.length ? `
+      <section>
+        <h2>Key Projects</h2>
+        ${data.projects.map((item) => `
+        <div class="item">
+          <div class="item-head">
+            <span class="item-role">${safeText(item.name || "Project")}${item.techStack ? `<span style="font-weight:400; font-size:9.5pt; color:#555; margin-left:6px;">| ${safeText(item.techStack)}</span>` : ""}</span>
+            <span class="item-location-date">${item.demoUrl ? `<a href="${safeText(item.demoUrl)}" style="color:#1a237e;text-decoration:none;margin-right:8px;">Live Demo</a>` : ""}${item.githubUrl ? `<a href="${safeText(item.githubUrl)}" style="color:#1a237e;text-decoration:none;">GitHub Repository</a>` : ""}</span>
+          </div>
+          ${item.description ? `<ul><li>${safeText(item.description)}</li></ul>` : ""}
+        </div>`).join("")}
+      </section>` : ""}
 
-      ${data.projects.length ? `<section><h2>Projects</h2>${data.projects.map((item) => `
-            <div class="item">
-              <div class="item-head">
-                <span class="item-title">${safeText(item.name || "Project")}</span>
-                <span class="item-meta">
-                  ${item.demoUrl ? `<a href="${safeText(item.demoUrl)}" style="color:var(--accent);text-decoration:none;margin-right:8px;">Live Demo</a>` : ""}
-                  ${item.githubUrl ? `<a href="${safeText(item.githubUrl)}" style="color:var(--accent);text-decoration:none;">GitHub</a>` : ""}
-                </span>
-              </div>
-              <p>${safeText(item.description || "")}</p>
-              ${item.techStack ? `<p class="item-meta" style="margin-top:4px;">Tech: ${safeText(item.techStack)}</p>` : ""}
-            </div>
-          `).join("")}</section>` : ""}
+      <!-- EDUCATION -->
+      ${data.education.length ? `
+      <section>
+        <h2>Education</h2>
+        ${data.education.map((item) => `
+        <div class="item">
+          <div class="item-head">
+            <span class="edu-school">${safeText(item.degree || "Degree")}</span>
+            <span class="edu-year">${safeText(item.year || "")}</span>
+          </div>
+          ${item.school ? `<div class="edu-degree">${safeText(item.school)}</div>` : ""}
+          ${Array.isArray(item.bullets) && item.bullets.length ? `
+          <ul>
+            ${item.bullets.map(b => `<li>${safeText(b)}</li>`).join("")}
+          </ul>` : ""}
+        </div>`).join("")}
+      </section>` : ""}
+
+      <!-- CERTIFICATIONS -->
+      ${data.certifications && data.certifications.length ? `
+      <section>
+        <h2>Certifications</h2>
+        <ul class="plain-list">
+          ${data.certifications.map(c => `<li>${safeText(c)}</li>`).join("")}
+        </ul>
+      </section>` : ""}
+
+      <!-- KEY ACHIEVEMENTS -->
+      ${data.achievements && data.achievements.length ? `
+      <section>
+        <h2>Key Achievements</h2>
+        <ul class="plain-list">
+          ${data.achievements.map(a => `<li>${safeText(a)}</li>`).join("")}
+        </ul>
+      </section>` : ""}
+
     </main>
   </body>
 </html>

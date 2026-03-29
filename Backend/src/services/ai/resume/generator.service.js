@@ -9,10 +9,13 @@ Create a professional, highly-optimized resume EXACTLY from the provided user pr
 Return strict JSON only (no markdown).
 
 CRITICAL INSTRUCTIONS:
-1. NEVER hallucinate, fabricate, or make up fake companies, job titles, universities, or experiences.
-2. Rely strictly on the real data provided by the user. If information is scarce, do NOT invent filler content or random experiences.
-3. Ensure all core sections (summary, skills, experience, education, projects) are fully populated using the provided data and formatted perfectly for ATS scanners.
-4. Enhance the wording to be highly professional and action-oriented, but maintain 100% factual accuracy.
+1. NEVER hallucinate or invent fake companies, job titles, or unearned degrees.
+2. HOWEVER, you must heavily EXPAND and ELABORATE on the provided experience and projects. If the provided descriptions are short or basic, transform them into 3 to 5 highly detailed, impressive, and lengthy bullet points per role/project.
+3. Use universally accepted industry standards, methodologies, and technical details that logically fit the provided role to make the resume heavily ATS-optimized.
+4. Ensure the summary is powerful and comprehensive. Do not output a sparse or empty-looking resume.
+5. Enhance all wording to be highly professional and action-oriented.
+6. If the user has NOT provided any work experience data, return an EMPTY "experience" array ([]). Do NOT invent or fabricate any work experience. Only include experience the user explicitly mentioned.
+7. If the user did not explicitly provide any 'Achievements', you MUST generate 2-3 impressive achievements by intelligently extracting implicit successes from their provided work experience or projects. Do not invent completely fake metrics, but do highlight their real work as explicit achievements.
 
 User Profile JSON:
 ${JSON.stringify(userInfo, null, 2)}
@@ -41,7 +44,8 @@ Return this exact structure:
     {
       "degree": "",
       "school": "",
-      "year": ""
+      "year": "",
+      "bullets": [""]
     }
   ],
   "projects": [
@@ -52,7 +56,9 @@ Return this exact structure:
       "githubUrl": "",
       "demoUrl": ""
     }
-  ]
+  ],
+  "certifications": [""],
+  "achievements": [""]
 }
 `
 
