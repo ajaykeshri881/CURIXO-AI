@@ -24,7 +24,7 @@ export const Footer = () => {
           </h4>
           <ul className="space-y-4 text-sm text-zinc-500 font-medium">
             <li><Link to="/about" className="hover:text-zinc-950 transition-colors">About Us</Link></li>
-            <li><a href="#" className="hover:text-zinc-950 transition-colors">Privacy Policy</a></li>
+            <li><Link to="/privacy-policy" className="hover:text-zinc-950 transition-colors">Privacy Policy</Link></li>
             <li><Link to="/terms-of-service" className="hover:text-zinc-950 transition-colors">Terms of Service</Link></li>
             <li><Link to="/contact" className="hover:text-zinc-950 transition-colors">Contact</Link></li>
           </ul>

@@ -21,6 +21,7 @@ import AtsReportView from './pages/AtsReportView';
 import NotFound from './pages/NotFound';
 import AboutUs from './pages/AboutUs';
 import TermsOfService from './pages/TermsOfService';
+import TrustAndSafety from './pages/TrustAndSafety';
 import Contact from './pages/Contact';
 
 function App() {
@@ -44,6 +45,7 @@ function App() {
           {/* Catch-all 404 Route */}
           <Route path="/about" element={<AboutUs />} />
           <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/privacy-policy" element={<TrustAndSafety />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
