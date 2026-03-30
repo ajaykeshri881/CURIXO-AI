@@ -6,6 +6,7 @@ import { FileText, Loader2, Download, CheckCircle2, FileSignature, Layers, Arrow
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
+import SEO from '../../components/SEO';
 
 export default function ResumeBuilder() {
   const location = useLocation();
@@ -378,6 +379,7 @@ export default function ResumeBuilder() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFC] text-zinc-900 font-sans selection:bg-emerald-200 selection:text-emerald-900 flex flex-col overflow-x-hidden">
+      <SEO title="AI Resume Builder" description="Instantly generate a professional, highly-optimized, and ATS-friendly PDF resume crafted exactly to your specifications." path="/resume-builder" />
       <Navbar />
 
       {/* Full Screen Dynamic Loading Overlay */}

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
+import SEO from '../../components/SEO';
 
 export default function Contact() {
   useEffect(() => {
@@ -9,6 +10,7 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFC] text-zinc-900 font-sans selection:bg-violet-200 selection:text-violet-900 flex flex-col overflow-x-hidden">
+      <SEO title="Contact Us" description="Get in touch with the Curixo AI team. We're here to help you accelerate your career." path="/contact" />
       <Navbar />
 
       <main className="flex-grow relative z-10 pt-32 pb-24">

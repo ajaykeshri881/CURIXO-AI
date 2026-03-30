@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
+import SEO from '../../components/SEO';
 
 export default function TermsOfService() {
   useEffect(() => {
@@ -9,6 +10,7 @@ export default function TermsOfService() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFC] text-zinc-900 font-sans selection:bg-violet-200 selection:text-violet-900 flex flex-col overflow-x-hidden">
+      <SEO title="Terms of Service" description="Read the Terms of Service for using Curixo AI." path="/terms-of-service" />
       <Navbar />
 
       <main className="flex-grow relative z-10 pt-32 pb-24">

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import InterviewReportDisplay from '../../components/ui/InterviewReportDisplay';
 import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
+import SEO from '../../components/SEO';
 
 export default function InterviewPrep() {
   const [file, setFile] = useState(null);
@@ -142,6 +143,7 @@ export default function InterviewPrep() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFC] text-zinc-900 font-sans selection:bg-blue-200 selection:text-blue-900 flex flex-col overflow-x-hidden">
+      <SEO title="AI Interview Preparation" description="Generate tailored interview questions, strategies, and personalized talking points modeled after your exact background and target role." path="/interview-prep" />
       <Navbar />
 
       {/* Full Screen Dynamic Loading Overlay */}

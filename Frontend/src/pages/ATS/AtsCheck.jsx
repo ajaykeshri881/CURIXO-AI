@@ -8,6 +8,7 @@ import { UploadCloud, FileText, Target, Loader2, ArrowRight, FileSearch, CheckCi
 import { motion, AnimatePresence } from 'framer-motion';
 import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
+import SEO from '../../components/SEO';
 
 export default function AtsCheck() {
   const navigate = useNavigate();
@@ -209,6 +210,7 @@ export default function AtsCheck() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFC] text-zinc-900 font-sans selection:bg-violet-200 selection:text-violet-900 flex flex-col overflow-x-hidden">
+      <SEO title="ATS Resume Scanner" description="Scan your resume against any job description to get your ATS match score and discover missing keywords before applying." path="/ats-check" />
       <Navbar />
 
       {/* Full Screen Dynamic Loading Overlay */}

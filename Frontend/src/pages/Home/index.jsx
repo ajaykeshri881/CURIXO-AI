@@ -6,6 +6,7 @@ import { DemoPreview } from './DemoPreview';
 import { CTASection } from './CTASection';
 import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
+import SEO from '../../components/SEO';
 
 export default function Home() {
   useEffect(() => {
@@ -16,6 +17,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-violet-200 selection:text-violet-900 overflow-x-hidden">
+      <SEO title="Home" description="Build perfect resumes, beat ATS parsers, and ace interviews with our AI-powered career platform." path="/" />
       <Navbar />
       <main>
         <Hero />
