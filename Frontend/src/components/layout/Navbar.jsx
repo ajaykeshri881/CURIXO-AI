@@ -187,22 +187,16 @@ export const Navbar = () => {
                   </Link>
                 );
               })}
-              <div className="flex flex-col gap-3 pt-6">
-                {user ? (
-                  <Link to="/dashboard" onClick={() => setIsOpen(false)}>
-                    <button className="w-full py-4 text-white bg-zinc-950 rounded-2xl font-bold text-lg shadow-xl shadow-zinc-900/20 active:scale-95 transition-transform">Dashboard</button>
+              {!user && (
+                <div className="flex flex-col gap-3 pt-6">
+                  <Link to="/login" onClick={() => setIsOpen(false)}>
+                    <button className="w-full py-4 text-zinc-700 bg-zinc-50 border border-zinc-200 rounded-2xl font-bold text-lg hover:bg-zinc-100 active:bg-zinc-200 transition-colors">Login</button>
                   </Link>
-                ) : (
-                  <>
-                    <Link to="/login" onClick={() => setIsOpen(false)}>
-                      <button className="w-full py-4 text-zinc-700 bg-zinc-50 border border-zinc-200 rounded-2xl font-bold text-lg hover:bg-zinc-100 active:bg-zinc-200 transition-colors">Login</button>
-                    </Link>
-                    <Link to="/register" onClick={() => setIsOpen(false)}>
-                      <button className="w-full py-4 text-white bg-zinc-950 rounded-2xl font-bold text-lg shadow-xl shadow-zinc-900/20 active:scale-95 transition-transform">Signup</button>
-                    </Link>
-                  </>
-                )}
-              </div>
+                  <Link to="/register" onClick={() => setIsOpen(false)}>
+                    <button className="w-full py-4 text-white bg-zinc-950 rounded-2xl font-bold text-lg shadow-xl shadow-zinc-900/20 active:scale-95 transition-transform">Signup</button>
+                  </Link>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

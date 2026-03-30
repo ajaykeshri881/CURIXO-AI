@@ -7,6 +7,11 @@ const { issueCsrfToken, verifyCsrf } = require("./middlewares/csrf.middleware")
 
 const app = express()
 
+if (process.env.NODE_ENV === "production") {
+    // Render sits behind a reverse proxy; trust first hop for accurate client/request metadata.
+    app.set("trust proxy", 1)
+}
+
 app.use(express.json({ limit: "3mb" }))
 app.use(express.urlencoded({ extended: true, limit: "3mb" }))
 app.use(cookieParser())

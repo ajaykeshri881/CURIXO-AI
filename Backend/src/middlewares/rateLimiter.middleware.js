@@ -1,13 +1,53 @@
+const crypto = require("crypto")
 const UsageModel = require("../models/usage.model")
+
+const GUEST_COOKIE = "guestUsageId"
+const GUEST_COOKIE_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000
+
+const isProduction = process.env.NODE_ENV === "production"
+const allowedSameSite = new Set(["lax", "strict", "none"])
+const configuredSameSite = String(process.env.COOKIE_SAME_SITE || "").toLowerCase()
+const cookieSameSite = allowedSameSite.has(configuredSameSite)
+    ? configuredSameSite
+    : (isProduction ? "none" : "lax")
+const cookieSecure = process.env.COOKIE_SECURE === undefined
+    ? isProduction
+    : String(process.env.COOKIE_SECURE).toLowerCase() === "true"
+
+function getGuestCookieOptions() {
+    // Browsers require Secure=true when SameSite=None.
+    const secure = cookieSameSite === "none" ? true : cookieSecure
+    return {
+        httpOnly: true,
+        sameSite: cookieSameSite,
+        secure,
+        path: "/",
+        maxAge: GUEST_COOKIE_MAX_AGE_MS
+    }
+}
 
 function getDateKey() {
     // Returns date in YYYY-MM-DD format for IST timezone
     return new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
 }
 
-function getGuestKey(req) {
-    const ip = req.ip || req.headers["x-forwarded-for"] || "unknown-ip"
-    return String(ip).split(",")[0].trim()
+function createGuestId() {
+    if (typeof crypto.randomUUID === "function") {
+        return crypto.randomUUID()
+    }
+
+    return crypto.randomBytes(16).toString("hex")
+}
+
+function getGuestKey(req, res) {
+    const cookieGuestId = req.cookies?.[GUEST_COOKIE]
+    if (typeof cookieGuestId === "string" && cookieGuestId.trim()) {
+        return cookieGuestId.trim()
+    }
+
+    const guestId = createGuestId()
+    res.cookie(GUEST_COOKIE, guestId, getGuestCookieOptions())
+    return guestId
 }
 
 async function bumpUsage({ feature, dateKey, userId = null, guestKey = null, maxLimit = 3 }) {
@@ -77,7 +117,7 @@ function rateLimitPerDay({ feature, userLimit = 3, guestLimit = 0, requireLogin 
                 return res.status(401).json({ message: "Login required." })
             }
 
-            const guestKey = getGuestKey(req)
+            const guestKey = getGuestKey(req, res)
             const query = { feature, dateKey, user: null, guestKey }
             const existing = await UsageModel.findOne(query)
 
