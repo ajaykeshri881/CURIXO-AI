@@ -13,10 +13,6 @@ const CHROMIUM_ARGS = [
     `--window-size=${A4_WIDTH_PX},${A4_HEIGHT_PX}`,
 ]
 
-if (process.platform === "linux") {
-    CHROMIUM_ARGS.push("--no-zygote", "--single-process")
-}
-
 function sanitizeHtmlForPdf(html) {
     if (!html || typeof html !== "string") return ""
     return html
@@ -68,6 +64,44 @@ function getLaunchConfigs() {
     return configs
 }
 
+async function getSparticuzLaunchConfig() {
+    if (process.platform !== "linux") return null
+
+    let chromium = null
+    try {
+        chromium = require("@sparticuz/chromium")
+    } catch (_) {
+        return null
+    }
+
+    if (!chromium || typeof chromium.executablePath !== "function") {
+        return null
+    }
+
+    let executablePath = ""
+    try {
+        executablePath = await chromium.executablePath()
+    } catch (_) {
+        return null
+    }
+
+    if (!executablePath) return null
+
+    const mergedArgs = Array.from(
+        new Set([...(Array.isArray(chromium.args) ? chromium.args : []), ...CHROMIUM_ARGS])
+    )
+
+    return {
+        executablePath,
+        args: mergedArgs,
+        headless: typeof chromium.headless === "boolean" ? chromium.headless : true,
+        ignoreHTTPSErrors: true,
+        timeout: RENDER_TIMEOUT_MS,
+        protocolTimeout: 120000,
+        defaultViewport: { width: A4_WIDTH_PX, height: A4_HEIGHT_PX, deviceScaleFactor: 1 },
+    }
+}
+
 async function launchBrowserWithFallback() {
     const launchErrors = []
     const launchConfigs = getLaunchConfigs()
@@ -80,8 +114,17 @@ async function launchBrowserWithFallback() {
         }
     }
 
+    const sparticuzConfig = await getSparticuzLaunchConfig()
+    if (sparticuzConfig) {
+        try {
+            return await puppeteer.launch(sparticuzConfig)
+        } catch (error) {
+            launchErrors.push(error)
+        }
+    }
+
     const summarized = launchErrors
-        .slice(0, 3)
+        .slice(0, 4)
         .map((error, index) => `${index + 1}) ${error?.message || "Unknown browser launch error"}`)
         .join(" | ")
 
