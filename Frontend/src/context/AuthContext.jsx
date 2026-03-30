@@ -6,6 +6,63 @@ const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
+const getAuthErrorMessage = (error, action) => {
+  const status = error?.response?.status;
+  const rawServerMessage = error?.response?.data?.message;
+  const serverMessage = String(rawServerMessage || '').trim().toLowerCase();
+
+  if (!error?.response) {
+    return 'Network issue. Please check your internet connection and try again.';
+  }
+
+  if (status === 400 && action === 'login') {
+    if (serverMessage.includes('invalid email or password')) {
+      return 'Incorrect email or password. Please try again.';
+    }
+    return 'Please check your email and password and try again.';
+  }
+
+  if (status === 400 && action === 'register') {
+    if (serverMessage.includes('already exists')) {
+      return 'An account with this email already exists. Please login instead.';
+    }
+    return 'Please review your registration details and try again.';
+  }
+
+  if (status === 401) {
+    if (action === 'login') {
+      return 'Incorrect email or password. Please try again.';
+    }
+    return 'Your session has expired. Please login again.';
+  }
+
+  if (status === 403) {
+    return 'Security verification failed. Please refresh and try again.';
+  }
+
+  if (status >= 500) {
+    return 'Server issue. Please try again in a moment.';
+  }
+
+  if (rawServerMessage) {
+    return String(rawServerMessage);
+  }
+
+  if (action === 'login') {
+    return 'Unable to login right now. Please try again.';
+  }
+
+  if (action === 'register') {
+    return 'Unable to register right now. Please try again.';
+  }
+
+  if (action === 'logoutAll') {
+    return 'Unable to logout from all devices right now. Please try again.';
+  }
+
+  return 'Unable to logout right now. Please try again.';
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -60,7 +117,7 @@ export const AuthProvider = ({ children }) => {
       toast.success('Logged in successfully!');
       return true;
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed');
+      toast.error(getAuthErrorMessage(error, 'login'));
       return false;
     }
   };
@@ -73,7 +130,7 @@ export const AuthProvider = ({ children }) => {
       toast.success('Registered successfully!');
       return true;
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Registration failed');
+      toast.error(getAuthErrorMessage(error, 'register'));
       return false;
     }
   };
@@ -84,7 +141,10 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       toast.success('Logged out successfully');
     } catch (error) {
-      toast.error('Error logging out');
+      if (error?.response?.status === 401) {
+        setUser(null);
+      }
+      toast.error(getAuthErrorMessage(error, 'logout'));
     }
   };
 
@@ -94,7 +154,10 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       toast.success('Logged out from all devices securely');
     } catch (error) {
-      toast.error('Error logging out from all devices');
+      if (error?.response?.status === 401) {
+        setUser(null);
+      }
+      toast.error(getAuthErrorMessage(error, 'logoutAll'));
     }
   };
 

@@ -53,13 +53,33 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
+    const message = String(error.response?.data?.message || '').toLowerCase();
+
+    const isCsrfTokenCall = originalRequest?.url === '/auth/csrf-token';
+    const isCsrfError = status === 403 && message.includes('csrf');
+
+    if (isCsrfError && !isCsrfTokenCall && !originalRequest._csrfRetry) {
+      originalRequest._csrfRetry = true;
+
+      try {
+        const { data } = await api.get('/auth/csrf-token');
+        if (data?.csrfToken) {
+          api.defaults.headers.common['x-csrf-token'] = data.csrfToken;
+          originalRequest.headers = originalRequest.headers || {};
+          originalRequest.headers['x-csrf-token'] = data.csrfToken;
+        }
+        return api(originalRequest);
+      } catch (_csrfError) {
+        // If CSRF bootstrap itself fails, fall through to existing error handling.
+      }
+    }
 
     // Don't intercept the refresh call itself to prevent infinite loops
     if (originalRequest.url === '/auth/refresh') {
       return Promise.reject(error);
     }
 
-    const status = error.response?.status;
     const shouldAttemptRefresh =
       status === 401 || (status === 429 && shouldRetry429WithRefresh(originalRequest, error));
 

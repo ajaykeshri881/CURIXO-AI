@@ -4,12 +4,38 @@ const jwt = require("jsonwebtoken")
 const tokenBlacklistModel = require("../models/blacklist.model")
 const refreshTokenModel = require("../models/refreshToken.model")
 
+const isProduction = process.env.NODE_ENV === "production"
+const allowedSameSite = new Set(["lax", "strict", "none"])
+const configuredSameSite = String(process.env.COOKIE_SAME_SITE || "").toLowerCase()
+const cookieSameSite = allowedSameSite.has(configuredSameSite)
+    ? configuredSameSite
+    : (isProduction ? "none" : "lax")
+const cookieSecure = process.env.COOKIE_SECURE === undefined
+    ? isProduction
+    : String(process.env.COOKIE_SECURE).toLowerCase() === "true"
+
+function getCookieBaseOptions() {
+    // Browsers require Secure=true when SameSite=None.
+    const secure = cookieSameSite === "none" ? true : cookieSecure
+    return {
+        secure,
+        sameSite: cookieSameSite,
+        path: "/"
+    }
+}
+
 function getCookieOptions(maxAge) {
     return {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge
+        ...getCookieBaseOptions(),
+        ...(typeof maxAge === "number" ? { maxAge } : {})
+    }
+}
+
+function getClearCookieOptions() {
+    return {
+        httpOnly: true,
+        ...getCookieBaseOptions()
     }
 }
 
@@ -197,9 +223,9 @@ async function logoutAllDevicesController(req, res) {
             await tokenBlacklistModel.create({ token: currentAccessToken })
         }
 
-        res.clearCookie("token")
-        res.clearCookie("accessToken")
-        res.clearCookie("refreshToken")
+        res.clearCookie("token", getClearCookieOptions())
+        res.clearCookie("accessToken", getClearCookieOptions())
+        res.clearCookie("refreshToken", getClearCookieOptions())
 
         return res.status(200).json({ message: "Logged out from all devices successfully." })
     } catch (error) {
@@ -226,9 +252,9 @@ async function logoutUserController(req, res) {
             await refreshTokenModel.deleteOne({ token: refreshToken })
         }
 
-        res.clearCookie("token")
-        res.clearCookie("accessToken")
-        res.clearCookie("refreshToken")
+        res.clearCookie("token", getClearCookieOptions())
+        res.clearCookie("accessToken", getClearCookieOptions())
+        res.clearCookie("refreshToken", getClearCookieOptions())
 
         return res.status(200).json({
             message: "User logged out successfully"

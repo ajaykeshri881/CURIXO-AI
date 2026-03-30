@@ -222,6 +222,10 @@ MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/curixo
 # ──── CORS ────
 CORS_ORIGIN=http://localhost:5173
 
+# ──── Cookies (important for cross-origin production) ────
+COOKIE_SAME_SITE=lax                           # use "none" for different frontend/backend domains
+COOKIE_SECURE=false                            # must be true when COOKIE_SAME_SITE=none
+
 # ──── AI (supports multiple comma-separated keys for failover) ────
 GOOGLE_GENAI_API_KEY=your_key_1,your_key_2,your_key_3,your_key_4
 
@@ -234,6 +238,8 @@ REFRESH_TOKEN_TTL=7d                               # refresh token lifetime
 ```
 
 > **Note:** If `JWT_ACCESS_SECRET` or `JWT_REFRESH_SECRET` are not set, the system falls back to `JWT_SECRET` for both.
+
+> **Cookie note:** For production setups where frontend and backend are on different domains, set `COOKIE_SAME_SITE=none` and `COOKIE_SECURE=true` (HTTPS required).
 
 > **AI Keys:** You can provide 1 or more Gemini API keys separated by commas. The system uses round-robin rotation and automatically fails over to the next key if one hits a rate limit or error. There is no limit on how many keys you can add.
 
@@ -564,6 +570,7 @@ api.interceptors.response.use(
 - ✅ Send `x-csrf-token` header on all mutating requests
 - ✅ On `401`, call `/api/auth/refresh` and retry once
 - ✅ Logout endpoint is `POST /api/auth/logout` (not GET)
+- ✅ If frontend and backend are on different domains in production, use `COOKIE_SAME_SITE=none` and `COOKIE_SECURE=true`
 
 ---
 

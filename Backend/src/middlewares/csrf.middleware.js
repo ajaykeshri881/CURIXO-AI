@@ -4,18 +4,40 @@ const SAFE_METHODS = new Set(["GET", "HEAD", "OPTIONS"])
 const CSRF_COOKIE = "csrfToken"
 const CSRF_HEADER = "x-csrf-token"
 
-function issueCsrfToken(req, res, next) {
-    if (!req.cookies?.[CSRF_COOKIE]) {
-        const token = crypto.randomBytes(24).toString("hex")
-        res.cookie(CSRF_COOKIE, token, {
-            httpOnly: false,
-            sameSite: "lax",
-            secure: process.env.NODE_ENV === "production"
-        })
-        req.csrfToken = token
-    } else {
-        req.csrfToken = req.cookies[CSRF_COOKIE]
+const isProduction = process.env.NODE_ENV === "production"
+const allowedSameSite = new Set(["lax", "strict", "none"])
+const configuredSameSite = String(process.env.COOKIE_SAME_SITE || "").toLowerCase()
+const cookieSameSite = allowedSameSite.has(configuredSameSite)
+    ? configuredSameSite
+    : (isProduction ? "none" : "lax")
+const cookieSecure = process.env.COOKIE_SECURE === undefined
+    ? isProduction
+    : String(process.env.COOKIE_SECURE).toLowerCase() === "true"
+
+function getCsrfCookieOptions() {
+    // Browsers require Secure=true when SameSite=None.
+    const secure = cookieSameSite === "none" ? true : cookieSecure
+    return {
+        httpOnly: false,
+        sameSite: cookieSameSite,
+        secure,
+        path: "/"
     }
+}
+
+function issueCsrfToken(req, res, next) {
+    const cookieToken = req.cookies?.[CSRF_COOKIE]
+    const headerToken = req.get(CSRF_HEADER)
+
+    // For cross-site setups where the browser may not persist third-party cookies,
+    // keep the CSRF token stable by reusing the client-sent header token.
+    const token = cookieToken || headerToken || crypto.randomBytes(24).toString("hex")
+
+    if (!cookieToken) {
+        res.cookie(CSRF_COOKIE, token, getCsrfCookieOptions())
+    }
+
+    req.csrfToken = token
 
     next()
 }
@@ -33,8 +55,9 @@ function verifyCsrf({ ignorePaths = [] } = {}) {
 
         const cookieToken = req.cookies?.[CSRF_COOKIE]
         const headerToken = req.get(CSRF_HEADER)
+        const effectiveToken = cookieToken || req.csrfToken
 
-        if (!cookieToken || !headerToken || cookieToken !== headerToken) {
+        if (!effectiveToken || !headerToken || effectiveToken !== headerToken) {
             return res.status(403).json({ message: "Invalid CSRF token." })
         }
 
