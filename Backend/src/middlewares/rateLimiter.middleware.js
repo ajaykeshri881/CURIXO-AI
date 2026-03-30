@@ -3,6 +3,7 @@ const UsageModel = require("../models/usage.model")
 
 const GUEST_COOKIE = "guestUsageId"
 const GUEST_COOKIE_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000
+const GUEST_FINGERPRINT_SECRET = process.env.GUEST_FINGERPRINT_SECRET || process.env.JWT_SECRET || "curixo-guest-fingerprint"
 
 const isProduction = process.env.NODE_ENV === "production"
 const allowedSameSite = new Set(["lax", "strict", "none"])
@@ -50,12 +51,32 @@ function getGuestKey(req, res) {
     return guestId
 }
 
-async function bumpUsage({ feature, dateKey, userId = null, guestKey = null, maxLimit = 3 }) {
+function normalizeClientIp(ip) {
+    if (typeof ip !== "string") {
+        return "unknown"
+    }
+
+    // In proxy chains, keep the first client hop and normalize IPv4-mapped IPv6.
+    const firstHop = ip.split(",")[0].trim()
+    const normalized = firstHop.replace("::ffff:", "")
+    return normalized || "unknown"
+}
+
+function getGuestFingerprint(req) {
+    const ip = normalizeClientIp(req.ip || req.headers?.["x-forwarded-for"] || req.socket?.remoteAddress)
+    const userAgent = String(req.get("user-agent") || "unknown")
+    const rawIdentity = `${GUEST_FINGERPRINT_SECRET}|${ip}|${userAgent}`
+
+    return crypto.createHash("sha256").update(rawIdentity).digest("hex")
+}
+
+async function bumpUsage({ feature, dateKey, userId = null, guestKey = null, anonFingerprint = null, maxLimit = 3 }) {
     const query = {
         feature,
         dateKey,
         user: userId || null,
-        guestKey: guestKey || null
+        guestKey: guestKey || null,
+        anonFingerprint: anonFingerprint || null
     }
 
     const existing = await UsageModel.findOne(query)
@@ -93,7 +114,7 @@ function rateLimitPerDay({ feature, userLimit = 3, guestLimit = 0, requireLogin 
                 // ─── Read per-user custom limit, fall back to route-defined limit ───
                 const effectiveLimit = req.user?.limits?.[feature] || userLimit
 
-                const query = { feature, dateKey, user: userId, guestKey: null }
+                const query = { feature, dateKey, user: userId, guestKey: null, anonFingerprint: null }
                 const existing = await UsageModel.findOne(query)
 
                 if (existing && existing.count >= effectiveLimit) {
@@ -118,17 +139,33 @@ function rateLimitPerDay({ feature, userLimit = 3, guestLimit = 0, requireLogin 
             }
 
             const guestKey = getGuestKey(req, res)
-            const query = { feature, dateKey, user: null, guestKey }
-            const existing = await UsageModel.findOne(query)
+            const anonFingerprint = getGuestFingerprint(req)
+            const existingRecords = await UsageModel.find({
+                feature,
+                dateKey,
+                user: null,
+                $or: [{ guestKey }, { anonFingerprint }]
+            })
+            const usedCount = existingRecords.reduce((maxCount, record) => Math.max(maxCount, record.count), 0)
 
-            if (existing && existing.count >= guestLimit) {
+            if (usedCount >= guestLimit) {
                 return res.status(429).json({
                     message: `Free ${feature} usage exhausted for today. Please login to continue (up to ${userLimit}/day).`,
-                    usageDisplay: `${existing.count}/${guestLimit}`
+                    usageDisplay: `${usedCount}/${guestLimit}`
                 })
             }
 
-            await bumpUsage({ feature, dateKey, guestKey, maxLimit: guestLimit })
+            if (existingRecords.length) {
+                await Promise.all(existingRecords.map((record) => {
+                    record.count += 1
+                    record.limit = guestLimit
+                    record.usageDisplay = `${record.count}/${guestLimit}`
+                    return record.save()
+                }))
+            } else {
+                await bumpUsage({ feature, dateKey, guestKey, anonFingerprint, maxLimit: guestLimit })
+            }
+
             return next()
         } catch (error) {
             console.error("Usage limiter error:", error)

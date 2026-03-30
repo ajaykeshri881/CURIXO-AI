@@ -23,8 +23,15 @@ const usageSchema = new mongoose.Schema(
             default: null
         },
 
-        // ─── Guest identifier – IP address (null for logged-in users) ───
+        // ─── Guest cookie identifier (null for logged-in users) ───
         guestKey: {
+            type: String,
+            default: null,
+            trim: true
+        },
+
+        // ─── Guest network/browser fingerprint hash (null for logged-in users) ───
+        anonFingerprint: {
             type: String,
             default: null,
             trim: true
@@ -87,6 +94,12 @@ usageSchema.index(
 usageSchema.index(
     { feature: 1, dateKey: 1, guestKey: 1 },
     { unique: true, partialFilterExpression: { guestKey: { $type: "string" } } }
+)
+
+// One record per anonymous fingerprint + feature + day
+usageSchema.index(
+    { feature: 1, dateKey: 1, anonFingerprint: 1 },
+    { unique: true, partialFilterExpression: { anonFingerprint: { $type: "string" } } }
 )
 
 // ─── TTL Index: MongoDB will auto-delete documents when expiresAt is reached ───
