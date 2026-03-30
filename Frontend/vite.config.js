@@ -15,6 +15,8 @@ export default defineConfig({
         name: 'Curixo AI',
         short_name: 'Curixo AI',
         description: 'AI-Powered Career Platform for Resumes, ATS Scans & Interview Prep',
+        start_url: '/dashboard',
+        scope: '/',
         theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
