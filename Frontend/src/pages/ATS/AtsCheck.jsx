@@ -28,6 +28,7 @@ export default function AtsCheck() {
   const [showLimitPrompt, setShowLimitPrompt] = useState(false);
   const [countdown, setCountdown] = useState('');
   const fileInputRef = useRef(null);
+  const pdfDownloadLockRef = useRef(false);
 
   const [loadingMessage, setLoadingMessage] = useState('');
 
@@ -475,7 +476,8 @@ export default function AtsCheck() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={async () => {
-                      if (downloadingPdf) return;
+                      if (downloadingPdf || pdfDownloadLockRef.current) return;
+                      pdfDownloadLockRef.current = true;
                       setDownloadingPdf(true);
                       const toastId = toast.loading('Generating PDF format...');
                       try {
@@ -502,6 +504,7 @@ export default function AtsCheck() {
                           toast.error(e.response?.data?.message || 'Failed to generate PDF', { id: toastId });
                         }
                       } finally {
+                        pdfDownloadLockRef.current = false;
                         setDownloadingPdf(false);
                       }
                     }}

@@ -49,7 +49,24 @@ exports.downloadPdfFromScratch = async (req, res) => {
         // Use res.end() not res.send() to avoid Express 5 string coercion
         return res.end(buf)
     } catch (error) {
-        console.error('Error downloading resume pdf:', error)
-        return res.status(500).json({ message: 'Internal server error' })
+        console.error('Error downloading resume pdf:', {
+            message: error?.message,
+            code: error?.code,
+            stack: error?.stack
+        })
+
+        if (error?.code === 'PDF_INVALID_HTML') {
+            return res.status(400).json({ message: 'Resume HTML is invalid or empty. Please regenerate the preview and retry.' })
+        }
+
+        if (error?.code === 'PDF_BROWSER_LAUNCH_FAILED') {
+            return res.status(503).json({ message: 'PDF engine is temporarily unavailable. Please try again in a minute.' })
+        }
+
+        if (error?.name === 'TimeoutError') {
+            return res.status(504).json({ message: 'PDF generation timed out. Please try again.' })
+        }
+
+        return res.status(500).json({ message: 'Unable to generate PDF right now. Please try again.' })
     }
 }

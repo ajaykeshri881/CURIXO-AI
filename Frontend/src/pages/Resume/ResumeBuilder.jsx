@@ -27,6 +27,7 @@ export default function ResumeBuilder() {
   const [isEditing, setIsEditing] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const downloadLockRef = useRef(false);
   const previewRef = useRef(null);
   const previewViewportRef = useRef(null);
   const [previewScale, setPreviewScale] = useState(1);
@@ -324,7 +325,8 @@ export default function ResumeBuilder() {
   };
 
   const handleDownloadPdf = async () => {
-    if (downloading) return;
+    if (downloading || downloadLockRef.current) return;
+    downloadLockRef.current = true;
     setDownloading(true);
     try {
       const contentEl = document.getElementById('resume-preview-content');
@@ -365,14 +367,15 @@ export default function ResumeBuilder() {
         try {
           const text = await error.response.data.text();
           const json = JSON.parse(text);
-          toast.error(json.message || 'Failed to download PDF');
+          toast.error(json.message || 'Failed to download PDF', { id: 'resume-pdf-download-error' });
         } catch {
-          toast.error('Failed to download PDF');
+          toast.error('Failed to download PDF', { id: 'resume-pdf-download-error' });
         }
       } else {
-        toast.error(error.response?.data?.message || error.message || 'Failed to download PDF');
+        toast.error(error.response?.data?.message || error.message || 'Failed to download PDF', { id: 'resume-pdf-download-error' });
       }
     } finally {
+      downloadLockRef.current = false;
       setDownloading(false);
     }
   };
