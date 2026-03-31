@@ -8,6 +8,21 @@ import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
 import SEO from '../../components/SEO';
 
+const LOADING_MESSAGES = [
+  'Analyzing your career profile...',
+  'Structuring the AI document...',
+  'Formulating high-impact bullet points...',
+  'Applying ATS-optimized formatting...',
+  'Polishing the final layout...'
+];
+
+const DOWNLOADING_MESSAGES = [
+  'Initializing rendering engine...',
+  'Compiling HTML to PDF format...',
+  'Securing high-quality graphics...',
+  'Finalizing document download...'
+];
+
 export default function ResumeBuilder() {
   const location = useLocation();
   const [formData, setFormData] = useState({
@@ -42,38 +57,23 @@ export default function ResumeBuilder() {
 
   const [loadingMessage, setLoadingMessage] = useState('');
 
-  const loadingMessages = [
-    "Analyzing your career profile...",
-    "Structuring the AI document...",
-    "Formulating high-impact bullet points...",
-    "Applying ATS-optimized formatting...",
-    "Polishing the final layout..."
-  ];
-
-  const downloadingMessages = [
-    "Initializing rendering engine...",
-    "Compiling HTML to PDF format...",
-    "Securing high-quality graphics...",
-    "Finalizing document download..."
-  ];
-
   const isServerIssue = (status) => Number.isInteger(status) && status >= 500;
 
   useEffect(() => {
     let interval;
     if (loading) {
       let i = 0;
-      setLoadingMessage(loadingMessages[0]);
+      setLoadingMessage(LOADING_MESSAGES[0]);
       interval = setInterval(() => {
-        i = (i + 1) % loadingMessages.length;
-        setLoadingMessage(loadingMessages[i]);
+        i = (i + 1) % LOADING_MESSAGES.length;
+        setLoadingMessage(LOADING_MESSAGES[i]);
       }, 2500);
     } else if (downloading) {
       let i = 0;
-      setLoadingMessage(downloadingMessages[0]);
+      setLoadingMessage(DOWNLOADING_MESSAGES[0]);
       interval = setInterval(() => {
-        i = (i + 1) % downloadingMessages.length;
-        setLoadingMessage(downloadingMessages[i]);
+        i = (i + 1) % DOWNLOADING_MESSAGES.length;
+        setLoadingMessage(DOWNLOADING_MESSAGES[i]);
       }, 2000);
     }
     return () => clearInterval(interval);
@@ -218,14 +218,17 @@ export default function ResumeBuilder() {
 
 
   useEffect(() => {
-    if (location.state?.improvedHtml) {
-      setPreviewHtml(location.state.improvedHtml);
+    const improvedHtml = location.state?.improvedHtml;
+    const improvedJobTitle = location.state?.jobTitle;
+
+    if (improvedHtml) {
+      setPreviewHtml(improvedHtml);
       setIsFullscreen(true);
-      if (location.state.jobTitle) {
-        setFormData(prev => ({ ...prev, jobTitle: location.state.jobTitle }));
+      if (improvedJobTitle) {
+        setFormData(prev => ({ ...prev, jobTitle: improvedJobTitle }));
       }
     }
-  }, []);
+  }, [location.state?.improvedHtml, location.state?.jobTitle]);
 
   const executeCommand = (command, value = null) => {
     const iframe = previewRef.current;

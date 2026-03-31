@@ -10,6 +10,22 @@ import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
 import SEO from '../../components/SEO';
 
+const LOADING_MESSAGES = [
+  'Scanning your resume...',
+  'Extracting core skills...',
+  'Comparing against ATS algorithms...',
+  'Identifying keyword gaps...',
+  'Generating match score...'
+];
+
+const IMPROVING_MESSAGES = [
+  'Analyzing critical feedback...',
+  'Structuring AI improvements...',
+  'Formulating high-impact phrasing...',
+  'Integrating missing keywords...',
+  'Finalizing ATS optimized output...'
+];
+
 export default function AtsCheck() {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -32,22 +48,6 @@ export default function AtsCheck() {
   const pdfDownloadLockRef = useRef(false);
 
   const [loadingMessage, setLoadingMessage] = useState('');
-
-  const loadingMessages = [
-    "Scanning your resume...",
-    "Extracting core skills...",
-    "Comparing against ATS algorithms...",
-    "Identifying keyword gaps...",
-    "Generating match score..."
-  ];
-
-  const improvingMessages = [
-    "Analyzing critical feedback...",
-    "Structuring AI improvements...",
-    "Formulating high-impact phrasing...",
-    "Integrating missing keywords...",
-    "Finalizing ATS optimized output..."
-  ];
 
   // Countdown timer — ticks every second while the limit modal is open
   useEffect(() => {
@@ -96,17 +96,17 @@ export default function AtsCheck() {
     let interval;
     if (loading) {
       let i = 0;
-      setLoadingMessage(loadingMessages[0]);
+      setLoadingMessage(LOADING_MESSAGES[0]);
       interval = setInterval(() => {
-        i = (i + 1) % loadingMessages.length;
-        setLoadingMessage(loadingMessages[i]);
+        i = (i + 1) % LOADING_MESSAGES.length;
+        setLoadingMessage(LOADING_MESSAGES[i]);
       }, 2500);
     } else if (improving) {
       let i = 0;
-      setLoadingMessage(improvingMessages[0]);
+      setLoadingMessage(IMPROVING_MESSAGES[0]);
       interval = setInterval(() => {
-        i = (i + 1) % improvingMessages.length;
-        setLoadingMessage(improvingMessages[i]);
+        i = (i + 1) % IMPROVING_MESSAGES.length;
+        setLoadingMessage(IMPROVING_MESSAGES[i]);
       }, 2500);
     }
     return () => clearInterval(interval);

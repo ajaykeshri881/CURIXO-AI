@@ -8,6 +8,15 @@ import { Navbar } from '../../components/layout/Navbar';
 import { Footer } from '../../components/layout/Footer';
 import SEO from '../../components/SEO';
 
+const LOADING_MESSAGES = [
+  'Reading your resume profile...',
+  'Analyzing target job constraints...',
+  'Simulating interviewer behaviors...',
+  'Formulating technical questions...',
+  'Generating behavioral scenarios...',
+  'Finalizing interview strategy report...'
+];
+
 export default function InterviewPrep() {
   const [file, setFile] = useState(null);
   const [fileName, setFileName] = useState('');
@@ -23,15 +32,6 @@ export default function InterviewPrep() {
   const fileInputRef = useRef(null);
 
   const [loadingMessage, setLoadingMessage] = useState('');
-
-  const loadingMessages = [
-    "Reading your resume profile...",
-    "Analyzing target job constraints...",
-    "Simulating interviewer behaviors...",
-    "Formulating technical questions...",
-    "Generating behavioral scenarios...",
-    "Finalizing interview strategy report..."
-  ];
 
   const isServerIssue = (status) => Number.isInteger(status) && status >= 500;
 
@@ -82,10 +82,10 @@ export default function InterviewPrep() {
     let interval;
     if (loading) {
       let i = 0;
-      setLoadingMessage(loadingMessages[0]);
+      setLoadingMessage(LOADING_MESSAGES[0]);
       interval = setInterval(() => {
-        i = (i + 1) % loadingMessages.length;
-        setLoadingMessage(loadingMessages[i]);
+        i = (i + 1) % LOADING_MESSAGES.length;
+        setLoadingMessage(LOADING_MESSAGES[i]);
       }, 2500);
     }
     return () => clearInterval(interval);

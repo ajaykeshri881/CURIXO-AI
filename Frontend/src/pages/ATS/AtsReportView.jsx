@@ -14,21 +14,21 @@ export default function AtsReportView() {
   const [viewMoreContent, setViewMoreContent] = useState(null);
 
   useEffect(() => {
+    const fetchReport = async () => {
+      try {
+        setLoading(true);
+        const res = await atsService.getReportById(id);
+        setData(res.report);
+      } catch (error) {
+        toast.error('Failed to load ATS scan report');
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchReport();
   }, [id]);
-
-  const fetchReport = async () => {
-    try {
-      setLoading(true);
-      const res = await atsService.getReportById(id);
-      setData(res.report);
-    } catch (error) {
-      toast.error('Failed to load ATS scan report');
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   if (loading) {
     return (
