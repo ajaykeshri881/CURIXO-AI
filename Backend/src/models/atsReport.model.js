@@ -26,7 +26,20 @@ const atsReportSchema = new mongoose.Schema({
         missingKeywords: [String],
         suggestions: String,
     },
+    // Guest reports are kept for 7 days; authenticated reports stay permanent.
+    expiresAt: {
+        type: Date,
+        default: null,
+    },
 }, { timestamps: true });
+
+atsReportSchema.index(
+    { expiresAt: 1 },
+    {
+        expireAfterSeconds: 0,
+        partialFilterExpression: { user: null, expiresAt: { $type: 'date' } },
+    }
+);
 
 const AtsReport = mongoose.model('AtsReport', atsReportSchema);
 

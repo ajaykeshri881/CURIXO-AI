@@ -2,6 +2,8 @@ const { extractTextFromPdf } = require('../utils/pdfExtract');
 const AtsReport = require('../models/atsReport.model');
 const { analyzeResumeWithATS, improveResumeWithAI } = require('../services/ai/resume.service');
 
+const GUEST_REPORT_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+
 exports.checkAts = async (req, res) => {
     try {
         const { jobTitle, jobDescription } = req.body;
@@ -18,6 +20,7 @@ exports.checkAts = async (req, res) => {
         const resumeText = await extractTextFromPdf(resumeFile.buffer);
 
         const analysis = await analyzeResumeWithATS(resumeText, jobTitle, jobDescription);
+        const isGuest = !req.user?.id;
 
         const report = new AtsReport({
             user: req.user?.id || null,
@@ -25,6 +28,7 @@ exports.checkAts = async (req, res) => {
             jobDescription,
             resumeText,
             report: analysis,
+            expiresAt: isGuest ? new Date(Date.now() + GUEST_REPORT_TTL_MS) : null,
         });
 
         await report.save();
@@ -32,7 +36,7 @@ exports.checkAts = async (req, res) => {
         res.status(200).json({
             ...analysis,
             resumeText,
-            isGuest: !req.user?.id
+            isGuest
         });
     } catch (error) {
         console.error('Error in ATS check:', error);

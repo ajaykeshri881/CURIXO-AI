@@ -39,6 +39,10 @@ function getClearCookieOptions() {
     }
 }
 
+function normalizeEmail(email) {
+    return String(email || "").trim().toLowerCase()
+}
+
 function signAccessToken(user) {
     return jwt.sign(
         { id: user._id, name: user.name, tv: user.tokenVersion || 0 },
@@ -84,8 +88,11 @@ async function issueAuthCookies(res, user) {
 async function registerUserController(req, res) {
     try {
         const { name, email, password } = req.body
+        const normalizedEmail = normalizeEmail(email)
 
-        const isUserAlreadyExists = await userModel.findOne({ email })
+        const isUserAlreadyExists = await userModel
+            .findOne({ email: normalizedEmail })
+            .collation({ locale: "en", strength: 2 })
 
         if (isUserAlreadyExists) {
             return res.status(400).json({
@@ -97,7 +104,7 @@ async function registerUserController(req, res) {
 
         const user = await userModel.create({
             name,
-            email,
+            email: normalizedEmail,
             password: hash
         })
 
@@ -125,8 +132,11 @@ async function registerUserController(req, res) {
 async function loginUserController(req, res) {
     try {
         const { email, password } = req.body
+        const normalizedEmail = normalizeEmail(email)
 
-        const user = await userModel.findOne({ email })
+        const user = await userModel
+            .findOne({ email: normalizedEmail })
+            .collation({ locale: "en", strength: 2 })
 
         if (!user) {
             return res.status(400).json({
