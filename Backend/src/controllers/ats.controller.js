@@ -20,6 +20,10 @@ exports.checkAts = async (req, res) => {
         const resumeText = await extractTextFromPdf(resumeFile.buffer);
 
         const analysis = await analyzeResumeWithATS(resumeText, jobTitle, jobDescription);
+        if (analysis?.error) {
+            return res.status(502).json({ message: analysis.error });
+        }
+
         const isGuest = !req.user?.id;
 
         const report = new AtsReport({
@@ -32,6 +36,14 @@ exports.checkAts = async (req, res) => {
         });
 
         await report.save();
+
+        if (typeof req.commitUsage === 'function') {
+            try {
+                await req.commitUsage();
+            } catch (usageError) {
+                console.error('ATS usage commit error:', usageError);
+            }
+        }
 
         res.status(200).json({
             ...analysis,

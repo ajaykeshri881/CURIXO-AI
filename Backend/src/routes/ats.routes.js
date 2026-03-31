@@ -9,7 +9,7 @@ const { rateLimitPerDay } = require('../middlewares/rateLimiter.middleware');
 router.post(
 	'/check',
 	optionalAuth,
-	rateLimitPerDay({ feature: 'ats_check', userLimit: 3, guestLimit: 1, requireLogin: false }),
+	rateLimitPerDay({ feature: 'ats_check', userLimit: 3, guestLimit: 1, requireLogin: false, consumeOnSuccess: true }),
 	upload.single('resume'),
 	atsController.checkAts
 );

@@ -15,8 +15,8 @@ export default function InterviewReportDisplay({ report }) {
         <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 sm:p-8 text-blue-950 font-medium leading-relaxed shadow-inner space-y-4">
           {textContent.split(/\n+/).filter(line => line.trim()).map((line, i) => (
             <div key={i} className="space-y-2">
-               {line.split(/(?=\b\d+\.\s|\-\s|\*\s)/).filter(seg => seg.trim()).map((segment, j) => {
-                  const match = segment.match(/^(\d+\.\s|\-\s|\*\s)(.*)/s);
+              {line.split(/(?=\b\d+\.\s|-\s|\*\s)/).filter(seg => seg.trim()).map((segment, j) => {
+                const match = segment.match(/^(\d+\.\s|-\s|\*\s)(.*)/s);
                   if (match) {
                      return <div key={j} className="flex gap-3">
                        <span className="font-black text-blue-800 shrink-0">{match[1].trim()}</span>

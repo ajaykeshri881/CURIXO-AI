@@ -104,7 +104,7 @@ async function bumpUsage({ feature, dateKey, userId = null, guestKey = null, ano
  * `userLimit` is the fallback — if the user has a custom limit
  * stored in `req.user.limits[feature]`, that value takes priority.
  */
-function rateLimitPerDay({ feature, userLimit = 3, guestLimit = 0, requireLogin = true }) {
+function rateLimitPerDay({ feature, userLimit = 3, guestLimit = 0, requireLogin = true, consumeOnSuccess = false }) {
     return async function usageRateLimit(req, res, next) {
         try {
             const dateKey = getDateKey()
@@ -124,6 +124,19 @@ function rateLimitPerDay({ feature, userLimit = 3, guestLimit = 0, requireLogin 
                         used: existing.count,
                         usageDisplay: `${existing.count}/${effectiveLimit}`
                     })
+                }
+
+                if (consumeOnSuccess) {
+                    let hasCommittedUsage = false
+                    req.commitUsage = async () => {
+                        if (hasCommittedUsage) {
+                            return
+                        }
+
+                        await bumpUsage({ feature, dateKey, userId, maxLimit: effectiveLimit })
+                        hasCommittedUsage = true
+                    }
+                    return next()
                 }
 
                 await bumpUsage({ feature, dateKey, userId, maxLimit: effectiveLimit })
@@ -153,6 +166,37 @@ function rateLimitPerDay({ feature, userLimit = 3, guestLimit = 0, requireLogin 
                     message: `Free ${feature} usage exhausted for today. Please login to continue (up to ${userLimit}/day).`,
                     usageDisplay: `${usedCount}/${guestLimit}`
                 })
+            }
+
+            if (consumeOnSuccess) {
+                let hasCommittedUsage = false
+                req.commitUsage = async () => {
+                    if (hasCommittedUsage) {
+                        return
+                    }
+
+                    const latestRecords = await UsageModel.find({
+                        feature,
+                        dateKey,
+                        user: null,
+                        $or: [{ guestKey }, { anonFingerprint }]
+                    })
+
+                    if (latestRecords.length) {
+                        await Promise.all(latestRecords.map((record) => {
+                            record.count += 1
+                            record.limit = guestLimit
+                            record.usageDisplay = `${record.count}/${guestLimit}`
+                            return record.save()
+                        }))
+                    } else {
+                        await bumpUsage({ feature, dateKey, guestKey, anonFingerprint, maxLimit: guestLimit })
+                    }
+
+                    hasCommittedUsage = true
+                }
+
+                return next()
             }
 
             if (existingRecords.length) {

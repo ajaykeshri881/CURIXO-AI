@@ -17,7 +17,7 @@ export default function InterviewReportView() {
       try {
         const { interviewReport } = await interviewService.getInterviewReportById(id);
         setReport(interviewReport);
-      } catch (error) {
+      } catch (_error) {
         toast.error('Failed to load interview report');
       } finally {
         setLoading(false);

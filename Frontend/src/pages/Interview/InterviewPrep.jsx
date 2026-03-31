@@ -19,6 +19,7 @@ export default function InterviewPrep() {
   const [showLimitPrompt, setShowLimitPrompt] = useState(false);
   const [countdown, setCountdown] = useState('');
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [retryContext, setRetryContext] = useState(null);
   const fileInputRef = useRef(null);
 
   const [loadingMessage, setLoadingMessage] = useState('');
@@ -31,6 +32,8 @@ export default function InterviewPrep() {
     "Generating behavioral scenarios...",
     "Finalizing interview strategy report..."
   ];
+
+  const isServerIssue = (status) => Number.isInteger(status) && status >= 500;
 
   // Countdown timer — ticks every second while the limit modal is open
   useEffect(() => {
@@ -114,7 +117,7 @@ export default function InterviewPrep() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!file || !jobDesc || !selfDesc) {
       toast.error('Please provide resume, job description, and self description.');
       return;
@@ -125,20 +128,33 @@ export default function InterviewPrep() {
     formData.append('jobDescription', jobDesc);
     formData.append('selfDescription', selfDesc);
 
+    setRetryContext(null);
     setLoading(true);
     try {
       const data = await interviewService.generateInterviewReport(formData);
       setReport(data.interviewReport); // Match backend: { message, interviewReport }
       toast.success('Interview Preparation generated successfully!');
     } catch (error) {
-      if (error.response?.status === 429) {
+      const status = error.response?.status;
+      if (status === 429) {
         setShowLimitPrompt(true);
       } else {
+        if (isServerIssue(status)) {
+          setRetryContext({
+            action: 'generate',
+            message: 'Server issue while generating your interview prep. Please retry.'
+          });
+        }
         toast.error(error.response?.data?.message || 'Failed to generate interview questions');
       }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetryServerAction = async () => {
+    if (!retryContext?.action || loading) return;
+    await handleSubmit();
   };
 
   return (
@@ -337,6 +353,19 @@ export default function InterviewPrep() {
                      <span className="px-3 py-1.5 rounded-full bg-blue-50 text-blue-600 text-xs font-bold uppercase tracking-wider ml-auto border border-blue-100 shadow-sm">AI Generated</span>
                    )}
                  </h2>
+
+                {retryContext && !loading && (
+                  <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
+                    <p className="text-sm font-semibold text-rose-700">{retryContext.message}</p>
+                    <button
+                      type="button"
+                      onClick={handleRetryServerAction}
+                      className="mt-3 inline-flex items-center justify-center rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-rose-700"
+                    >
+                      Retry Interview Prep
+                    </button>
+                  </div>
+                )}
 
                 {!report && !loading && (
                    <div className="flex-1 border-2 border-dashed border-slate-200/80 rounded-3xl flex flex-col items-center justify-center p-8 text-center bg-slate-50/50 relative overflow-hidden group hover:border-blue-200 transition-colors">

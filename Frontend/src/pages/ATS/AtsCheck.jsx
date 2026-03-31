@@ -27,6 +27,7 @@ export default function AtsCheck() {
   const [viewMoreContent, setViewMoreContent] = useState(null);
   const [showLimitPrompt, setShowLimitPrompt] = useState(false);
   const [countdown, setCountdown] = useState('');
+  const [retryContext, setRetryContext] = useState(null);
   const fileInputRef = useRef(null);
   const pdfDownloadLockRef = useRef(false);
 
@@ -136,13 +137,9 @@ export default function AtsCheck() {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!file || !jobTitle || !jobDesc) {
-      toast.error('Please provide a resume, job title, and description.');
-      return;
-    }
+  const isServerIssue = (status) => Number.isInteger(status) && status >= 500;
 
+  const runAtsCheck = async () => {
     const formData = new FormData();
     formData.append('resume', file);
     formData.append('jobTitle', jobTitle);
@@ -151,6 +148,7 @@ export default function AtsCheck() {
     setLoading(true);
     setResult(null);
     setImprovedResume(null);
+    setRetryContext(null);
     try {
       const data = await atsService.checkAts(formData);
       setResult(data);
@@ -163,11 +161,40 @@ export default function AtsCheck() {
       } else if (status === 429) {
         setShowLimitPrompt(true);
       } else {
+        if (isServerIssue(status)) {
+          setRetryContext({
+            action: 'scan',
+            message: 'Server issue while analyzing your resume. Please retry.'
+          });
+        }
         toast.error(error.response?.data?.message || 'Error analyzing resume');
       }
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRetryServerAction = async () => {
+    if (!retryContext?.action || loading || improving) return;
+
+    if (retryContext.action === 'scan') {
+      await runAtsCheck();
+      return;
+    }
+
+    if (retryContext.action === 'improve') {
+      await handleImproveResume();
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!file || !jobTitle || !jobDesc) {
+      toast.error('Please provide a resume, job title, and description.');
+      return;
+    }
+
+    await runAtsCheck();
   };
 
   const handleImproveResume = async () => {
@@ -180,9 +207,10 @@ export default function AtsCheck() {
       return;
     }
     setImproving(true);
+    setRetryContext(null);
     try {
       // Clean up atsFeedback payload so it only contains the feedback
-      const { resumeText, isGuest, ...atsFeedback } = result;
+      const { resumeText: _resumeText, isGuest: _isGuest, ...atsFeedback } = result;
       const data = await atsService.improveResume({
         resumeText: result.resumeText,
         jobTitle,
@@ -202,6 +230,12 @@ export default function AtsCheck() {
       } else if (status === 429) {
         setShowLimitPrompt(true);
       } else {
+        if (isServerIssue(status)) {
+          setRetryContext({
+            action: 'improve',
+            message: 'Server issue while improving your resume. Please retry.'
+          });
+        }
         toast.error(error.response?.data?.message || 'Failed to improve resume');
       }
     } finally {
@@ -405,6 +439,20 @@ export default function AtsCheck() {
                 Results
                 <span className="px-3 py-1.5 rounded-full bg-violet-50 text-violet-600 text-xs font-bold uppercase tracking-wider ml-auto border border-violet-100 shadow-sm">Live Preview</span>
               </h2>
+
+              {retryContext && !loading && !improving && (
+                <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
+                  <p className="text-sm font-semibold text-rose-700">{retryContext.message}</p>
+                  <button
+                    type="button"
+                    onClick={handleRetryServerAction}
+                    className="mt-3 inline-flex items-center justify-center rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-rose-700"
+                  >
+                    {retryContext.action === 'scan' ? 'Retry Scan' : 'Retry Improve'}
+                  </button>
+                </div>
+              )}
+
               {!result && !loading && !improvedResume && (
                 <div className="flex-1 border-2 border-dashed border-slate-200/80 rounded-3xl flex flex-col items-center justify-center p-8 text-center bg-slate-50/50 relative overflow-hidden group hover:border-violet-200 transition-colors">
                   <div className="flex flex-col items-center justify-center">
@@ -497,7 +545,7 @@ export default function AtsCheck() {
                             const text = await e.response.data.text();
                             const errJson = JSON.parse(text);
                             toast.error(errJson.message || 'Failed to generate PDF', { id: toastId });
-                          } catch (parseErr) {
+                          } catch (_parseErr) {
                             toast.error('Failed to generate PDF', { id: toastId });
                           }
                         } else {
@@ -802,8 +850,8 @@ export default function AtsCheck() {
                   }`}>
                   {viewMoreContent.content?.split(/\n+/).filter(line => line.trim()).map((line, i) => (
                     <div key={i} className="space-y-2">
-                      {line.split(/(?=\b\d+\.\s|\-\s|\*\s)/).filter(seg => seg.trim()).map((segment, j) => {
-                        const match = segment.match(/^(\d+\.\s|\-\s|\*\s)(.*)/s);
+                      {line.split(/(?=\b\d+\.\s|-\s|\*\s)/).filter(seg => seg.trim()).map((segment, j) => {
+                        const match = segment.match(/^(\d+\.\s|-\s|\*\s)(.*)/s);
                         if (match) {
                           return <div key={j} className="flex gap-2">
                             <span className="font-bold opacity-80 shrink-0">{match[1].trim()}</span>

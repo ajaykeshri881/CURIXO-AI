@@ -65,30 +65,6 @@ export default function Dashboard() {
     loadModalHistory(nextLimit);
   };
 
-  const features = [
-    {
-      title: 'ATS Scanner',
-      desc: 'Check your resume against ATS algorithms',
-      icon: <Target className="w-8 h-8 text-violet-600" />,
-      link: '/ats-check',
-      bg: 'bg-violet-50'
-    },
-    {
-      title: 'Interview Preparation',
-      desc: 'Generate tailored interview questions based on your resume',
-      icon: <BrainCircuit className="w-8 h-8 text-blue-600" />,
-      link: '/interview-prep',
-      bg: 'bg-blue-50'
-    },
-    {
-      title: 'Resume Builder',
-      desc: 'Create an ATS-friendly resume from scratch',
-      icon: <FileText className="w-8 h-8 text-emerald-600" />,
-      link: '/resume-builder',
-      bg: 'bg-emerald-50'
-    }
-  ];
-
   const bgStyle = {
     backgroundImage: `
       linear-gradient(to right, rgba(0,0,0,0.02) 1px, transparent 1px),

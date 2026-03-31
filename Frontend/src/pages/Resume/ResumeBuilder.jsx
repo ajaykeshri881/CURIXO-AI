@@ -33,6 +33,7 @@ export default function ResumeBuilder() {
   const [previewScale, setPreviewScale] = useState(1);
   const [showLimitPrompt, setShowLimitPrompt] = useState(false);
   const [countdown, setCountdown] = useState('');
+  const [retryContext, setRetryContext] = useState(null);
   
   // Link Editor State
   const [linkEditorOpen, setLinkEditorOpen] = useState(false);
@@ -55,6 +56,8 @@ export default function ResumeBuilder() {
     "Securing high-quality graphics...",
     "Finalizing document download..."
   ];
+
+  const isServerIssue = (status) => Number.isInteger(status) && status >= 500;
 
   useEffect(() => {
     let interval;
@@ -283,6 +286,19 @@ export default function ResumeBuilder() {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
+  const handleRetryServerAction = async () => {
+    if (!retryContext?.action || loading || downloading) return;
+
+    if (retryContext.action === 'generate') {
+      await handleSubmit();
+      return;
+    }
+
+    if (retryContext.action === 'download') {
+      await handleDownloadPdf();
+    }
+  };
+
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     if (loading) return;
@@ -292,6 +308,7 @@ export default function ResumeBuilder() {
       return;
     }
     if (!validateStep()) return;
+    setRetryContext(null);
     setLoading(true);
     try {
       const mappedData = {
@@ -314,9 +331,16 @@ export default function ResumeBuilder() {
 
       toast.success('Preview generated successfully! You can now edit or download it.');
     } catch (error) {
-      if (error.response?.status === 429) {
+      const status = error.response?.status;
+      if (status === 429) {
         setShowLimitPrompt(true);
       } else {
+        if (isServerIssue(status)) {
+          setRetryContext({
+            action: 'generate',
+            message: 'Server issue while generating your resume. Please retry.'
+          });
+        }
         toast.error(error.response?.data?.message || 'Failed to generate resume preview');
       }
     } finally {
@@ -327,6 +351,7 @@ export default function ResumeBuilder() {
   const handleDownloadPdf = async () => {
     if (downloading || downloadLockRef.current) return;
     downloadLockRef.current = true;
+    setRetryContext(null);
     setDownloading(true);
     try {
       const contentEl = document.getElementById('resume-preview-content');
@@ -363,6 +388,14 @@ export default function ResumeBuilder() {
 
       toast.success('Resume PDF downloaded successfully!');
     } catch (error) {
+      const status = error.response?.status;
+      if (isServerIssue(status)) {
+        setRetryContext({
+          action: 'download',
+          message: 'Server issue while generating your PDF. Please retry.'
+        });
+      }
+
       if (error.response?.data instanceof Blob) {
         try {
           const text = await error.response.data.text();
@@ -830,6 +863,19 @@ export default function ResumeBuilder() {
                   <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-bold uppercase tracking-wider ml-auto border border-emerald-100 shadow-sm">Information</span>
                 </h2>
 
+                {retryContext && !loading && !downloading && (
+                  <div className="mb-5 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
+                    <p className="text-sm font-semibold text-rose-700">{retryContext.message}</p>
+                    <button
+                      type="button"
+                      onClick={handleRetryServerAction}
+                      className="mt-3 inline-flex items-center justify-center rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-rose-700"
+                    >
+                      {retryContext.action === 'download' ? 'Retry PDF Download' : 'Retry Generate'}
+                    </button>
+                  </div>
+                )}
+
                 <div className="flex flex-col justify-start space-y-5 animate-in fade-in duration-500 mt-2">
 
                   <div className="flex gap-4">
@@ -911,6 +957,19 @@ export default function ResumeBuilder() {
                     </button>
                   </div>
                 </div>
+
+                {retryContext && !loading && !downloading && (
+                  <div className="mb-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3">
+                    <p className="text-sm font-semibold text-rose-700">{retryContext.message}</p>
+                    <button
+                      type="button"
+                      onClick={handleRetryServerAction}
+                      className="mt-3 inline-flex items-center justify-center rounded-xl bg-rose-600 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-rose-700"
+                    >
+                      {retryContext.action === 'download' ? 'Retry PDF Download' : 'Retry Generate'}
+                    </button>
+                  </div>
+                )}
 
                 <div className="flex-1 rounded-2xl border border-slate-200 overflow-hidden relative mb-4 flex flex-col transform-gpu bg-slate-100 shadow-inner">
                   {/* Rich Text Editor Toolbar */}

@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await api.get('/auth/csrf-token');
       api.defaults.headers.common['x-csrf-token'] = data.csrfToken;
-    } catch (error) {
+    } catch (_error) {
       console.error("Failed to initialize CSRF token");
     }
   };
@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await api.get('/auth/get-me');
       setUser(data.user);
-    } catch (error) {
+    } catch (_error) {
       setUser(null);
     } finally {
       setLoading(false);
