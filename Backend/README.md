@@ -626,6 +626,3 @@ dns.setServers(["8.8.8.8", "8.8.4.4"]);
 * Do NOT enable in production (cloud providers manage DNS internally)
 
 
-## 📜 License
-
-This project is licensed under the **ISC License**.
