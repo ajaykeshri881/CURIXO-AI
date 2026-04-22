@@ -628,7 +628,7 @@ export default function ResumeBuilder() {
                           </label>
                           <input
                             type="tel"
-                            placeholder="+1 (555) 000-0000"
+                            placeholder="+91 98765 43210"
                             className="w-full bg-slate-50 border border-slate-200 text-slate-900 text-sm font-semibold rounded-2xl px-4 py-3.5 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all placeholder:text-slate-400 shadow-sm"
                             value={formData.personalDetails.phone}
                             onChange={(e) => setFormData({ ...formData, personalDetails: { ...formData.personalDetails, phone: e.target.value } })}
@@ -692,7 +692,7 @@ export default function ResumeBuilder() {
                         </label>
                         <textarea
                           className="w-full h-24 bg-slate-50 border border-slate-200 text-slate-900 text-sm font-medium rounded-2xl p-4 focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all resize-none placeholder:text-slate-400 shadow-sm leading-relaxed"
-                          placeholder="E.g. B.S. in Computer Science, Stanford University (2018-2022). GPA: 3.8."
+                          placeholder="B.Tech in Computer Science, Rajiv Gandhi Proudyogiki Vishwavidyalaya (2018–2022). CGPA: 8.3/10"
                           value={formData.education}
                           onChange={(e) => setFormData({ ...formData, education: e.target.value })}
                         />
